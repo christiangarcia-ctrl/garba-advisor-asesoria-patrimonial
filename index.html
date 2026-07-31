@@ -1531,6 +1531,24 @@ td{padding:8px;border-bottom:1px solid #edf2f7;color:#334155;font-weight:600;}
 <button class="ga-choice" data-confirm="yes" type="button">Sí, esto me representa</button>
 <button class="ga-choice" data-confirm="no" type="button">Quiero ajustar algo</button>
 </div>
+<div class="ga-diagnosis-check">
+<div class="ga-validation-question">
+<span>1</span>
+<div>
+<strong>¿Hay algo más que debamos agregar antes de construir la proyección?</strong>
+<div class="ga-validation-options">
+<button data-diagnosis-check="ready" data-value="No" type="button">No, continuemos</button>
+<button data-diagnosis-check="ready" data-value="Sí" type="button">Sí, quiero agregar algo</button>
+</div>
+<textarea class="ga-diagnosis-adjustment" id="gaDiagnosisAdjustment" placeholder="Escribe aquí el ajuste o dato adicional." style="display:none"></textarea>
+</div>
+</div>
+<div class="ga-route-recommendation" id="gaDiagnosisRecommendation">
+<div class="ga-kicker">Siguiente paso</div>
+<h3>Revisemos este resumen.</h3>
+<p>Cuando confirmemos que refleja correctamente tu situación, pasaremos a la proyección.</p>
+</div>
+</div>
 </section>
 <section class="ga-scene" data-scene="8">
 <div class="ga-kicker">Recursos de apoyo</div>
@@ -1567,50 +1585,6 @@ td{padding:8px;border-bottom:1px solid #edf2f7;color:#334155;font-weight:600;}
 </div>
 <div class="ga-slide-dots" id="gaSlideDots"></div>
 </div>
-</section>
-<section class="ga-scene" data-scene="9">
-<div class="ga-kicker">Antes de tu proyección</div>
-<h2 id="gaDiagnosisSceneTitle">Ya validamos lo esencial — esto es lo que se suma antes de ver tu proyección.</h2>
-<p>Esto es lo que se suma a lo que ya validamos. Revísalo y dime si hay algo que debamos ajustar antes de construir la proyección.</p>
-<div class="ga-diagnosis-summary" id="gaDiagnosisSummary">
-<div>
-<span>Aportación sostenible</span>
-<strong id="gaDiagnosisContribution">—</strong>
-</div>
-<div>
-<span>Ruta fiscal seleccionada</span>
-<strong id="gaDiagnosisTax">—</strong>
-</div>
-</div>
-<div class="ga-diagnosis-check">
-<div class="ga-validation-question">
-<span>1</span>
-<div>
-<strong>¿Este resumen representa correctamente tu situación y lo que quieres lograr?</strong>
-<div class="ga-validation-options">
-<button data-diagnosis-check="fit" data-value="Sí" type="button">Sí, está correcto</button>
-<button data-diagnosis-check="fit" data-value="Ajustar" type="button">Quiero corregir algo</button>
-</div>
-</div>
-</div>
-<div class="ga-validation-question">
-<span>2</span>
-<div>
-<strong>¿Hay algo más que debamos agregar antes de construir la proyección?</strong>
-<div class="ga-validation-options">
-<button data-diagnosis-check="ready" data-value="No" type="button">No, continuemos</button>
-<button data-diagnosis-check="ready" data-value="Sí" type="button">Sí, quiero agregar algo</button>
-</div>
-<textarea class="ga-diagnosis-adjustment" id="gaDiagnosisAdjustment" placeholder="Escribe aquí el ajuste o dato adicional." style="display:none"></textarea>
-</div>
-</div>
-</div>
-<div class="ga-route-recommendation" id="gaDiagnosisRecommendation">
-<div class="ga-kicker">Siguiente paso</div>
-<h3>Revisemos este resumen.</h3>
-<p>Cuando confirmemos que refleja correctamente tu situación, pasaremos a la proyección.</p>
-</div>
-
 </section>
 <div class="ga-error" id="gaError">Completa o valida la información necesaria.</div><div class="ga-actions"><button class="ga-btn ga-back" id="gaBack">← Atrás</button><span class="ga-mini">Los datos permanecen únicamente en esta pestaña.</span><button class="ga-btn ga-next" id="gaNext">Continuar →</button></div>
 </main>
@@ -3063,16 +3037,16 @@ window.addEventListener('load',()=>{
       if(key==='4')return $('gaConcern').value.trim();
       if(key==='5')return +$('gaRetireAge').value>+$('gaAge').value&&+$('gaGoal').value>0&&$('gaTax').value;
       if(key==='6')return +$('gaPmt').value>=2000;
-      if(key==='7')return confirmed;
+      if(key==='7')return confirmed&&diagnosisChecks.ready!=null;
       if(key==='8')return true;
-      if(key==='9')return Object.keys(diagnosisChecks).length===2;
       return true
     }
  function summary(){
   const n=firstName()||'Cliente',age=+$('gaAge').value,target=+$('gaRetireAge').value,years=target-age;
   const goal=$('gaWhy').value.trim(),meaning=$('gaMeaning').value.trim(),concern=$('gaConcern').value.trim(),barrier=$('gaBarrier').value.trim();
   const suggested=getGaSuggested(),real=+$('gaPmt').value;
-  $('gaSummary').innerHTML=`<div class="ga-insight-label">Síntesis personalizada</div><h3>${esc(n)}, esto es lo que entendí de nuestra conversación.</h3><div class="ga-summary-list"><div><span>Lo que quieres lograr</span><strong>${esc(goal)}</strong></div><div><span>Por qué es importante ahora</span><strong>${esc(meaning)}</strong></div><div><span>Lo que la estrategia debe respetar</span><strong>${esc(concern)}</strong></div>${barrier?`<div><span>Lo que te ha frenado hasta hoy</span><strong>${esc(barrier)}</strong></div>`:''}</div><div class="ga-insight-grid"><div class="ga-insight-item"><span>Prioridad principal</span><strong>${esc(priorities[0])}</strong></div><div class="ga-insight-item"><span>Horizonte</span><strong>${years} años · hasta los ${target}</strong></div><div class="ga-insight-item"><span>Aportación estimada para la meta</span><strong>${suggested?money(suggested):'Por calcular'}</strong></div><div class="ga-insight-item"><span>Punto de partida sostenible</span><strong>${money(real)} al mes</strong></div></div>`
+  const taxVal=$('gaTax')?.value,tax=taxVal==='93'?'Artículo 93':taxVal==='151'?'Artículo 151':'Por definir';
+  $('gaSummary').innerHTML=`<div class="ga-insight-label">Síntesis personalizada</div><h3>${esc(n)}, esto es lo que entendí de nuestra conversación.</h3><div class="ga-summary-list"><div><span>Lo que quieres lograr</span><strong>${esc(goal)}</strong></div><div><span>Por qué es importante ahora</span><strong>${esc(meaning)}</strong></div><div><span>Lo que la estrategia debe respetar</span><strong>${esc(concern)}</strong></div>${barrier?`<div><span>Lo que te ha frenado hasta hoy</span><strong>${esc(barrier)}</strong></div>`:''}</div><div class="ga-insight-grid"><div class="ga-insight-item"><span>Prioridad principal</span><strong>${esc(priorities[0])}</strong></div><div class="ga-insight-item"><span>Horizonte</span><strong>${years} años · hasta los ${target}</strong></div><div class="ga-insight-item"><span>Aportación estimada para la meta</span><strong>${suggested?money(suggested):'Por calcular'}</strong></div><div class="ga-insight-item"><span>Punto de partida sostenible</span><strong>${money(real)} al mes</strong></div><div class="ga-insight-item"><span>Ruta fiscal seleccionada</span><strong>${esc(tax)}</strong></div></div>`
 }
  function buildSlides(){
    let ids=[1];
@@ -3138,7 +3112,7 @@ window.addEventListener('load',()=>{
      if(f.freno){const b=$('gaBarrierTitle');if(b)b.textContent='Y entiendo por qué no lo habías resuelto hasta ahora.';}
    }
  }
- function showImmediate(i){idx=Math.max(0,Math.min(scenes.length-1,i));$('gaError').classList.remove('show');scenes.forEach((s,n)=>s.classList.toggle('active',n===idx));$('gaBack').style.visibility=idx?'visible':'hidden';$('gaCounter').textContent=`${idx+1} de ${scenes.length}`;$('gaTopProgress').style.width=`${((idx+1)/scenes.length)*100}%`;document.querySelectorAll('#gaDots .ga-dot').forEach((d,n)=>{d.classList.toggle('active',n===idx);d.classList.toggle('done',n<idx)});$('gaNext').textContent=scenes[idx]?.dataset?.scene==='9'?(route==='now'?'Abrir proyección →':'Continuar →'):'Continuar →';$('gaError').classList.remove('show');applyQualitativeSceneCopy(scenes[idx]?.dataset?.scene);if(scenes[idx]?.dataset?.scene==='7')summary();if(scenes[idx]?.dataset?.scene==='8')buildSlides();if(scenes[idx]?.dataset?.scene==='9')populateDiagnosisSummary();window.scrollTo({top:0,behavior:'smooth'});schedulePersist()}
+ function showImmediate(i){idx=Math.max(0,Math.min(scenes.length-1,i));$('gaError').classList.remove('show');scenes.forEach((s,n)=>s.classList.toggle('active',n===idx));$('gaBack').style.visibility=idx?'visible':'hidden';$('gaCounter').textContent=`${idx+1} de ${scenes.length}`;$('gaTopProgress').style.width=`${((idx+1)/scenes.length)*100}%`;document.querySelectorAll('#gaDots .ga-dot').forEach((d,n)=>{d.classList.toggle('active',n===idx);d.classList.toggle('done',n<idx)});$('gaNext').textContent=idx===scenes.length-1?(route==='now'?'Abrir proyección →':'Continuar →'):'Continuar →';$('gaError').classList.remove('show');applyQualitativeSceneCopy(scenes[idx]?.dataset?.scene);if(scenes[idx]?.dataset?.scene==='7')summary();if(scenes[idx]?.dataset?.scene==='8')buildSlides();window.scrollTo({top:0,behavior:'smooth'});schedulePersist()}
  document.querySelectorAll('[data-confirm]').forEach(b=>b.onclick=()=>{document.querySelectorAll('[data-confirm]').forEach(x=>x.classList.remove('selected'));b.classList.add('selected');confirmed=b.dataset.confirm==='yes';if(!confirmed)show(3)});
  document.querySelectorAll('[data-valuecheck]').forEach(b=>b.onclick=()=>{document.querySelectorAll('[data-valuecheck]').forEach(x=>x.classList.remove('selected'));b.classList.add('selected');valueCheck=b.dataset.valuecheck});
 
@@ -3155,20 +3129,14 @@ window.addEventListener('load',()=>{
    updateDiagnosisRecommendation();
  });
  
- function populateDiagnosisSummary(){
-   const contribution=+$('gaPmt')?.value||0;
-   const tax=$('gaTax')?.value==='93'?'Artículo 93':$('gaTax')?.value==='151'?'Artículo 151':'No seleccionado';
-   if($('gaDiagnosisContribution'))$('gaDiagnosisContribution').textContent=contribution?money(contribution)+' al mes':'No definida';
-   if($('gaDiagnosisTax'))$('gaDiagnosisTax').textContent=tax;
- }
 function updateDiagnosisRecommendation(){
-   const ready=Object.keys(diagnosisChecks).length===2;
+   const ready=diagnosisChecks.ready!=null;
    if(!ready){
-     $('gaDiagnosisRecommendation').querySelector('h3').textContent='Validemos estas dos respuestas.';
+     $('gaDiagnosisRecommendation').querySelector('h3').textContent='Validemos esta respuesta.';
      $('gaDiagnosisRecommendation').querySelector('p').textContent='Después pasaremos a la proyección para traducir tu objetivo y tu aportación en un escenario concreto.';
      return;
    }
-   const needsAdjustment=diagnosisChecks.fit==='Ajustar'||diagnosisChecks.ready==='Sí';
+   const needsAdjustment=diagnosisChecks.ready==='Sí';
    $('gaDiagnosisRecommendation').querySelector('h3').textContent=needsAdjustment?'Hagamos el ajuste antes de proyectar.':'La lectura está lista para llevarla a números.';
    $('gaDiagnosisRecommendation').querySelector('p').textContent=needsAdjustment?'Corrige o agrega lo necesario y después continuaremos con la proyección.':'Ahora traduciremos tu objetivo y tu aportación en un escenario financiero concreto.';
  }
@@ -3857,7 +3825,6 @@ function updateDiagnosisRecommendation(){
       if(typeof postCalcChecks!=='undefined') Object.assign(postCalcChecks,s.postCalcChecks||{});
       if(typeof route!=='undefined'&&s.route) route=s.route;
       try{updateGaGoalInsight?.()}catch(e){}
-      try{populateDiagnosisSummary?.()}catch(e){}
     }catch(e){}
   }
   document.addEventListener('input',save,true);
