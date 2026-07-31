@@ -1570,20 +1570,8 @@ td{padding:8px;border-bottom:1px solid #edf2f7;color:#334155;font-weight:600;}
 <section class="ga-scene" data-scene="9">
 <div class="ga-kicker">Antes de tu proyección</div>
 <h2 id="gaDiagnosisSceneTitle">Ya validamos lo esencial — esto es lo que se suma antes de ver tu proyección.</h2>
-<p>Este es el resumen concreto de lo que compartiste. Revísalo y dime si hay algo que debamos corregir antes de construir la proyección.</p>
+<p>Esto es lo que se suma a lo que ya validamos. Revísalo y dime si hay algo que debamos ajustar antes de construir la proyección.</p>
 <div class="ga-diagnosis-summary" id="gaDiagnosisSummary">
-<div>
-<span>Tu objetivo</span>
-<strong id="gaDiagnosisGoal">—</strong>
-</div>
-<div>
-<span>Tu prioridad principal</span>
-<strong id="gaDiagnosisPriority">—</strong>
-</div>
-<div>
-<span>Lo que debemos respetar</span>
-<strong id="gaDiagnosisConcern">—</strong>
-</div>
 <div>
 <span>Aportación sostenible</span>
 <strong id="gaDiagnosisContribution">—</strong>
@@ -3136,14 +3124,8 @@ window.addEventListener('load',()=>{
  });
  
  function populateDiagnosisSummary(){
-   const goal=$('gaWhy')?.value?.trim()||$('gaOpeningNeed')?.value?.trim()||'No especificado';
-   const priority=priorities?.[0]||'No especificada';
-   const concern=$('gaConcern')?.value?.trim()||'No especificado';
    const contribution=+$('gaPmt')?.value||0;
    const tax=$('gaTax')?.value==='93'?'Artículo 93':$('gaTax')?.value==='151'?'Artículo 151':'No seleccionado';
-   if($('gaDiagnosisGoal'))$('gaDiagnosisGoal').textContent=goal;
-   if($('gaDiagnosisPriority'))$('gaDiagnosisPriority').textContent=priority;
-   if($('gaDiagnosisConcern'))$('gaDiagnosisConcern').textContent=concern;
    if($('gaDiagnosisContribution'))$('gaDiagnosisContribution').textContent=contribution?money(contribution)+' al mes':'No definida';
    if($('gaDiagnosisTax'))$('gaDiagnosisTax').textContent=tax;
  }
@@ -3186,8 +3168,8 @@ function updateDiagnosisRecommendation(){
      : `${name?name+', ':''}esta estrategia debe responder a lo que realmente importa para ti.`;
    if($('gaCloseRecommendationTitle')&&$('gaCloseRecommendationBody')){
      if(contribution){
-       $('gaCloseRecommendationTitle').textContent=`Mi recomendación: con ${money(contribution)} al mes, avanza ya hacia ${goal.length>90?goal.slice(0,90).trim()+'…':goal}`;
-       $('gaCloseRecommendationBody').textContent=`Lo digo pensando en lo que me compartiste — ${condition.charAt(0).toLowerCase()+condition.slice(1)} La decisión final siempre es tuya; mi función es que no se quede abierta ni se pierda el avance que ya construimos.`;
+       $('gaCloseRecommendationTitle').textContent=`Mi recomendación: con ${money(contribution)} al mes, avanza ya hacia tu meta.`;
+       $('gaCloseRecommendationBody').textContent='La decisión final siempre es tuya; mi función es que no se quede abierta ni se pierda el avance que ya construimos.';
      }else{
        $('gaCloseRecommendationTitle').textContent='Con la información que revisamos, mi recomendación es convertir esta claridad en un siguiente paso concreto.';
        $('gaCloseRecommendationBody').textContent='La decisión final siempre es tuya. Mi función es ayudarte a que no quede abierta ni se pierda el avance que ya construimos.';
