@@ -1622,6 +1622,7 @@ td{padding:8px;border-bottom:1px solid #edf2f7;color:#334155;font-weight:600;}
 <div id="gaDecisionView">
 <div class="ga-decision-wrap">
 <div class="ga-decision-card">
+<button class="ga-pre-back" id="gaDecisionBack" type="button">← Regresar a la proyección</button>
 <div class="ga-kicker" style="color:#7cf2c4">Mi recomendación como asesor</div>
 <h2 id="gaDecisionTitle">Dejemos preparada tu apertura.</h2>
 <p id="gaDecisionCopy">Ya contamos con buena parte de la información. Podemos completar los datos básicos para que, si decides avanzar, no tengamos que empezar de cero. Esto no activa una póliza ni representa un compromiso.</p>
@@ -1670,6 +1671,7 @@ td{padding:8px;border-bottom:1px solid #edf2f7;color:#334155;font-weight:600;}
 <div class="strat-wrap">
 <div class="strat-card">
 <div class="strat-head">
+<button class="ga-pre-back" id="gaStratBack" type="button">← Regresar a la apertura</button>
 <div class="ga-kicker" style="color:#7cf2c4">Tu estrategia de inversión</div>
 <h1 id="stratTitle">Cómo se invertirá tu dinero, y por qué.</h1>
 <p id="stratSub">Con base en tu edad, tu plazo y tu aportación, esto es lo que respalda esta decisión.</p>
@@ -1910,6 +1912,7 @@ td{padding:8px;border-bottom:1px solid #edf2f7;color:#334155;font-weight:600;}
 <div class="scenario-badge" id="scenarioBadge">calculando…</div>
 </div>
 <div class="action-row">
+<button class="btn-light" id="gaExitToShell">← Regresar a la asesoría</button>
 <button class="btn-light" id="editBtn">← Ajustar proyección</button>
 <button class="btn-secondary" id="gaGoToValidation" type="button">Continuar hacia la decisión ↓</button>
 <button class="btn-secondary" id="csvBtn">Descargar CSV</button>
@@ -3235,17 +3238,18 @@ function updateDiagnosisRecommendation(){
    preopenUsed=true;openPreopen(decision==='schedule'?'later':'now')
  };
 
- function data(){return {
-  version:'2.1 Release Candidate',
-  fecha:new Date().toISOString(),
-  prospecto:{
+ function buildProspecto(){return {
     nombre:$('gaName').value.trim(),edad:+$('gaAge').value,profesion:$('gaProfession').value,
     estadoCivil:$('gaCivil').value,decision:$('gaDecision').value,
     fechaNacimiento:$('gaBirth')?.value||'',telefono:$('gaPhone')?.value||'',correo:$('gaEmail')?.value||'',
     prioridades:[...priorities],necesidadInicial:$('gaOpeningNeed')?.value||'',objetivo:$('gaWhy').value,
     motivo:$('gaMeaning').value,condicion:$('gaConcern').value,barrera:$('gaBarrier').value,
     edadObjetivo:+$('gaRetireAge').value,meta:+$('gaGoal').value,aportacion:+$('gaPmt').value,fiscal:$('gaTax').value
-  },
+ }}
+ function data(){return {
+  version:'2.1 Release Candidate',
+  fecha:new Date().toISOString(),
+  prospecto:buildProspecto(),
   validacionDiagnostico:{...diagnosisChecks,ajuste:$('gaDiagnosisAdjustment')?.value||''},
   validacionProyeccion:{...postCalcChecks,comentario:$('gaProjectionTakeaway')?.value||''},
   experiencia:{...experienceAnswers,comentario:$('gaExperienceWords')?.value||''},
@@ -3566,7 +3570,7 @@ function updateDiagnosisRecommendation(){
  }
  function showPreTab(name){preTabIndex=Math.max(0,preTabs.indexOf(name));document.querySelectorAll('.ga-pre-tab').forEach(b=>b.classList.toggle('active',b.dataset.pretab===name));document.querySelectorAll('.ga-pre-section').forEach(x=>x.classList.toggle('active',x.dataset.presection===name));}
  function beneficiaryData(){return [...document.querySelectorAll('.ga-beneficiary')].map(x=>({nombre:x.querySelector('.preBenName').value,parentesco:x.querySelector('.preBenRelation').value,porcentaje:+x.querySelector('.preBenPct').value||0,fechaNacimiento:x.querySelector('.preBenBirth').value}))}
- function preopenData(){return {diagnosticoValidado:{...diagnosisChecks,ajuste:$('gaDiagnosisAdjustment')?.value||''},validacionProyeccion:{...postCalcChecks,comentario:$('gaProjectionTakeaway')?.value||''},prospecto:data().prospecto,contratante:{nombre:$('preName').value,fechaNacimiento:$('preBirth').value,estadoCivil:$('preCivil').value,rfc:$('preRFC').value,curp:$('preCURP').value,correo:$('preEmail').value,telefono:$('prePhone').value,domicilio:$('preAddress').value,ocupacion:$('preProfession').value,empresa:$('preCompany').value,giro:$('preBusiness').value,ingresos:+$('preIncome').value||0},medico:{peso:+$('preWeight').value||0,estatura:+$('preHeight').value||0,deporte:$('preSport').value,motocicleta:$('preMoto').value,fuma:$('preSmoke').value,medicamentos:$('preMeds').value,notas:$('preMedicalNotes').value},beneficiarios:beneficiaryData(),domiciliacion:{banco:$('preBank').value,tipo:$('prePayType').value,cuenta:$('preAccount').value,dia:+$('preChargeDay').value||0,periodicidad:$('preFrequency').value},ruta:route}}
+ function preopenData(){return {diagnosticoValidado:{...diagnosisChecks,ajuste:$('gaDiagnosisAdjustment')?.value||''},validacionProyeccion:{...postCalcChecks,comentario:$('gaProjectionTakeaway')?.value||''},prospecto:buildProspecto(),contratante:{nombre:$('preName').value,fechaNacimiento:$('preBirth').value,estadoCivil:$('preCivil').value,rfc:$('preRFC').value,curp:$('preCURP').value,correo:$('preEmail').value,telefono:$('prePhone').value,domicilio:$('preAddress').value,ocupacion:$('preProfession').value,empresa:$('preCompany').value,giro:$('preBusiness').value,ingresos:+$('preIncome').value||0},medico:{peso:+$('preWeight').value||0,estatura:+$('preHeight').value||0,deporte:$('preSport').value,motocicleta:$('preMoto').value,fuma:$('preSmoke').value,medicamentos:$('preMeds').value,notas:$('preMedicalNotes').value},beneficiarios:beneficiaryData(),domiciliacion:{banco:$('preBank').value,tipo:$('prePayType').value,cuenta:$('preAccount').value,dia:+$('preChargeDay').value||0,periodicidad:$('preFrequency').value},ruta:route}}
  function updatePreProgress(){const groups={contract:['preName','preBirth','preCivil','preRFC','preCURP','preEmail','prePhone','preAddress','preProfession','preCompany','preBusiness','preIncome'],medical:['preWeight','preHeight','preSport','preMoto','preSmoke','preMeds','preMedicalNotes'],payment:['preBank','prePayType','preAccount','preChargeDay','preFrequency']};let done=0,total=0;Object.entries(groups).forEach(([k,ids])=>{const c=ids.filter(id=>String($(id)?.value||'').trim()).length;total+=ids.length;done+=c;const e=$('gaCount'+k.charAt(0).toUpperCase()+k.slice(1));if(e)e.textContent=`${c}/${ids.length}`});const bens=beneficiaryData(),bc=bens.filter(b=>b.nombre&&b.parentesco&&b.porcentaje>0&&b.fechaNacimiento).length;total+=4;done+=Math.min(4,bc);$('gaCountBeneficiaries').textContent=`${Math.min(4,bc)}/4`;const pct=Math.round(done/total*100);$('gaPrePercent').textContent=pct+'%';$('gaPreBar').style.width=pct+'%';const sum=bens.reduce((a,b)=>a+b.porcentaje,0);$('gaBenTotal').textContent=`Asignación total: ${sum}% · ${sum<100?'falta '+(100-sum)+'%':sum===100?'completa':'excede por '+(sum-100)+'%'}`}
  function openPreopen(from){if($('gaOpeningAppointment'))$('gaOpeningAppointment').style.display=from==='later'?'block':'none';
    decisionOrigin=from||decisionOrigin||route;
@@ -3594,6 +3598,9 @@ function updateDiagnosisRecommendation(){
  $('gaPreDownload').onclick=()=>blob(JSON.stringify(preopenData(),null,2),'GarBa_Preapertura.json','application/json');
  $('gaPreBack').onclick=()=>{$('gaPreopenView').style.display='none';if(route==='now'){$('legacyApp').style.display='flex';$('resultsView').classList.add('active')}else{$('gaShell').style.display='flex';show(9)}};
  $('gaPreContinue').onclick=()=>openStrategyView();
+ $('gaExitToShell')?.addEventListener('click',()=>{$('legacyApp').style.display='none';$('gaShell').style.display='flex';show(scenes.length-1);window.scrollTo({top:0})});
+ $('gaDecisionBack')?.addEventListener('click',()=>{$('gaDecisionView').style.display='none';$('gaShell').style.display='flex';show(9);window.scrollTo({top:0})});
+ $('gaStratBack')?.addEventListener('click',()=>{$('gaStrategyView').style.display='none';$('gaPreopenView').style.display='block';window.scrollTo({top:0})});
  function later(){const d=data().prospecto;$('gaLaterContent').innerHTML=`<div class="ga-later-grid"><div class="ga-later-item"><span>Prospecto</span><strong>${esc(d.nombre)}</strong></div><div class="ga-later-item"><span>Prioridades</span><strong>${esc(d.prioridades.join(' · '))}</strong></div><div class="ga-later-item"><span>Edad objetivo</span><strong>${d.edadObjetivo}</strong></div><div class="ga-later-item"><span>Aportación</span><strong>${money(d.aportacion)}</strong></div></div><div class="ga-later-notes"><h3>Historia que debe resolver la propuesta</h3><p><b>Objetivo:</b> ${esc(d.objetivo)}</p><p><b>Por qué importa:</b> ${esc(d.motivo)}</p><p><b>Condición indispensable:</b> ${esc(d.condicion)}</p><p><b>Freno:</b> ${esc(d.barrera)}</p></div>`;$('gaShell').style.display='none';$('gaLaterView').style.display='block'}
  function blob(c,n,t){const u=URL.createObjectURL(new Blob([c],{type:t})),a=document.createElement('a');a.href=u;a.download=n;a.click();setTimeout(()=>URL.revokeObjectURL(u),1000)}
  $('gaLaterJson').onclick=()=>blob(JSON.stringify(data(),null,2),safeFileName(`GarBa_Sesion_${data().prospecto.nombre||'Prospecto'}`)+'.json','application/json');$('gaLaterPdf').onclick=()=>{const J=window.jspdf?.jsPDF;if(!J)return;const d=data().prospecto,doc=new J();doc.setFillColor(13,27,42);doc.rect(0,0,210,30,'F');doc.setTextColor(255,255,255);doc.setFontSize(17);doc.text('Resumen para segunda cita',15,17);doc.setTextColor(13,27,42);let y=43;[['Prospecto',d.nombre],['Prioridades',d.prioridades.join(', ')],['Objetivo',d.objetivo],['Motivo',d.motivo],['Condición',d.condicion],['Aportación',money(d.aportacion)]].forEach(([a,b])=>{doc.setFont('helvetica','bold');doc.text(a,15,y);doc.setFont('helvetica','normal');const l=doc.splitTextToSize(String(b||''),140);doc.text(l,55,y);y+=Math.max(9,l.length*6)});doc.save(safeFileName(`GarBa_Resumen_${d.nombre||'Prospecto'}`)+'.pdf')};$('gaLaterBack').onclick=()=>{$('gaLaterView').style.display='none';$('gaShell').style.display='flex';show(scenes.length-1)};$('gaLaterProposal').onclick=openProposal;
