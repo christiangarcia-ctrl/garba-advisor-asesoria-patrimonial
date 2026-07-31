@@ -1113,12 +1113,12 @@ td{padding:8px;border-bottom:1px solid #edf2f7;color:#334155;font-weight:600;}
 
 
 .ga-question-block{padding:18px;border:1px solid #dce7f2;border-radius:18px;background:#fbfdff;margin-top:16px}.ga-question-block-accent{background:linear-gradient(145deg,#f5faff,#f3fcf8)}.ga-question-block h3{font-size:15px;color:#18324c;margin-bottom:12px}.ga-options-pain{grid-template-columns:1fr 1fr}.ga-options-pain .ga-option{min-height:100px}
-.ga-why-reminder{padding:22px;border-radius:20px;background:linear-gradient(135deg,#071c32,#164f7c);color:#fff;margin-bottom:16px}.ga-why-reminder>span{display:block;color:#82cffb;font-size:9px;font-weight:900;letter-spacing:.1em;text-transform:uppercase}.ga-why-reminder h2{font:600 27px 'Poppins',sans-serif;margin:7px 0 17px}.ga-why-reminder-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.ga-why-reminder-grid>div{padding:13px;border-radius:13px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.09)}.ga-why-reminder-grid small{display:block;color:#91c9eb;font-size:8px;text-transform:uppercase;letter-spacing:.08em;margin-bottom:5px}.ga-why-reminder-grid strong{font-size:11px;line-height:1.45}
+.ga-why-reminder{padding:22px;border-radius:20px;background:linear-gradient(135deg,#071c32,#164f7c);color:#fff;margin-bottom:16px}.ga-why-reminder>span{display:block;color:#82cffb;font-size:9px;font-weight:900;letter-spacing:.1em;text-transform:uppercase}.ga-why-reminder h2{font:600 27px 'Poppins',sans-serif;margin:7px 0 17px}.ga-why-reminder-paragraph{font-size:13.5px;line-height:1.65;color:rgba(255,255,255,.9);margin:0;max-width:640px}
 .ga-professional-recommendation{padding:19px 21px;border-radius:17px;background:#f3f8fd;border-left:4px solid #246fb4;margin-bottom:16px}.ga-professional-recommendation h3{font:600 22px 'Poppins',sans-serif;color:#12304e;margin:5px 0 7px}.ga-professional-recommendation p{font-size:10px;color:#64748b;line-height:1.55}.ga-close-question>h3{font-size:16px;color:#18324c;margin:17px 0 11px}.ga-close-options{display:grid;grid-template-columns:repeat(3,1fr);gap:11px}.ga-close-options button{border:1.5px solid #d8e3ee;border-radius:16px;background:#fff;padding:17px;text-align:left;cursor:pointer;transition:.18s}.ga-close-options button strong{display:block;color:#17304a;font-size:12px;margin-bottom:6px}.ga-close-options button span{display:block;color:#6d7f91;font-size:9px;line-height:1.45}.ga-close-options button.selected{border-color:#2678c1;background:#eef7ff;box-shadow:0 10px 24px rgba(38,120,193,.12)}.ga-schedule-panel{grid-template-columns:repeat(3,1fr);gap:11px;margin:14px 0;padding:16px;border:1px solid #d8e4ef;border-radius:16px;background:#f8fbfe}
 .ga-opening-appointment{padding:18px;border-radius:17px;background:linear-gradient(145deg,#edf6ff,#f5fffb);border:1px solid #d2e5f3;margin:0 0 16px}.ga-opening-appointment>div>span{font-size:8px;text-transform:uppercase;letter-spacing:.1em;color:#2876b8;font-weight:900}.ga-opening-appointment h3{font-size:16px;color:#16334f;margin:4px 0}.ga-opening-appointment p{font-size:9px;color:#6b7d90;line-height:1.45}.ga-opening-appointment-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:13px}
 .ga-exp-help,.ga-people-help{font-size:9px;color:#718096;margin:-5px 0 10px}.ga-ref-trust{padding:17px;border-radius:16px;background:#eef7ff;border-left:4px solid #2c79bd;margin:22px 0}.ga-ref-trust h3{font-size:14px;color:#173650;margin-bottom:6px}.ga-ref-trust p{font-size:10px;color:#5e7388;line-height:1.55}.ga-ref-message-box{display:grid;grid-template-columns:1fr auto;gap:16px;align-items:center;padding:18px;border-radius:17px;background:linear-gradient(135deg,#091f36,#164f7a);color:#fff;margin-top:20px}.ga-ref-message-box span{font-size:8px;color:#83d4ff;text-transform:uppercase;letter-spacing:.1em;font-weight:900}.ga-ref-message-box p{font-size:10px;line-height:1.55;color:rgba(255,255,255,.68);margin-top:7px}.ga-ref-message-box button{border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.09);color:#fff;border-radius:11px;padding:11px 13px;font:850 10px Inter;cursor:pointer;white-space:nowrap}
 #gaReturnBtn{display:none!important}
-@media(max-width:850px){.ga-options-pain,.ga-close-options,.ga-why-reminder-grid,.ga-opening-appointment-grid,.ga-schedule-panel{grid-template-columns:1fr}.ga-ref-message-box{grid-template-columns:1fr}}
+@media(max-width:850px){.ga-options-pain,.ga-close-options,.ga-opening-appointment-grid,.ga-schedule-panel{grid-template-columns:1fr}.ga-ref-message-box{grid-template-columns:1fr}}
 
 
 .ga-intelligence-intro{
@@ -2015,12 +2015,7 @@ td{padding:8px;border-bottom:1px solid #edf2f7;color:#334155;font-weight:600;}
 <div class="ga-why-reminder">
 <span>Antes de decidir, recordemos por qué empezamos</span>
 <h2 id="gaCloseReminderTitle">Esta estrategia debe responder a lo que realmente importa para ti.</h2>
-<div class="ga-why-reminder-grid">
-<div><small>Hoy quieres resolver</small><strong id="gaClosePain">—</strong></div>
-<div><small>Quieres conseguir</small><strong id="gaCloseGoal">—</strong></div>
-<div><small>Es importante ahora porque</small><strong id="gaCloseMeaning">—</strong></div>
-<div><small>La estrategia debe respetar</small><strong id="gaCloseCondition">—</strong></div>
-</div>
+<p class="ga-why-reminder-paragraph" id="gaCloseSummaryParagraph"></p>
 </div>
 <div class="ga-professional-recommendation">
 <div class="ga-kicker">Mi recomendación profesional</div>
@@ -3148,6 +3143,30 @@ function updateDiagnosisRecommendation(){
    const key=btn.dataset.postcalc;postCalcChecks[key]=btn.dataset.value;
    document.querySelectorAll(`[data-postcalc="${key}"]`).forEach(x=>x.classList.remove('selected'));btn.classList.add('selected');updatePostCalcRecommendation()
  });
+ function gaLower(s){const t=(s||'').trim().replace(/\.\s*$/,'');return t?t.charAt(0).toLowerCase()+t.slice(1):''}
+ function gaJoinList(joined){
+   const items=(joined||'').split(' · ').map(gaLower).filter(Boolean);
+   if(items.length<=1)return items[0]||'';
+   if(items.length===2)return `${items[0]} y ${items[1]}`;
+   return `${items.slice(0,-1).join(', ')} y ${items[items.length-1]}`;
+ }
+ function gaConditionClause(s){
+   const t=gaLower(s);
+   if(!t)return '';
+   return t.startsWith('no ')?'no debe '+t.slice(3):'debe '+t;
+ }
+ function buildCloseSummaryParagraph(name,pain,goal,meaning,condition){
+   const hasName=!!name;
+   const painLc=gaJoinList(pain),goalLc=gaLower(goal),meaningLc=gaLower(meaning),conditionClause=gaConditionClause(condition);
+   const templates=[
+     `${hasName?name+', esto':'Esto'} arrancó porque ${painLc}. Lo que en el fondo buscas es ${goalLc}, y no es casual que te importe justo ahora: ${meaningLc}. Eso sí, para que tenga sentido para ti, la estrategia ${conditionClause}.`,
+     `${hasName?name+', para ti':'Para ti'} esto se trata de ${goalLc} — algo que cobra urgencia porque ${meaningLc}. Todo esto parte de que ${painLc}, y lo que no estamos dispuestos a sacrificar es que la estrategia ${conditionClause}.`,
+     `Lo que hoy te trae aquí es que ${painLc}. ${hasName?name+', tu':'Tu'} meta es clara: ${goalLc}. Y la razón por la que esto no puede esperar es que ${meaningLc} — eso sí, la estrategia ${conditionClause}.`,
+     `${hasName?name+', si':'Si'} algo debe quedar claro antes de decidir, es esto: ${painLc}, y por eso quieres ${goalLc}. Es importante ahora porque ${meaningLc}, y la única condición real es que la estrategia ${conditionClause}.`
+   ];
+   const seed=(pain.length+goal.length+meaning.length+condition.length)%templates.length;
+   return templates[seed];
+ }
  function populateCloseReminder(){
    const pain=(Array.isArray(priorities)&&priorities.length)
      ? priorities.join(' · ')
@@ -3156,11 +3175,8 @@ function updateDiagnosisRecommendation(){
    const goal=$('gaWhy')?.value?.trim()||$('gaOpeningNeed')?.value?.trim()||'Construir una mejor preparación para el retiro.';
    const meaning=$('gaMeaning')?.value?.trim()||'Comenzar mientras todavía hay tiempo y capacidad.';
    const condition=$('gaConcern')?.value?.trim()||'Mantener una estrategia viable, clara y sostenible.';
-   if($('gaClosePain'))$('gaClosePain').textContent=pain||'Construir una mejor preparación para el retiro.';
-   if($('gaCloseGoal'))$('gaCloseGoal').textContent=goal;
-   if($('gaCloseMeaning'))$('gaCloseMeaning').textContent=meaning;
-   if($('gaCloseCondition'))$('gaCloseCondition').textContent=condition;
    const name=firstName()||'';
+   if($('gaCloseSummaryParagraph'))$('gaCloseSummaryParagraph').textContent=buildCloseSummaryParagraph(name,pain||'quieres construir una mejor preparación para el retiro',goal,meaning,condition);
    const contribution=+$('gaPmt')?.value||0;
    const age=+$('gaAge')?.value||0,retireAge=+$('gaRetireAge')?.value||65;
    const years=+$('years')?.value||snapYears(retireAge-age||10);
