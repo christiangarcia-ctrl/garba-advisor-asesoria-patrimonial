@@ -2588,8 +2588,9 @@ function calcAccum(){
   return true;
 }
 
+let chart=null;
 function actualizarGrafica(labels,data){
-  const canvas=$('chart');
+  const canvas=$('chartCanvas');
   if(!canvas) return;
   try{
     if(typeof Chart==='undefined'){
