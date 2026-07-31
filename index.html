@@ -3012,7 +3012,7 @@ window.addEventListener('load',()=>{
  document.getElementById('gaBirth')?.addEventListener('change',e=>{if(!e.target.value)return;const b=new Date(e.target.value+'T12:00:00'),t=new Date();let a=t.getFullYear()-b.getFullYear();const m=t.getMonth()-b.getMonth();if(m<0||(m===0&&t.getDate()<b.getDate()))a--;$('gaAge').value=a});
 
 
- const YEARS_OPTIONS=[10,15,20,25,30];
+ const YEARS_OPTIONS=[10,15,20,25];
  function snapYears(raw){return YEARS_OPTIONS.reduce((a,b)=>Math.abs(b-raw)<Math.abs(a-raw)?b:a)}
  function getGaSuggested(){
    const age=+$('gaAge').value,target=+$('gaRetireAge').value,goal=+$('gaGoal').value;
