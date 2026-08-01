@@ -2897,6 +2897,9 @@ window.addEventListener('load',()=>{
  };
  const $=id=>document.getElementById(id), esc=s=>String(s||'').replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
  const money=n=>new Intl.NumberFormat('es-MX',{style:'currency',currency:'MXN',maximumFractionDigits:0}).format(n||0);
+ function gaNaturalJoin(values){const items=(values||[]).map(v=>String(v||'').replace(/\.\s*$/,'').trim()).filter(Boolean);if(!items.length)return '';if(items.length===1)return items[0]+'.';const rest=items.slice(1).map(s=>s.charAt(0).toLowerCase()+s.slice(1));if(items.length===2)return `${items[0]} y ${rest[0]}.`;return `${items[0]}, ${rest.slice(0,-1).join(', ')} y ${rest[rest.length-1]}.`;}
+ function gaPriorSummaryText(beforeId){const order=['gaWhy','gaMeaning','gaConcern','gaBarrier'];const cut=order.indexOf(beforeId);const parts=[...(Array.isArray(priorities)?priorities:[])];order.slice(0,cut<0?order.length:cut).forEach(id=>{const v=document.getElementById(id)?.value;if(v)parts.push(v)});return parts.join(' · ').toLowerCase();}
+ function gaDedupeAgainstPrior(values,textareaId){const priorText=gaPriorSummaryText(textareaId);const kept=values.filter(v=>{const norm=String(v||'').toLowerCase().trim().replace(/\.\s*$/,'');return !norm||!priorText.includes(norm);});return kept.length?kept:values;}
  const scenes=[...document.querySelectorAll('.ga-scene')];let idx=0,route='now',priorities=[],confirmed=false,valueCheck='',slideList=[],slideIdx=0,relatedSlideList=[1],slideMode='related',diagnosisChecks={},postCalcChecks={},refTool='Mi Ruta de Retiro',gaSaveTimer=null;document.getElementById('gaDots').innerHTML=scenes.map(()=>'<span class="ga-dot"></span>').join('');
  window.priorities=priorities;window.postCalcChecks=postCalcChecks;window.diagnosisChecks=diagnosisChecks;window.populateCloseReminder=populateCloseReminder;
  (function prefillFromComparador(){
@@ -2920,12 +2923,7 @@ window.addEventListener('load',()=>{
          });
        }
        const ta=document.getElementById(textareaId);
-       if(ta){
-         if(values.length>1){
-           const connectors=['Además, ','Y también, ','Sumado a eso, '];
-           ta.value=values.map((v,i)=>{const s=v.replace(/\.\s*$/,'').trim();return i===0?s:connectors[(i-1)%connectors.length]+s.charAt(0).toLowerCase()+s.slice(1)}).join('. ')+'.';
-         }else ta.value=values[0];
-       }
+       if(ta) ta.value=gaNaturalJoin(gaDedupeAgainstPrior(values,textareaId));
      };
      const dolorVals=splitParam('do');
      if(dolorVals.length){
@@ -3151,33 +3149,39 @@ function updateDiagnosisRecommendation(){
    if(items.length===2)return `${items[0]} y ${items[1]}`;
    return `${items.slice(0,-1).join(', ')} y ${items[items.length-1]}`;
  }
- function gaConditionClause(s){
-   const t=gaLower(s);
-   if(!t)return '';
-   return t.startsWith('no ')?'no debe '+t.slice(3):'debe '+t;
- }
- function buildCloseSummaryParagraph(name,pain,goal,meaning,condition){
+  function buildCloseSummaryParagraph(name,pain,meaning,condition){
    const hasName=!!name;
-   const painLc=gaJoinList(pain),goalLc=gaLower(goal),meaningLc=gaLower(meaning),conditionClause=gaConditionClause(condition);
-   const templates=[
-     `${hasName?name+', esto':'Esto'} arrancó porque ${painLc}. Lo que en el fondo buscas es ${goalLc}, y no es casual que te importe justo ahora: ${meaningLc}. Eso sí, para que tenga sentido para ti, la estrategia ${conditionClause}.`,
-     `${hasName?name+', para ti':'Para ti'} esto se trata de ${goalLc} — algo que cobra urgencia porque ${meaningLc}. Todo esto parte de que ${painLc}, y lo que no estamos dispuestos a sacrificar es que la estrategia ${conditionClause}.`,
-     `Lo que hoy te trae aquí es que ${painLc}. ${hasName?name+', tu':'Tu'} meta es clara: ${goalLc}. Y la razón por la que esto no puede esperar es que ${meaningLc} — eso sí, la estrategia ${conditionClause}.`,
-     `${hasName?name+', si':'Si'} algo debe quedar claro antes de decidir, es esto: ${painLc}, y por eso quieres ${goalLc}. Es importante ahora porque ${meaningLc}, y la única condición real es que la estrategia ${conditionClause}.`
+   const painLc=gaJoinList(pain),meaningLc=gaLower(meaning),conditionLc=gaLower(condition);
+   const openings=[
+     `${hasName?name+', esto':'Esto'} arrancó con algo que me compartiste: «${painLc}».`,
+     `Lo que hoy te trae aquí es lo que me compartiste: «${painLc}».`,
+     `${hasName?name+', vale':'Vale'} la pena partir de lo que me compartiste al inicio: «${painLc}».`,
+     `${hasName?name+', me':'Me'} quedó claro algo desde el principio: «${painLc}».`
    ];
-   const seed=(pain.length+goal.length+meaning.length+condition.length)%templates.length;
-   return templates[seed];
+   const urgencies=[
+     `Y no es casual que te importe justo ahora: «${meaningLc}».`,
+     `Esto cobra urgencia porque «${meaningLc}».`,
+     `La razón por la que esto no puede esperar es que «${meaningLc}».`,
+     `Es importante ahora porque «${meaningLc}».`
+   ];
+   const closings=[
+     `Eso sí, para que tenga sentido para ti, la condición que pusiste es clara: «${conditionLc}».`,
+     `Y lo que no estamos dispuestos a sacrificar es esto: «${conditionLc}».`,
+     `Eso sí, siempre que la estrategia logre esto: «${conditionLc}».`,
+     `Y la única condición real es esta: «${conditionLc}».`
+   ];
+   const seedO=painLc.length%openings.length,seedU=meaningLc.length%urgencies.length,seedC=conditionLc.length%closings.length;
+   return `${openings[seedO]} ${urgencies[seedU]} ${closings[seedC]}`;
  }
  function populateCloseReminder(){
    const pain=(Array.isArray(priorities)&&priorities.length)
      ? priorities.join(' · ')
      : [...document.querySelectorAll('#gaPriorityOptions .ga-option.selected')]
          .map(x=>x.dataset.value||x.textContent.trim()).filter(Boolean).join(' · ');
-   const goal=$('gaWhy')?.value?.trim()||$('gaOpeningNeed')?.value?.trim()||'Construir una mejor preparación para el retiro.';
    const meaning=$('gaMeaning')?.value?.trim()||'Comenzar mientras todavía hay tiempo y capacidad.';
    const condition=$('gaConcern')?.value?.trim()||'Mantener una estrategia viable, clara y sostenible.';
    const name=firstName()||'';
-   if($('gaCloseSummaryParagraph'))$('gaCloseSummaryParagraph').textContent=buildCloseSummaryParagraph(name,pain||'quieres construir una mejor preparación para el retiro',goal,meaning,condition);
+   if($('gaCloseSummaryParagraph'))$('gaCloseSummaryParagraph').textContent=buildCloseSummaryParagraph(name,pain||'quieres construir una mejor preparación para el retiro',meaning,condition);
    const contribution=+$('gaPmt')?.value||0;
    const age=+$('gaAge')?.value||0,retireAge=+$('gaRetireAge')?.value||65;
    const years=+$('years')?.value||snapYears(retireAge-age||10);
@@ -3781,7 +3785,7 @@ function updateDiagnosisRecommendation(){
       else if(selected.length<max)btn.classList.add('selected');
       else return;
       const values=[...row.querySelectorAll('button.selected:not([data-other])')].map(x=>x.dataset.fill);
-      target.value=values.length>1?values.map(v=>v.replace(/\.\s*$/,'')).join('. ')+'.':(values[0]||'');
+      target.value=gaNaturalJoin(gaDedupeAgainstPrior(values,row.dataset.target));
     }else{
       row.querySelectorAll('button').forEach(x=>x.classList.remove('selected'));
       btn.classList.add('selected');
