@@ -3056,8 +3056,10 @@ window.addEventListener('load',()=>{
   const suggested=getGaSuggested(),real=+$('gaPmt').value;
   const taxVal=$('gaTax')?.value,tax=taxVal==='93'?'Artículo 93':taxVal==='151'?'Artículo 151':'Por definir';
   const nm=firstName()?esc(firstName()):'';
-  const narrative=buildValidationParagraph(nm,esc(pain||goal),esc(goal),esc(meaning),esc(concern),esc(priorityWhy));
-  $('gaSummary').innerHTML=`<div class="ga-insight-label">Síntesis personalizada</div><h3>${esc(n)}, esto es lo que entendí de nuestra conversación.</h3><p class="ga-validation-paragraph">${narrative}</p>${barrier?`<p class="ga-validation-barrier">Y algo que te ha frenado hasta hoy: «${esc(gaLower(barrier))}».</p>`:''}<div class="ga-insight-grid"><div class="ga-insight-item"><span>Prioridad principal</span><strong>${esc(priorities[0])}</strong></div><div class="ga-insight-item"><span>Horizonte</span><strong>${years} años · hasta los ${target}</strong></div><div class="ga-insight-item"><span>Aportación estimada para la meta</span><strong>${suggested?money(suggested):'Por calcular'}</strong></div><div class="ga-insight-item"><span>Punto de partida sostenible</span><strong>${money(real)} al mes</strong></div><div class="ga-insight-item"><span>Ruta fiscal seleccionada</span><strong>${esc(tax)}</strong></div></div>`;
+  const sceneConfirmed=window.__gaSceneConfirmed||{};
+  const narrative=buildValidationParagraph(nm,esc(pain||goal),esc(goal),esc(meaning),esc(concern),esc(priorityWhy),sceneConfirmed);
+  const barrierParagraph=barrier?(sceneConfirmed[4]?'<p class="ga-validation-barrier">Y ya confirmaste también qué te había frenado hasta hoy.</p>':`<p class="ga-validation-barrier">Y algo que te ha frenado hasta hoy: «${esc(gaLower(barrier))}».</p>`):'';
+  $('gaSummary').innerHTML=`<div class="ga-insight-label">Síntesis personalizada</div><h3>${esc(n)}, esto es lo que entendí de nuestra conversación.</h3><p class="ga-validation-paragraph">${narrative}</p>${barrierParagraph}<div class="ga-insight-grid"><div class="ga-insight-item"><span>Prioridad principal</span><strong>${esc(priorities[0])}</strong></div><div class="ga-insight-item"><span>Horizonte</span><strong>${years} años · hasta los ${target}</strong></div><div class="ga-insight-item"><span>Aportación estimada para la meta</span><strong>${suggested?money(suggested):'Por calcular'}</strong></div><div class="ga-insight-item"><span>Punto de partida sostenible</span><strong>${money(real)} al mes</strong></div><div class="ga-insight-item"><span>Ruta fiscal seleccionada</span><strong>${esc(tax)}</strong></div></div>`;
   scheduleValidationReveal();
 }
 function scheduleValidationReveal(){
@@ -3174,60 +3176,96 @@ function updateDiagnosisRecommendation(){
    if(items.length===2)return `${items[0]} y ${items[1]}`;
    return `${items.slice(0,-1).join(', ')} y ${items[items.length-1]}`;
  }
-  function buildCloseSummaryParagraph(name,pain,meaning,condition){
+  function buildCloseSummaryParagraph(name,pain,meaning,condition,confirmed){
+   const c=confirmed||{};
    const hasName=!!name;
    const painLc=gaJoinList(pain),meaningLc=gaLower(meaning),conditionLc=gaLower(condition);
-   const openings=[
-     `${hasName?name+', esto':'Esto'} arrancó con algo que me compartiste: «${painLc}».`,
-     `Lo que hoy te trae aquí es lo que me compartiste: «${painLc}».`,
-     `${hasName?name+', vale':'Vale'} la pena partir de lo que me compartiste al inicio: «${painLc}».`,
-     `${hasName?name+', me':'Me'} quedó claro algo desde el principio: «${painLc}».`
-   ];
-   const urgencies=[
-     `Y no es casual que te importe justo ahora: «${meaningLc}».`,
-     `Esto cobra urgencia porque «${meaningLc}».`,
-     `La razón por la que esto no puede esperar es que «${meaningLc}».`,
-     `Es importante ahora porque «${meaningLc}».`
-   ];
-   const closings=[
-     `Eso sí, para que tenga sentido para ti, la condición que pusiste es clara: «${conditionLc}».`,
-     `Y lo que no estamos dispuestos a sacrificar es esto: «${conditionLc}».`,
-     `Eso sí, siempre que la estrategia logre esto: «${conditionLc}».`,
-     `Y la única condición real es esta: «${conditionLc}».`
-   ];
-   const seedO=painLc.length%openings.length,seedU=meaningLc.length%urgencies.length,seedC=conditionLc.length%closings.length;
-   return `${openings[seedO]} ${urgencies[seedU]} ${closings[seedC]}`;
+   let openingClause;
+   if(c[2]){
+     openingClause=`${hasName?name+', ya':'Ya'} confirmamos juntos lo que te trajo hasta aquí.`;
+   }else{
+     const openings=[
+       `${hasName?name+', esto':'Esto'} arrancó con algo que me compartiste: «${painLc}».`,
+       `Lo que hoy te trae aquí es lo que me compartiste: «${painLc}».`,
+       `${hasName?name+', vale':'Vale'} la pena partir de lo que me compartiste al inicio: «${painLc}».`,
+       `${hasName?name+', me':'Me'} quedó claro algo desde el principio: «${painLc}».`
+     ];
+     openingClause=openings[painLc.length%openings.length];
+   }
+   let urgencyClause;
+   if(c[3]){
+     urgencyClause=`Y confirmamos por qué esto no puede esperar.`;
+   }else{
+     const urgencies=[
+       `Y no es casual que te importe justo ahora: «${meaningLc}».`,
+       `Esto cobra urgencia porque «${meaningLc}».`,
+       `La razón por la que esto no puede esperar es que «${meaningLc}».`,
+       `Es importante ahora porque «${meaningLc}».`
+     ];
+     urgencyClause=urgencies[meaningLc.length%urgencies.length];
+   }
+   let closingClause;
+   if(c[4]){
+     closingClause=`Y confirmamos también la condición que esta estrategia debe respetar.`;
+   }else{
+     const closings=[
+       `Eso sí, para que tenga sentido para ti, la condición que pusiste es clara: «${conditionLc}».`,
+       `Y lo que no estamos dispuestos a sacrificar es esto: «${conditionLc}».`,
+       `Eso sí, siempre que la estrategia logre esto: «${conditionLc}».`,
+       `Y la única condición real es esta: «${conditionLc}».`
+     ];
+     closingClause=closings[conditionLc.length%closings.length];
+   }
+   return `${openingClause} ${urgencyClause} ${closingClause}`;
  }
- function buildValidationParagraph(name,pain,goal,meaning,condition,priorityWhy){
+ function buildValidationParagraph(name,pain,goal,meaning,condition,priorityWhy,confirmed){
+   const c=confirmed||{};
    const hasName=!!name;
    const painLc=gaLower(pain),goalLc=gaLower(goal),meaningLc=gaLower(meaning),conditionLc=gaLower(condition);
-   const openings=[
-     `${hasName?name+', esto':'Esto'} arrancó con algo que me compartiste: «${painLc}».`,
-     `Lo que hoy te trae aquí es lo que me compartiste: «${painLc}».`,
-     `${hasName?name+', vale':'Vale'} la pena partir de lo que me compartiste al inicio: «${painLc}».`,
-     `${hasName?name+', me':'Me'} quedó claro algo desde el principio: «${painLc}».`
-   ];
-   const whyClause=priorityWhy?` Y me explicaste algo importante: ${gaLower(priorityWhy)}.`:'';
-   const goals=[
-     ` A partir de ahí, lo que buscas es «${goalLc}».`,
-     ` Con eso claro, lo que quieres lograr es «${goalLc}».`,
-     ` De ahí que lo que persigues sea «${goalLc}».`,
-     ` Eso te lleva a buscar «${goalLc}».`
-   ];
-   const urgencies2=[
-     ` Y no es casual que te importe justo ahora: «${meaningLc}».`,
-     ` Esto cobra urgencia porque «${meaningLc}».`,
-     ` La razón por la que esto no puede esperar es que «${meaningLc}».`,
-     ` Es importante ahora porque «${meaningLc}».`
-   ];
-   const closings2=[
-     ` Eso sí, para que tenga sentido para ti, la condición que pusiste es clara: «${conditionLc}».`,
-     ` Y lo que no estamos dispuestos a sacrificar es esto: «${conditionLc}».`,
-     ` Eso sí, siempre que la estrategia logre esto: «${conditionLc}».`,
-     ` Y la única condición real es esta: «${conditionLc}».`
-   ];
-   const seedO=painLc.length%openings.length,seedG=goalLc.length%goals.length,seedU=meaningLc.length%urgencies2.length,seedC=conditionLc.length%closings2.length;
-   return `${openings[seedO]}${whyClause}${goals[seedG]}${urgencies2[seedU]}${closings2[seedC]}`;
+   let openingClause;
+   if(c[2]){
+     openingClause=`${hasName?name+', partamos':'Partamos'} de lo que ya confirmaste hace un momento.`;
+   }else{
+     const openings=[
+       `${hasName?name+', esto':'Esto'} arrancó con algo que me compartiste: «${painLc}».`,
+       `Lo que hoy te trae aquí es lo que me compartiste: «${painLc}».`,
+       `${hasName?name+', vale':'Vale'} la pena partir de lo que me compartiste al inicio: «${painLc}».`,
+       `${hasName?name+', me':'Me'} quedó claro algo desde el principio: «${painLc}».`
+     ];
+     openingClause=openings[painLc.length%openings.length];
+   }
+   const whyClause=(!c[2]&&priorityWhy)?` Y me explicaste algo importante: ${gaLower(priorityWhy)}.`:'';
+   let goalUrgencyClause;
+   if(c[3]){
+     goalUrgencyClause=' Ya confirmaste también lo que quieres lograr y por qué es importante ahora.';
+   }else{
+     const goals=[
+       ` A partir de ahí, lo que buscas es «${goalLc}».`,
+       ` Con eso claro, lo que quieres lograr es «${goalLc}».`,
+       ` De ahí que lo que persigues sea «${goalLc}».`,
+       ` Eso te lleva a buscar «${goalLc}».`
+     ];
+     const urgencies2=[
+       ` Y no es casual que te importe justo ahora: «${meaningLc}».`,
+       ` Esto cobra urgencia porque «${meaningLc}».`,
+       ` La razón por la que esto no puede esperar es que «${meaningLc}».`,
+       ` Es importante ahora porque «${meaningLc}».`
+     ];
+     goalUrgencyClause=`${goals[goalLc.length%goals.length]}${urgencies2[meaningLc.length%urgencies2.length]}`;
+   }
+   let closingClause;
+   if(c[4]){
+     closingClause=' Y ya confirmaste la condición que esto debe respetar.';
+   }else{
+     const closings2=[
+       ` Eso sí, para que tenga sentido para ti, la condición que pusiste es clara: «${conditionLc}».`,
+       ` Y lo que no estamos dispuestos a sacrificar es esto: «${conditionLc}».`,
+       ` Eso sí, siempre que la estrategia logre esto: «${conditionLc}».`,
+       ` Y la única condición real es esta: «${conditionLc}».`
+     ];
+     closingClause=closings2[conditionLc.length%closings2.length];
+   }
+   return `${openingClause}${whyClause}${goalUrgencyClause}${closingClause}`;
  }
  function buildPainSynthesis(name,pain,why){
    const hasName=!!name,painLc=gaLower(pain);
@@ -3266,6 +3304,7 @@ function updateDiagnosisRecommendation(){
    const complete=cfg.complete();
    const adjusting=window[cfg.adjustingFlag];
    const show=cfg.force==='synthesis'?true:cfg.force==='picker'?false:(complete&&!adjusting);
+   if(cfg.sceneNum){window.__gaSceneConfirmed=window.__gaSceneConfirmed||{};window.__gaSceneConfirmed[cfg.sceneNum]=show}
    if(show){
      synth.innerHTML=`<p>${cfg.text()}</p><div class="ga-choice-row"><button class="ga-choice" type="button" id="${cfg.synthId}Keep">Sigue siendo así</button><button class="ga-choice" type="button" id="${cfg.synthId}Adjust">Quiero ajustarlo</button></div>`;
      synth.style.display='block';picker.style.display='none';
@@ -3277,21 +3316,21 @@ function updateDiagnosisRecommendation(){
  }
  function renderScene2State(force){
    gaRenderSceneSynthesis({
-     pickerId:'gaScene2Picker',synthId:'gaScene2Synthesis',adjustingFlag:'__gaScene2Adjusting',force,
+     sceneNum:2,pickerId:'gaScene2Picker',synthId:'gaScene2Synthesis',adjustingFlag:'__gaScene2Adjusting',force,
      complete:()=>!!(window.__gaPrefillFlags||{}).dolor&&!!priorities[0],
      text:()=>buildPainSynthesis(firstName()?esc(firstName()):'',esc(priorities[0]||''),esc(($('gaPriorityWhy')?.value||'').trim()))
    });
  }
  function renderScene3State(force){
    gaRenderSceneSynthesis({
-     pickerId:'gaScene3Picker',synthId:'gaScene3Synthesis',adjustingFlag:'__gaScene3Adjusting',force,
+     sceneNum:3,pickerId:'gaScene3Picker',synthId:'gaScene3Synthesis',adjustingFlag:'__gaScene3Adjusting',force,
      complete:()=>{const f=window.__gaPrefillFlags||{};return !!f.meta&&!!f.porque},
      text:()=>buildGoalSynthesis(esc(($('gaWhy')?.value||'').trim()),esc(($('gaMeaning')?.value||'').trim()))
    });
  }
  function renderScene4State(force){
    gaRenderSceneSynthesis({
-     pickerId:'gaScene4Picker',synthId:'gaScene4Synthesis',adjustingFlag:'__gaScene4Adjusting',force,
+     sceneNum:4,pickerId:'gaScene4Picker',synthId:'gaScene4Synthesis',adjustingFlag:'__gaScene4Adjusting',force,
      complete:()=>{const f=window.__gaPrefillFlags||{};return !!f.condicion&&!!f.freno},
      text:()=>buildConditionSynthesis(esc(($('gaConcern')?.value||'').trim()),esc(($('gaBarrier')?.value||'').trim()))
    });
@@ -3304,7 +3343,7 @@ function updateDiagnosisRecommendation(){
    const meaning=$('gaMeaning')?.value?.trim()||'Comenzar mientras todavía hay tiempo y capacidad.';
    const condition=$('gaConcern')?.value?.trim()||'Mantener una estrategia viable, clara y sostenible.';
    const name=firstName()||'';
-   if($('gaCloseSummaryParagraph'))$('gaCloseSummaryParagraph').textContent=buildCloseSummaryParagraph(name,pain||'quieres construir una mejor preparación para el retiro',meaning,condition);
+   if($('gaCloseSummaryParagraph'))$('gaCloseSummaryParagraph').textContent=buildCloseSummaryParagraph(name,pain||'quieres construir una mejor preparación para el retiro',meaning,condition,window.__gaSceneConfirmed||{});
    const contribution=+$('gaPmt')?.value||0;
    const age=+$('gaAge')?.value||0,retireAge=+$('gaRetireAge')?.value||65;
    const years=+$('years')?.value||snapYears(retireAge-age||10);
