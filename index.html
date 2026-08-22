@@ -1494,8 +1494,10 @@ td{padding:8px;border-bottom:1px solid #edf2f7;color:#334155;font-weight:600;}
 <div class="ga-field"><label>Ingreso mensual deseado · valor de hoy</label><input id="gaGoal" min="1000" placeholder="$40,000" step="1000" type="number"/></div>
 <div class="ga-field full"><label>Escenario fiscal a proyectar</label><select id="gaTax"><option value="">Selecciona</option><option value="151">Artículo 151</option><option value="93">Artículo 93</option></select><small style="display:block;margin-top:5px;font-size:10.5px;color:#94a3b8">Recuerda: el impuesto sobre retiros anticipados del Art. 93 es ISR, no IVA.</small></div>
 <div class="ga-field full hidden" id="gaIsrBox" style="background:var(--gold-soft,#EFF6FF);border:1px solid #9fb4c9;border-radius:12px;padding:14px 16px;">
-<label>¿Qué porcentaje de devolución de ISR te gustaría considerar?</label>
-<select id="gaIsrPct"><option value="0">0%</option><option value="10">10%</option><option selected="" value="20">20%</option><option value="30">30%</option><option value="35">35%</option></select>
+<label>Ingreso mensual aproximado del prospecto</label>
+<input id="gaIngresoMensual" type="number" min="0" step="500" placeholder="Ej. 100000"/>
+<div class="fhint" id="gaIsrPctHint" style="margin-top:6px;font-size:11.5px;color:#475569">Con esto calculamos su tasa marginal real de ISR (Art. 152) — si no la sabe con exactitud, un rango aproximado es suficiente. Sin dato, se usa 20% por defecto.</div>
+<input id="gaIsrPct" type="hidden" value="20"/>
 <label class="check-label" style="margin-top:10px;display:flex;gap:8px;align-items:center;"><input checked="" id="gaReinvertISR" type="checkbox"/><span>Reinvertir esa devolución al fondo (esto cambia la proyección)</span></label>
 </div>
 </div>
@@ -1844,11 +1846,10 @@ td{padding:8px;border-bottom:1px solid #edf2f7;color:#334155;font-weight:600;}
 <option value="151">Art. 151</option>
 </select>
 </div>
-<div class="fg"><label class="fl">Devolución ISR estimada (%)</label>
-<select class="fi" disabled="" id="isrPct">
-<option value="0">0%</option><option value="10">10%</option>
-<option selected="" value="20">20%</option><option value="30">30%</option><option value="35">35%</option>
-</select>
+<div class="fg"><label class="fl">Ingreso mensual aproximado</label>
+<input class="fi" disabled="" id="ingresoMensualCliente" type="number" min="0" step="500" placeholder="Ej. 100000"/>
+<div class="fhint" id="isrPctHint" style="margin-top:6px">Tasa marginal ISR real (Art. 152): sin dato, 20% por defecto</div>
+<input type="hidden" id="isrPct" value="20"/>
 </div>
 </div>
 <div class="hidden" id="reinvBox" style="margin-top:10px">
@@ -1982,6 +1983,7 @@ td{padding:8px;border-bottom:1px solid #edf2f7;color:#334155;font-weight:600;}
 <div class="card-head"><h3>💰 Impacto de reinvertir tu devolución de ISR</h3><span>Art. 151</span></div>
 <div class="card-body" style="padding:12px">
 <div class="side-param"><span>Devolución fiscal estimada del primer año</span><strong id="taxFirstAmount">—</strong></div>
+<div class="side-param" id="topeDeducibleRow" style="display:none;background:#FEF3C7;border-color:#F59E0B"><span>⚠️ Aportación arriba del tope deducible</span><strong id="topeDeducibleMsg">—</strong></div>
 <div class="side-param"><span>Impacto acumulado a los 65 por reinvertir el ISR</span><strong id="isrImpacto65">—</strong></div>
 <div class="side-param"><span>Crecimiento atribuible a esa reinversión</span><strong id="isrCrecimiento">—</strong></div>
 <div class="side-note">La reinversión fiscal estimada se calcula año con año durante el periodo de aportaciones, no como un pago único al final. Se asume que cada devolución estimada de ISR se reinvierte al fondo y permanece invertida hasta los 65 años. Esta lectura es ilustrativa y no representa garantía de devolución, rendimiento ni asesoría fiscal personalizada.</div>
@@ -2324,6 +2326,43 @@ td{padding:8px;border-bottom:1px solid #edf2f7;color:#334155;font-weight:600;}
 const $ = id => document.getElementById(id);
 const money = v => new Intl.NumberFormat('es-MX',{style:'currency',currency:'MXN',minimumFractionDigits:0,maximumFractionDigits:0}).format(Number(v)||0);
 
+// Tarifa anual Art. 152 LISR vigente 2026 (Anexo 8 RMF 2026, DOF 28-dic-2025). Verificar cada año.
+const TARIFA_ISR_ANUAL_2026=[
+  {li:0.01,       ls:10135.11,    cuota:0,          tasa:0.0192},
+  {li:10135.12,   ls:86022.11,    cuota:194.59,     tasa:0.0640},
+  {li:86022.12,   ls:151176.19,   cuota:5051.37,    tasa:0.1088},
+  {li:151176.20,  ls:175735.66,   cuota:12140.13,   tasa:0.1600},
+  {li:175735.67,  ls:210403.69,   cuota:16069.64,   tasa:0.1792},
+  {li:210403.70,  ls:424353.97,   cuota:22282.14,   tasa:0.2136},
+  {li:424353.98,  ls:668840.14,   cuota:67981.92,   tasa:0.2352},
+  {li:668840.15,  ls:1276925.98,  cuota:125485.07,  tasa:0.3000},
+  {li:1276925.99, ls:1702567.97,  cuota:307910.81,  tasa:0.3200},
+  {li:1702567.98, ls:5107703.92,  cuota:444116.23,  tasa:0.3400},
+  {li:5107703.93, ls:Infinity,    cuota:1601862.46, tasa:0.3500}
+];
+const UMA_ANUAL_2026=42794.64; // UMA diaria $117.31, vigente desde 1-feb-2026 (INEGI)
+function tramoISR(baseGravable){
+  const base=Math.max(0,baseGravable);
+  return TARIFA_ISR_ANUAL_2026.find(t=>base>=t.li&&base<=t.ls)||TARIFA_ISR_ANUAL_2026[TARIFA_ISR_ANUAL_2026.length-1];
+}
+function tasaMarginal(baseGravable){ return tramoISR(baseGravable).tasa; }
+function topeDeducible151(ingresoAnual){ return Math.min(ingresoAnual*0.10,UMA_ANUAL_2026*5); }
+function actualizarTasaISRDesdeIngreso(ingresoInputId,hiddenPctId,hintElId){
+  const inp=$(ingresoInputId),hidden=$(hiddenPctId),hint=$(hintElId);
+  if(!inp||!hidden) return;
+  const ingresoMensual=parseFloat(inp.value)||0;
+  if(ingresoMensual<=0){
+    hidden.value='20';
+    if(hint) hint.textContent='Sin ingreso capturado: se usa 20% por defecto. Captúralo (aunque sea aproximado) para una tasa exacta.';
+    return;
+  }
+  const tasa=tasaMarginal(ingresoMensual*12);
+  hidden.value=String(Math.round(tasa*10000)/100);
+  if(hint) hint.textContent=`Tasa marginal real de ISR: ${(tasa*100).toFixed(2)}%`;
+}
+if($('gaIngresoMensual')) $('gaIngresoMensual').addEventListener('input',()=>actualizarTasaISRDesdeIngreso('gaIngresoMensual','gaIsrPct','gaIsrPctHint'));
+if($('ingresoMensualCliente')) $('ingresoMensualCliente').addEventListener('input',()=>actualizarTasaISRDesdeIngreso('ingresoMensualCliente','isrPct','isrPctHint'));
+
 const FIXED_FREQ = 12;
 const FIXED_RETIREMENT_YEARS = 20;
 
@@ -2362,9 +2401,9 @@ function validateForm(){
 
 if($('regimenFiscal')) $('regimenFiscal').addEventListener('change',function(){
   const is151=this.value==='151';
-  const isr=$('isrPct');
+  const ingresoInp=$('ingresoMensualCliente');
   const reinvBox=$('reinvBox');
-  if(isr){isr.disabled=!is151;if(isr.parentElement)isr.parentElement.style.opacity=is151?'1':'.55';}
+  if(ingresoInp){ingresoInp.disabled=!is151;if(ingresoInp.parentElement)ingresoInp.parentElement.style.opacity=is151?'1':'.55';}
   if(reinvBox) reinvBox.classList.toggle('hidden',!is151);
 });
 
@@ -2440,6 +2479,8 @@ function calcAccum(){
   const regimen=$('regimenFiscal').value;
   const isrPct=parseFloat($('isrPct').value)/100;
   const reinv=$('reinvertISR')?$('reinvertISR').checked:true;
+  const ingresoMensualCliente=parseFloat($('ingresoMensualCliente')?.value)||0;
+  const topeDeducible=ingresoMensualCliente>0?topeDeducible151(ingresoMensualCliente*12):Infinity;
   const yrsTo65=Math.max(0,65-edad);
   const yrsAport=Math.min(years,yrsTo65);
   const yrsExtra=Math.max(0,yrsTo65-yrsAport);
@@ -2456,7 +2497,7 @@ function calcAccum(){
     if(yr<=yrsAport){
       if(yr>1) pmtYear*=(1+infl);
       for(let k=0;k<freq;k++){saldo*=(1+i);saldo+=pmtYear;saldoSinISR*=(1+i);saldoSinISR+=pmtYear;aportAno+=pmtYear;totalAportado+=pmtYear;}
-      if(regimen==='151'&&reinv&&isrPct>0){benefAno=aportAno*isrPct;saldo+=benefAno;benefFiscal+=benefAno;}
+      if(regimen==='151'&&reinv&&isrPct>0){const aportDeducible=Math.min(aportAno,topeDeducible);benefAno=aportDeducible*isrPct;saldo+=benefAno;benefFiscal+=benefAno;}
     } else {
       for(let k=0;k<freq;k++){saldo*=(1+i);saldoSinISR*=(1+i);}
     }
@@ -2474,7 +2515,8 @@ function calcAccum(){
   const rendimiento=fondo65-totalAportado;
   const edadFinPlan=edad+yrsAport;
   const aportacionAnualPrimerAno=pmt0*12;
-  const devolucionFiscalPrimerAno=regimen==='151'&&reinv?Math.max(0,aportacionAnualPrimerAno*isrPct):0;
+  const aportacionDeduciblePrimerAno=Math.min(aportacionAnualPrimerAno,topeDeducible);
+  const devolucionFiscalPrimerAno=regimen==='151'&&reinv?Math.max(0,aportacionDeduciblePrimerAno*isrPct):0;
   const impactoISR65=Math.max(0,fondo65-fondo65SinISR);
   const rendimientoISRReinvertido=Math.max(0,impactoISR65-benefFiscal);
   reportState.nombre=($('nombreOpt').value||'').trim();
@@ -2499,6 +2541,12 @@ function calcAccum(){
     if($('taxFirstAmount')) $('taxFirstAmount').textContent=money(devolucionFiscalPrimerAno);
     if($('isrImpacto65')) $('isrImpacto65').textContent=money(impactoISR65);
     if($('isrCrecimiento')) $('isrCrecimiento').textContent=money(rendimientoISRReinvertido);
+  }
+  const topeRow=$('topeDeducibleRow');
+  if(topeRow){
+    const excede=es151&&isFinite(topeDeducible)&&aportacionAnualPrimerAno>topeDeducible;
+    topeRow.style.display=excede?'flex':'none';
+    if(excede&&$('topeDeducibleMsg')) $('topeDeducibleMsg').textContent=`Tope anual: ${money(topeDeducible)} — el excedente aportado no es deducible`;
   }
   $('keyFondoPlan').textContent=money(fondo65);
   $('keyEdadPlan').textContent=edadFinPlan<65?`Capital proyectado a los 65 · fin estimado del periodo a los ${Math.round(edadFinPlan)} años`:'Capital proyectado a los 65 · corte ilustrativo de simulación';
@@ -3458,6 +3506,7 @@ function updateDiagnosisRecommendation(){
      if($('isrPct'))$('isrPct').value='0';
      if($('reinvertISR'))$('reinvertISR').checked=false;
    } else if(fiscal==='151'){
+     if($('ingresoMensualCliente'))$('ingresoMensualCliente').value=$('gaIngresoMensual')?.value||'';
      if($('isrPct'))$('isrPct').value=$('gaIsrPct')?.value||'20';
      if($('reinvertISR'))$('reinvertISR').checked=$('gaReinvertISR')?$('gaReinvertISR').checked:true;
    }
