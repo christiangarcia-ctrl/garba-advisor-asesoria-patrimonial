@@ -3075,7 +3075,7 @@ window.addEventListener('load',()=>{
    const age=+$('gaAge').value,target=+$('gaRetireAge').value,goal=+$('gaGoal').value;
    const planYears=snapYears(target-age);
    if(!(age>0&&target>age&&goal>0))return 0;
-   try{return calcularPMTRequerido(age,planYears,goal,4,10,7,20,12,0)||0}catch(e){return 0}
+   try{return calcularPMTRequerido(age,planYears,goal,4,8.8,7,20,12,0)||0}catch(e){return 0}
  }
  function updateGaGoalInsight(){
    const goal=+$('gaGoal')?.value||0,s=getGaSuggested(),real=+$('gaPmt')?.value||0;
