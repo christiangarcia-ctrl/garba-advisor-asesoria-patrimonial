@@ -1266,7 +1266,7 @@ td{padding:8px;border-bottom:1px solid #edf2f7;color:#334155;font-weight:600;}
 
 /* ── Aprovechar toda la pantalla en el diagnóstico: la tarjeta se ajusta al viewport y solo el contenido interno hace scroll cuando de verdad no cabe ── */
 @media(min-width:821px){
-  #gaShell .ga-card{height:calc(100vh - 56px);max-height:calc(100vh - 56px);min-height:0;}
+  #gaShell .ga-card{max-height:calc(100vh - 56px);min-height:0;}
   #gaShell .ga-main{overflow-y:auto;min-height:0;}
 }
 
@@ -3182,7 +3182,7 @@ function scheduleValidationReveal(){
      renderScene4State();
    }
  }
- function showImmediate(i){idx=Math.max(0,Math.min(scenes.length-1,i));$('gaError').classList.remove('show');scenes.forEach((s,n)=>s.classList.toggle('active',n===idx));$('gaBack').style.visibility=idx?'visible':'hidden';$('gaCounter').textContent=`${idx+1} de ${scenes.length}`;$('gaTopProgress').style.width=`${((idx+1)/scenes.length)*100}%`;document.querySelectorAll('#gaDots .ga-dot').forEach((d,n)=>{d.classList.toggle('active',n===idx);d.classList.toggle('done',n<idx)});$('gaNext').textContent=idx===scenes.length-1?(route==='now'?'Abrir proyección →':'Continuar →'):'Continuar →';$('gaError').classList.remove('show');applyQualitativeSceneCopy(scenes[idx]?.dataset?.scene);if(scenes[idx]?.dataset?.scene==='7')summary();window.scrollTo({top:0,behavior:'smooth'});schedulePersist()}
+ function showImmediate(i){idx=Math.max(0,Math.min(scenes.length-1,i));$('gaError').classList.remove('show');scenes.forEach((s,n)=>s.classList.toggle('active',n===idx));$('gaBack').style.visibility=idx?'visible':'hidden';$('gaCounter').textContent=`${idx+1} de ${scenes.length}`;$('gaTopProgress').style.width=`${((idx+1)/scenes.length)*100}%`;document.querySelectorAll('#gaDots .ga-dot').forEach((d,n)=>{d.classList.toggle('active',n===idx);d.classList.toggle('done',n<idx)});$('gaNext').textContent=idx===scenes.length-1?(route==='now'?'Abrir proyección →':'Continuar →'):'Continuar →';$('gaError').classList.remove('show');applyQualitativeSceneCopy(scenes[idx]?.dataset?.scene);if(scenes[idx]?.dataset?.scene==='7')summary();window.scrollTo({top:0,behavior:'smooth'});document.querySelector('.ga-main')?.scrollTo({top:0,behavior:'smooth'});schedulePersist()}
  document.querySelectorAll('[data-confirm]').forEach(b=>b.onclick=()=>{document.querySelectorAll('[data-confirm]').forEach(x=>x.classList.remove('selected'));b.classList.add('selected');confirmed=b.dataset.confirm==='yes';if(!confirmed)show(3)});
  document.querySelectorAll('[data-valuecheck]').forEach(b=>b.onclick=()=>{document.querySelectorAll('[data-valuecheck]').forEach(x=>x.classList.remove('selected'));b.classList.add('selected');valueCheck=b.dataset.valuecheck});
 
