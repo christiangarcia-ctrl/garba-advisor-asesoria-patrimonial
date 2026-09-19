@@ -2,6 +2,10 @@
 
 <html lang="es">
 <head>
+<meta name="referrer" content="no-referrer"/>
+<script>window.GARBA_ACCESS_CONFIG={"product":"retiro","role":"advisor","api":"https://mi-tracker-seguros.vercel.app/api/pdp-session"};</script>
+<script src="pdp-access.js"></script>
+
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1" name="viewport"/>
 <meta content="Asesoría patrimonial personalizada con Christian GarBa." name="description"/>
@@ -1430,7 +1434,7 @@ td{padding:8px;border-bottom:1px solid #edf2f7;color:#334155;font-weight:600;}
 <div class="ga-field full"><label>Nombre del prospecto</label><input id="gaName" placeholder="Ej. Alejandro Martínez"/></div>
 <div class="ga-field"><label>Edad</label><input id="gaAge" max="69" min="18" type="number"/></div>
 <div class="ga-field"><label>Teléfono (confirmado con el prospecto)</label><input id="gaPhone" placeholder="Ej. 6621234567" type="tel"/></div>
-<div class="ga-field"><label>Correo (confirmado con el prospecto)</label><input id="gaEmail" placeholder="Ej. alejandro@correo.com" type="email"/></div>
+<div class="ga-field"><label>Correo (confirmado con el prospecto)</label><input id="gaBirth" type="hidden"/><input id="gaEmail" placeholder="Ej. alejandro@correo.com" type="email"/></div>
 <div class="ga-field"><label>Profesión o actividad</label><input id="gaProfession"/></div>
 <div class="ga-field"><label>Estado civil</label><select id="gaCivil"><option value="">Selecciona</option><option>Soltero(a)</option><option>Casado(a)</option><option>Unión libre</option><option>Divorciado(a)</option><option>Viudo(a)</option></select></div>
 <div class="ga-field"><label>¿Quién participa en la decisión?</label><select id="gaDecision"><option>Yo</option><option>Mi pareja</option><option>Ambos</option><option>Socio o familiar</option></select></div>
@@ -2951,9 +2955,9 @@ window.addEventListener('load',()=>{
  function gaDedupeAgainstPrior(values,textareaId){const priorText=gaPriorSummaryText(textareaId);const kept=values.filter(v=>{const norm=String(v||'').toLowerCase().trim().replace(/\.\s*$/,'');return !norm||!priorText.includes(norm);});return kept.length?kept:values;}
  const scenes=[...document.querySelectorAll('.ga-scene')];let idx=0,route='now',priorities=[],confirmed=false,valueCheck='',slideList=[],slideIdx=0,relatedSlideList=[1],slideMode='related',diagnosisChecks={},postCalcChecks={},refTool='Mi Ruta de Retiro',gaSaveTimer=null;document.getElementById('gaDots').innerHTML=scenes.map(()=>'<span class="ga-dot"></span>').join('');
  window.priorities=priorities;window.postCalcChecks=postCalcChecks;window.diagnosisChecks=diagnosisChecks;window.populateCloseReminder=populateCloseReminder;
- (function prefillFromComparador(){
+ function prefillFromComparador(supplied){
    try{
-     const qs=new URLSearchParams(window.location.search);
+     const qs=supplied||new URLSearchParams(window.location.search);
      if(![...qs.keys()].length) return;
      const setVal=(id,val)=>{if(val==null||val==='')return;const el=document.getElementById(id);if(el)el.value=val;};
      setVal('gaName',qs.get('n'));
@@ -3003,9 +3007,24 @@ window.addEventListener('load',()=>{
      }
      schedulePersist();
    }catch(e){console.warn('[GarBa Advisor] Precarga desde comparador omitida:',e)}
- })();
+ }
+ if(!window.garbaIdentified)prefillFromComparador();
+ window.garbaHydrateAdvisor=function(d){
+   const q=new URLSearchParams();
+   const map={nom:'n',wa:'t',edad:'a',edadR:'r',des:'g',ahorro:'p',dolor:'do',meta:'me',porque:'po',condicion:'co',freno:'fr',dolorPorque:'pq'};
+   Object.entries(map).forEach(([k,v])=>{if(d[k]!=null)q.set(v,Array.isArray(d[k])?d[k].join('|'):d[k])});
+   prefillFromComparador(q);
+   if(d.correo)$('gaEmail').value=d.correo;
+   if(d.ingreso&&$('gaIngresoMensual'))$('gaIngresoMensual').value=d.ingreso;
+   if(d.fechaNacimiento)$('gaBirth').value=d.fechaNacimiento;
+   const context=document.createElement('p');
+   context.textContent=`Punto de Partida: situación laboral ${d.reg||'sin indicar'} · ingreso aproximado ${d.ingreso?money(d.ingreso):'sin indicar'} · plazo elegido ${d.plazo||'sin indicar'} años. Confirmar el escenario fiscal durante la asesoría.`;
+   $('gaTax').parentElement.append(context);
+   updateGaGoalInsight();
+ };
  let gaSessionRestored=false;
  (function restoreLocalSession(){
+   if(window.garbaExternalInput)return;
    try{
      const qs=new URLSearchParams(window.location.search);
      if([...qs.keys()].length) return;
@@ -3459,6 +3478,7 @@ function updateDiagnosisRecommendation(){
 }}
 
  function persistSession(){
+   if(window.garbaIdentified)return;
    try{
      const snapshot=data();
      if(!snapshot.prospecto.nombre&&!snapshot.prospecto.objetivo&&!snapshot.prospecto.aportacion)return;
@@ -4027,6 +4047,7 @@ function updateDiagnosisRecommendation(){
  
 (function(){
   const KEY='garbaAdvisorSessionV111';
+  if(window.garbaIdentified)return;
   function save(){
     try{
       const fields={};
@@ -4045,6 +4066,7 @@ function updateDiagnosisRecommendation(){
     }catch(e){}
   }
   function restore(){
+    if(window.garbaExternalInput)return;
     try{
       const raw=sessionStorage.getItem(KEY); if(!raw) return;
       const s=JSON.parse(raw);
