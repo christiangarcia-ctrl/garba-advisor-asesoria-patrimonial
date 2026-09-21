@@ -1558,6 +1558,9 @@ td{padding:8px;border-bottom:1px solid #edf2f7;color:#334155;font-weight:600;}
 </div>
 </div>
 </section>
+<section class="ga-scene" data-scene="v2r" data-skip="1"><div id="gaV2Resume"></div></section>
+<section class="ga-scene" data-scene="v2a" data-skip="1"><div id="gaV2Known"></div></section>
+<section class="ga-scene" data-scene="v2b" data-skip="1"><div id="gaV2Missing"></div></section>
 <div class="ga-resources-panel" id="gaResourcesPanel">
 <div class="ga-resources-panel-card">
 <button class="ga-resources-close" id="gaResourcesClose" type="button">✕</button>
@@ -3010,6 +3013,7 @@ window.addEventListener('load',()=>{
  }
  if(!window.garbaIdentified)prefillFromComparador();
  window.garbaHydrateAdvisor=function(d){
+   window.__gaKnown=d;
    const q=new URLSearchParams();
    const map={nom:'n',wa:'t',edad:'a',edadR:'r',des:'g',ahorro:'p',dolor:'do',meta:'me',porque:'po',condicion:'co',freno:'fr',dolorPorque:'pq'};
    Object.entries(map).forEach(([k,v])=>{if(d[k]!=null)q.set(v,Array.isArray(d[k])?d[k].join('|'):d[k])});
@@ -3114,6 +3118,8 @@ window.addEventListener('load',()=>{
       if(key==='5')return +$('gaRetireAge').value>+$('gaAge').value&&+$('gaGoal').value>0&&$('gaTax').value;
       if(key==='6')return +$('gaPmt').value>=2000;
       if(key==='7')return confirmed&&diagnosisChecks.ready!=null;
+      if(key==='v2a'||key==='v2r')return true;
+      if(key==='v2b')return !!$('gaTax').value;
       return true
     }
  function summary(){
@@ -3144,6 +3150,7 @@ function scheduleValidationReveal(){
    if(tax==='151')ids.push(8);
    if(c.match(/riesg|volatil|pérd|perd|mercado/))ids.push(11);
    if(c.match(/costo|comision|comisión|caro/))ids.push(13);
+   ids=window.GaV2?.slides?.(ids)||ids;
    relatedSlideList=[...new Set(ids)].slice(0,6);
    setSlideMode('related');
  }
@@ -3160,6 +3167,7 @@ function scheduleValidationReveal(){
  function renderSlide(){
    if(!slideList.length)return;
    const d=slidesData[slideList[slideIdx]];
+   try{window.GaV2?.viewed?.(slideList[slideIdx])}catch(e){}
    $('gaSlideImage').classList.remove('ga-slide-image-in');
    requestAnimationFrame(()=>{
      $('gaSlideImage').src=d.src;
@@ -3201,7 +3209,7 @@ function scheduleValidationReveal(){
      renderScene4State();
    }
  }
- function showImmediate(i){idx=Math.max(0,Math.min(scenes.length-1,i));$('gaError').classList.remove('show');scenes.forEach((s,n)=>s.classList.toggle('active',n===idx));$('gaBack').style.visibility=idx?'visible':'hidden';$('gaCounter').textContent=`${idx+1} de ${scenes.length}`;$('gaTopProgress').style.width=`${((idx+1)/scenes.length)*100}%`;document.querySelectorAll('#gaDots .ga-dot').forEach((d,n)=>{d.classList.toggle('active',n===idx);d.classList.toggle('done',n<idx)});$('gaNext').textContent=idx===scenes.length-1?(route==='now'?'Abrir proyección →':'Continuar →'):'Continuar →';$('gaError').classList.remove('show');applyQualitativeSceneCopy(scenes[idx]?.dataset?.scene);if(scenes[idx]?.dataset?.scene==='7')summary();window.scrollTo({top:0,behavior:'smooth'});document.querySelector('.ga-main')?.scrollTo({top:0,behavior:'smooth'});schedulePersist()}
+ function showImmediate(i){idx=Math.max(0,Math.min(scenes.length-1,i));$('gaError').classList.remove('show');scenes.forEach((s,n)=>s.classList.toggle('active',n===idx));$('gaBack').style.visibility=idx?'visible':'hidden';{const vis=scenes.map((_,n)=>n).filter(n=>!scenes[n].dataset.skip),pos=Math.max(0,vis.indexOf(idx));$('gaCounter').textContent=`${pos+1} de ${vis.length}`;$('gaTopProgress').style.width=`${((pos+1)/vis.length)*100}%`;document.querySelectorAll('#gaDots .ga-dot').forEach((d,n)=>{d.style.display=scenes[n].dataset.skip?'none':'';d.classList.toggle('active',n===idx);d.classList.toggle('done',vis.indexOf(n)<pos)})};$('gaNext').textContent=idx===lastIdx()?(route==='now'?'Abrir proyección →':'Continuar →'):'Continuar →';$('gaError').classList.remove('show');applyQualitativeSceneCopy(scenes[idx]?.dataset?.scene);if(scenes[idx]?.dataset?.scene==='7')summary();window.scrollTo({top:0,behavior:'smooth'});document.querySelector('.ga-main')?.scrollTo({top:0,behavior:'smooth'});schedulePersist()}
  document.querySelectorAll('[data-confirm]').forEach(b=>b.onclick=()=>{document.querySelectorAll('[data-confirm]').forEach(x=>x.classList.remove('selected'));b.classList.add('selected');confirmed=b.dataset.confirm==='yes';if(!confirmed)show(3)});
  document.querySelectorAll('[data-valuecheck]').forEach(b=>b.onclick=()=>{document.querySelectorAll('[data-valuecheck]').forEach(x=>x.classList.remove('selected'));b.classList.add('selected');valueCheck=b.dataset.valuecheck});
 
@@ -3478,7 +3486,7 @@ function updateDiagnosisRecommendation(){
 }}
 
  function persistSession(){
-   if(window.garbaIdentified)return;
+   if(window.garbaIdentified){try{window.GaV2?.touch?.()}catch(e){}return}
    try{
      const snapshot=data();
      if(!snapshot.prospecto.nombre&&!snapshot.prospecto.objetivo&&!snapshot.prospecto.aportacion)return;
@@ -3751,6 +3759,7 @@ function updateDiagnosisRecommendation(){
 
  let decisionOrigin='now',preopenUsed=false,experienceAnswers={};
  function openDecisionGate(origin){
+   if(window.GaV2?.active&&(origin||route)==='later'){window.GaV2.showSchedule();return}
    decisionOrigin=origin||route;
    $('gaShell').style.display='none';$('gaLaterView').style.display='none';$('legacyApp').style.display='none';$('gaPreopenView').style.display='none';$('gaReferralView').style.display='none';$('gaDecisionView').style.display='block';
    $('gaDecisionTitle').textContent=decisionOrigin==='later'?'Dejemos preparada la información para la siguiente reunión.':'Dejemos preparada tu apertura.';
@@ -3793,7 +3802,7 @@ function updateDiagnosisRecommendation(){
  function beneficiaryData(){return [...document.querySelectorAll('.ga-beneficiary')].map(x=>({nombre:x.querySelector('.preBenName').value,parentesco:x.querySelector('.preBenRelation').value,porcentaje:+x.querySelector('.preBenPct').value||0,fechaNacimiento:x.querySelector('.preBenBirth').value}))}
  function preopenData(){return {diagnosticoValidado:{...diagnosisChecks,ajuste:$('gaDiagnosisAdjustment')?.value||''},validacionProyeccion:{...postCalcChecks,comentario:$('gaProjectionTakeaway')?.value||''},prospecto:buildProspecto(),contratante:{nombre:$('preName').value,fechaNacimiento:$('preBirth').value,estadoCivil:$('preCivil').value,rfc:$('preRFC').value,curp:$('preCURP').value,correo:$('preEmail').value,telefono:$('prePhone').value,domicilio:$('preAddress').value,ocupacion:$('preProfession').value,empresa:$('preCompany').value,giro:$('preBusiness').value,ingresos:+$('preIncome').value||0},medico:{peso:+$('preWeight').value||0,estatura:+$('preHeight').value||0,deporte:$('preSport').value,motocicleta:$('preMoto').value,fuma:$('preSmoke').value,medicamentos:$('preMeds').value,notas:$('preMedicalNotes').value},beneficiarios:beneficiaryData(),domiciliacion:{banco:$('preBank').value,tipo:$('prePayType').value,cuenta:$('preAccount').value,dia:+$('preChargeDay').value||0,periodicidad:$('preFrequency').value},ruta:route}}
  function updatePreProgress(){const groups={contract:['preName','preBirth','preCivil','preRFC','preCURP','preEmail','prePhone','preAddress','preProfession','preCompany','preBusiness','preIncome'],medical:['preWeight','preHeight','preSport','preMoto','preSmoke','preMeds','preMedicalNotes'],payment:['preBank','prePayType','preAccount','preChargeDay','preFrequency']};let done=0,total=0;Object.entries(groups).forEach(([k,ids])=>{const c=ids.filter(id=>String($(id)?.value||'').trim()).length;total+=ids.length;done+=c;const e=$('gaCount'+k.charAt(0).toUpperCase()+k.slice(1));if(e)e.textContent=`${c}/${ids.length}`});const bens=beneficiaryData(),bc=bens.filter(b=>b.nombre&&b.parentesco&&b.porcentaje>0&&b.fechaNacimiento).length;total+=4;done+=Math.min(4,bc);$('gaCountBeneficiaries').textContent=`${Math.min(4,bc)}/4`;const pct=Math.round(done/total*100);$('gaPrePercent').textContent=pct+'%';$('gaPreBar').style.width=pct+'%';const sum=bens.reduce((a,b)=>a+b.porcentaje,0);$('gaBenTotal').textContent=`Asignación total: ${sum}% · ${sum<100?'falta '+(100-sum)+'%':sum===100?'completa':'excede por '+(sum-100)+'%'}`}
- function openPreopen(from){if($('gaOpeningAppointment'))$('gaOpeningAppointment').style.display=from==='later'?'block':'none';
+function openPreopen(from){if(window.GaV2?.active&&from==='later'){window.GaV2.showSchedule();return}if($('gaOpeningAppointment'))$('gaOpeningAppointment').style.display=from==='later'?'block':'none';
    decisionOrigin=from||decisionOrigin||route;
    try{prefillPreopen()}catch(e){console.warn('[GarBa Advisor] Prellenado parcial:',e)}
    ['gaShell','gaLaterView','legacyApp','gaReferralView','gaDecisionView'].forEach(id=>{
@@ -3817,23 +3826,27 @@ function updateDiagnosisRecommendation(){
  $('gaPreNextTab').onclick=()=>showPreTab(preTabs[Math.min(preTabs.length-1,preTabIndex+1)]);
  $('gaAddBeneficiary').onclick=()=>{const box=document.createElement('div');box.className='ga-beneficiary';box.innerHTML=`<div class="ga-beneficiary-row"><div class="ga-pre-field"><label>Nombre completo</label><input class="preBenName"></div><div class="ga-pre-field"><label>Parentesco</label><input class="preBenRelation"></div><div class="ga-pre-field"><label>%</label><input class="preBenPct" type="number" min="1" max="100"></div><div class="ga-pre-field"><label>Fecha de nacimiento</label><input class="preBenBirth" type="date"></div></div>`;$('gaBeneficiaries').appendChild(box);box.querySelectorAll('input').forEach(x=>x.addEventListener('input',updatePreProgress));updatePreProgress()};
  $('gaPreDownload').onclick=()=>blob(JSON.stringify(preopenData(),null,2),'GarBa_Preapertura.json','application/json');
- $('gaPreBack').onclick=()=>{$('gaPreopenView').style.display='none';if(route==='now'){$('legacyApp').style.display='flex';$('resultsView').classList.add('active')}else{$('gaShell').style.display='flex';show(9)}};
+ $('gaPreBack').onclick=()=>{$('gaPreopenView').style.display='none';if(route==='now'){$('legacyApp').style.display='flex';$('resultsView').classList.add('active')}else{$('gaShell').style.display='flex';show(lastIdx())}};
  $('gaPreContinue').onclick=()=>openStrategyView();
- $('gaExitToShell')?.addEventListener('click',()=>{$('legacyApp').style.display='none';$('gaShell').style.display='flex';show(scenes.length-1);window.scrollTo({top:0})});
- $('gaDecisionBack')?.addEventListener('click',()=>{$('gaDecisionView').style.display='none';$('gaShell').style.display='flex';show(9);window.scrollTo({top:0})});
+ $('gaExitToShell')?.addEventListener('click',()=>{$('legacyApp').style.display='none';$('gaShell').style.display='flex';show(lastIdx());window.scrollTo({top:0})});
+ $('gaDecisionBack')?.addEventListener('click',()=>{$('gaDecisionView').style.display='none';$('gaShell').style.display='flex';show(lastIdx());window.scrollTo({top:0})});
  $('gaStratBack')?.addEventListener('click',()=>{$('gaStrategyView').style.display='none';$('gaPreopenView').style.display='block';window.scrollTo({top:0})});
  function later(){const d=data().prospecto;$('gaLaterContent').innerHTML=`<div class="ga-later-grid"><div class="ga-later-item"><span>Prospecto</span><strong>${esc(d.nombre)}</strong></div><div class="ga-later-item"><span>Prioridades</span><strong>${esc(d.prioridades.join(' · '))}</strong></div><div class="ga-later-item"><span>Edad objetivo</span><strong>${d.edadObjetivo}</strong></div><div class="ga-later-item"><span>Aportación</span><strong>${money(d.aportacion)}</strong></div></div><div class="ga-later-notes"><h3>Historia que debe resolver la propuesta</h3><p><b>Objetivo:</b> ${esc(d.objetivo)}</p><p><b>Por qué importa:</b> ${esc(d.motivo)}</p><p><b>Condición indispensable:</b> ${esc(d.condicion)}</p><p><b>Freno:</b> ${esc(d.barrera)}</p></div>`;$('gaShell').style.display='none';$('gaLaterView').style.display='block'}
  function blob(c,n,t){const u=URL.createObjectURL(new Blob([c],{type:t})),a=document.createElement('a');a.href=u;a.download=n;a.click();setTimeout(()=>URL.revokeObjectURL(u),1000)}
  $('gaLaterJson').onclick=()=>blob(JSON.stringify(data(),null,2),safeFileName(`GarBa_Sesion_${data().prospecto.nombre||'Prospecto'}`)+'.json','application/json');$('gaLaterPdf').onclick=()=>{const J=window.jspdf?.jsPDF;if(!J)return;const d=data().prospecto,doc=new J();doc.setFillColor(13,27,42);doc.rect(0,0,210,30,'F');doc.setTextColor(255,255,255);doc.setFontSize(17);doc.text('Resumen para segunda cita',15,17);doc.setTextColor(13,27,42);let y=43;[['Prospecto',d.nombre],['Prioridades',d.prioridades.join(', ')],['Objetivo',d.objetivo],['Motivo',d.motivo],['Condición',d.condicion],['Aportación',money(d.aportacion)]].forEach(([a,b])=>{doc.setFont('helvetica','bold');doc.text(a,15,y);doc.setFont('helvetica','normal');const l=doc.splitTextToSize(String(b||''),140);doc.text(l,55,y);y+=Math.max(9,l.length*6)});doc.save(safeFileName(`GarBa_Resumen_${d.nombre||'Prospecto'}`)+'.pdf')};$('gaLaterBack').onclick=()=>{$('gaLaterView').style.display='none';$('gaShell').style.display='flex';show(scenes.length-1)};$('gaLaterProposal').onclick=openProposal;
  $('gaPlazoConfirmGo')?.addEventListener('click',()=>{$('gaPlazoConfirm')?.classList.remove('show');proceedOpenProposal()});
  $('gaPlazoConfirmBack')?.addEventListener('click',()=>{$('gaPlazoConfirm')?.classList.remove('show')});
- $('gaBack').onclick=()=>show(idx-1);
+ function lastIdx(){let i=scenes.length-1;while(i>0&&scenes[i].dataset.skip)i--;return i}
+ function nextIdx(){let i=idx+1;while(i<scenes.length&&scenes[i].dataset.skip)i++;return i}
+ function prevIdx(){let i=idx-1;while(i>0&&scenes[i].dataset.skip)i--;return Math.max(0,i)}
+ $('gaBack').onclick=()=>show(prevIdx());
+ window.GaShell={scenes,$,money,show:i=>showImmediate(i),getIdx:()=>idx,getRoute:()=>route,setRoute:v=>{route=v},priorities,diagnosisChecks,postCalcChecks,setConfirmed:v=>{confirmed=v},openProposal,proceedOpenProposal,openPreopen,markPrecapture:()=>{preopenUsed=true},schedulePersist,lastIdx,nextIdx};
  $('gaOpenResources')?.addEventListener('click',()=>{buildSlides();$('gaResourcesPanel').classList.add('show')});
  $('gaResourcesClose')?.addEventListener('click',()=>$('gaResourcesPanel').classList.remove('show'));
  $('gaNext').onclick=()=>{
    if(idx===2&&$('gaOpeningNeed')?.value&&!$('gaWhy').value)$('gaWhy').value=$('gaOpeningNeed').value;
    if(!required()){$('gaError').classList.add('show');return}
-   if(idx<scenes.length-1){show(idx+1);return}
+   {const n=nextIdx();if(n<scenes.length){show(n);return}}
    route==='later'?openDecisionGate('later'):openProposal()
  };
  
@@ -4210,5 +4223,6 @@ updateGaGoalInsight();if(!gaSessionRestored)show(0);
   }
 })();
 </script>
+<script src="advisor-v2.js"></script>
 </body>
 </html>
