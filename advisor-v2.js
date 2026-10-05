@@ -82,7 +82,8 @@ function renderKnown(){
 }
 function profundizar(){ // vuelve al recorrido original completo; nada se pierde
  S().setConfirmed(false);delete S().diagnosisChecks.ready
- for(const k of ['1b','2','3','4','5','6','7'])delete sceneEl(k).dataset.skip
+ for(const k of ['1b','2','3','4','5','7'])delete sceneEl(k).dataset.skip
+ sceneEl('6').dataset.skip='1'
  for(const k of ['v2r','v2a','v2b'])sceneEl(k).dataset.skip='1'
  S().show(idxOf('1b'))
 }

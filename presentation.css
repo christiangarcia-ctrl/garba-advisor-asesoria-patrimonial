@@ -268,3 +268,61 @@
   @media(prefers-reduced-motion:reduce) { *,*::before,*::after { animation:none!important; transition:none!important; scroll-behavior:auto!important; } }
 }
 @keyframes gaPresentationIn { from{opacity:.6} to{opacity:1} }
+@media screen {
+ #gaShell,#legacyApp,#gaLaterView,#gaDecisionView,#gaPreopenView,#gaReferralView,#gaStrategyView,
+ #gaShell h1,#gaShell h2,#legacyApp h1,#legacyApp h2,#legacyApp h3,#gaShell button,#legacyApp button,#legacyApp input,#legacyApp select { font-family:Montserrat,system-ui,sans-serif!important; }
+ .calculator-title { grid-column:1/-1; font-size:clamp(28px,3vw,46px); line-height:1.15; color:#122641; margin:0 0 6px; font-weight:800; letter-spacing:-.035em; }
+ .calculator-question { font-size:13px; line-height:1.6; color:#536277; margin:8px 0 16px; }
+ #legacyApp .plan-hero { display:block; background:#122641; }
+ #legacyApp .ph-amount { font-size:clamp(36px,4vw,68px); }
+ .projection-graph { margin:20px 0; }
+ .projection-graph .card { border:0; background:transparent; box-shadow:none; margin:0; }
+ .projection-graph .card-head { display:none; }
+ .projection-graph .card-body { padding:0!important; height:260px; }
+ .projection-graph canvas { width:100%!important; height:260px!important; }
+ .projection-gap { display:grid; grid-template-columns:repeat(3,1fr); gap:20px; border-top:1px solid #ffffff30; padding:20px 0; color:white; }
+ .projection-gap span { font-size:12px; color:#c7d2e4; display:block; }
+ .projection-gap strong { display:block; font-size:clamp(21px,2vw,30px); margin:6px 0; }
+ .projection-gap small { color:#c7d2e4; font-size:11px; }
+ .projection-coverage { grid-column:1/-1; display:flex; gap:16px;align-items:center; }
+ .projection-coverage meter { width:140px; height:18px; accent-color:#8bafff; }
+ .projection-coverage p { color:#d2dced; font-size:13px; margin:0; }
+ .projection-gap button { background:white;color:#122641;border:0;border-radius:6px;padding:10px;font:700 12px Montserrat,sans-serif;cursor:pointer;margin-top:12px; }
+ .calculator-timeline { margin:14px 0; padding:14px 0; border-top:1px solid #ccd6e4; font-size:12px; line-height:1.8; color:#536277; }
+ .calculator-timeline strong { color:#122641; }
+ @media(max-width:760px) { .projection-gap { grid-template-columns:1fr;gap:14px; } .projection-graph .card-body,.projection-graph canvas { height:220px!important; } .calculator-title { font-size:28px; } }
+}
+@media screen {
+ #legacyApp .form-head>div>p { display:none; }
+ #legacyApp .form-head { padding-bottom:10px; }
+ #legacyApp .form-head h2 { font-size:18px; }
+ .calculator-about { font-size:11px;margin-top:8px;color:#536277; }
+ .calculator-about summary,.calculator-assumptions summary { cursor:pointer; }
+ #legacyApp .block { padding-bottom:12px;margin-bottom:12px; }
+ #legacyApp .sec-title { margin-bottom:12px; }
+ #legacyApp .grid-2 { gap:12px;margin-bottom:10px; }
+ #legacyApp #captureView .grid-2 .fg { display:grid;grid-template-columns:minmax(0,1fr) 42%;gap:8px;align-items:center;margin-bottom:8px; }
+ #legacyApp #captureView .fg .fl { margin:0;line-height:1.4; }
+ #legacyApp #captureView .fg .fhint { grid-column:1/-1; }
+ #legacyApp .calculator-timeline { margin:8px 0;padding:10px 0 0; }
+ #legacyApp .results-title h2,#legacyApp .scenario-badge { display:none; }
+ #legacyApp .results-head { margin-bottom:14px; }
+ #legacyApp .results-title p { font-size:12px;margin:0; }
+ #legacyApp .action-row { margin:18px 0 28px; }
+ #legacyApp .ph-eyebrow { text-transform:none;letter-spacing:0;font-size:14px; }
+ #legacyApp .plan-hero { padding:24px; }
+ #legacyApp .plan-strip { margin-top:6px;border-top:1px solid #ffffff30;padding-top:14px; }
+ #legacyApp .phs-item { background:transparent; }
+ .calculator-assumptions { border:1px solid #dce3ed;border-radius:8px;padding:14px;margin:16px 0; }
+ .calculator-assumptions summary { font-size:13px;font-weight:700;color:#122641; }
+ .calculator-assumptions .block { margin-top:16px; }
+ @media(max-width:760px) { #legacyApp #captureView .grid-2 .fg { grid-template-columns:minmax(0,1fr) 44%; } .calculator-about { font-size:12px; } }
+ @media(min-width:761px) and (max-height:800px) { #legacyApp .page { padding-top:18px; } .calculator-title { font-size:32px; } .projection-graph .card-body,.projection-graph canvas { height:200px!important; } .projection-gap { padding:14px 0;gap:14px; } #legacyApp .ph-amount { font-size:48px; } }
+}
+@media screen {
+ #legacyApp #captureView .grid-2 { gap:0;margin-bottom:6px; }
+ #legacyApp #captureView .grid-2 .fg { margin-bottom:8px; }
+ #legacyApp .sugg-row,#legacyApp #metaFuturaHint { display:none!important; }
+ .projection-coverage meter::-webkit-meter-optimum-value { background:#8bafff; }
+ .projection-coverage meter::-moz-meter-bar { background:#8bafff; }
+}

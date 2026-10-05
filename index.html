@@ -1332,7 +1332,7 @@ td{padding:8px;border-bottom:1px solid #edf2f7;color:#334155;font-weight:600;}
 .strat-pdf-block p,.strat-pdf-block li{font-size:11.5px;color:#334155;line-height:1.5;}
 .strat-pdf-foot{margin-top:24px;border-top:1px solid #dbe4f0;padding-top:12px;font-size:10px;color:#94a3b8;}
 </style>
-<link rel="stylesheet" href="presentation.css"/>
+<link rel="stylesheet" href="fonts.css"/><link rel="stylesheet" href="support-resources.css"/><link rel="stylesheet" href="presentation.css"/>
 </head>
 <body>
 <div id="gaShell">
@@ -1515,7 +1515,7 @@ td{padding:8px;border-bottom:1px solid #edf2f7;color:#334155;font-weight:600;}
 </div>
 </div>
 </section>
-<section class="ga-scene" data-scene="6">
+<section class="ga-scene" data-scene="6" data-skip="1">
 <div class="ga-kicker">Tu realidad actual</div>
 <h2>Ahora pensemos únicamente en lo que puedes <span class="ga-hl">sostener hoy</span>.</h2>
 <p>Sin intentar alcanzar todavía la cifra ideal, ¿qué cantidad podrías ahorrar cada mes de manera constante sin afectar tu estilo de vida actual?</p>
@@ -1786,7 +1786,7 @@ td{padding:8px;border-bottom:1px solid #edf2f7;color:#334155;font-weight:600;}
       </div>
 </div>
 </header>
-<main class="page" aria-label="Datos y proyección de retiro">
+<main class="page" aria-label="Datos y proyección de retiro"><h1 class="calculator-title">Construyamos tu escenario de retiro.</h1>
 <!-- ── CAPTURE VIEW ── -->
 <section class="view active" id="captureView">
 <div class="hero-copy">
@@ -1829,13 +1829,13 @@ td{padding:8px;border-bottom:1px solid #edf2f7;color:#334155;font-weight:600;}
 </div>
 </div>
 <div class="block">
-<div class="sec-title"><span class="sec-num">2</span> Tu aportación</div>
+<div class="sec-title"><span class="sec-num">2</span> Tu realidad actual</div><p class="calculator-question">¿Qué cantidad podrías ahorrar de manera constante sin afectar tu estilo de vida?</p>
 <div class="sugg-row">
 <div><small>Aportación mensual inicial sugerida</small><strong id="pmtHint">$0</strong></div>
 <span style="font-size:11px;color:#001868;font-weight:700;">Escenario ilustrativo</span>
 </div>
 <div class="grid-2">
-<div class="fg"><label class="fl">Aportación mensual inicial</label><input class="fi" id="pmt" min="0" step="0.01" type="number" value="2500"/></div>
+<div class="fg"><label class="fl">¿Cuánto puedes sostener al mes?</label><input class="fi" id="pmt" min="0" step="0.01" type="number" value="2500"/></div>
 <div class="fg"><label class="fl">Aportación única inicial</label><input class="fi" id="lumpSum" min="0" step="0.01" type="number" value="0"/></div>
 </div>
 <input id="frequency" type="hidden" value="12"/>
@@ -1917,7 +1917,7 @@ td{padding:8px;border-bottom:1px solid #edf2f7;color:#334155;font-weight:600;}
 <div class="ph-amount" id="keyFondoPlan">—</div>
 <div class="ph-meta" id="keyEdadPlan">—</div>
 </div>
-<div class="plan-strip">
+<div class="projection-graph" id="gaProjectionGraph"></div><div class="projection-gap" id="gaProjectionGap" aria-live="polite"></div><div class="plan-strip">
 <div class="phs-item"><span>Aportación mensual inicial</span><strong id="stripPmt">—</strong></div>
 <div class="phs-item"><span>Total aportado estimado</span><strong id="totalAportado">—</strong></div>
 <div class="phs-item"><span>Rendimiento proyectado</span><strong id="rendimiento">—</strong></div>
@@ -2949,7 +2949,7 @@ window.addEventListener('load',()=>{
   4:{src:"img/slide-04.jpg",title:"Un PPR explicado simple.",reason:"Aclara estructura, plazo, disciplina y componentes."},
   5:{src:"img/slide-05.jpg",title:"Tu dinero siempre está bajo tu control.",reason:"Resuelve inquietudes de propiedad, transparencia y respaldo."},
   6:{src:"img/slide-06.jpg",title:"La confianza empieza con una asesoría verificable.",reason:"Muestra acreditación y respaldo cuando la confianza es central."},
-  8:{src:"img/slide-07.jpg",title:"Tu plan se adapta a tu vida y estrategia fiscal.",reason:"Explica Art. 93, Art. 151, flexibilidad y etapas."},
+  8:{src:"img/slide-07.jpg",title:"Etapas del plan, bono y artículos fiscales.",reason:"Explica Art. 93, Art. 151, flexibilidad y etapas."},
   9:{src:"img/slide-08.jpg",title:"Antes de elegir un PPR, veamos tus números.",reason:"Sirve como puente hacia la proyección personalizada."},
   10:{src:"img/slide-09.jpg",title:"Abrir tu plan es más simple de lo que parece.",reason:"Reduce fricción en el momento de decisión."},
   11:{src:"img/slide-10.jpg",title:"La volatilidad es parte del camino.",reason:"Resuelve la objeción de riesgo y horizonte."},
@@ -3136,7 +3136,7 @@ window.addEventListener('load',()=>{
   const sceneConfirmed=window.__gaSceneConfirmed||{};
   const narrative=buildValidationParagraph(nm,esc(pain||goal),esc(goal),esc(meaning),esc(concern),esc(priorityWhy),sceneConfirmed);
   const barrierParagraph=barrier?(sceneConfirmed[4]?'<p class="ga-validation-barrier">Y ya confirmaste también qué te había frenado hasta hoy.</p>':`<p class="ga-validation-barrier">Y algo que te ha frenado hasta hoy: «${esc(gaLower(barrier))}».</p>`):'';
-  $('gaSummary').innerHTML=`<div class="ga-insight-label">Síntesis personalizada</div><h3>${esc(n)}, esto es lo que entendí de nuestra conversación.</h3><p class="ga-validation-paragraph">${narrative}</p>${barrierParagraph}<div class="ga-insight-grid"><div class="ga-insight-item"><span>Prioridad principal</span><strong>${esc(priorities[0])}</strong></div><div class="ga-insight-item"><span>Horizonte</span><strong>${years} años · hasta los ${target}</strong></div><div class="ga-insight-item"><span>Aportación estimada para la meta</span><strong>${suggested?money(suggested):'Por calcular'}</strong></div><div class="ga-insight-item"><span>Punto de partida sostenible</span><strong>${money(real)} al mes</strong></div><div class="ga-insight-item"><span>Ruta fiscal seleccionada</span><strong>${esc(tax)}</strong></div></div>`;
+  $('gaSummary').innerHTML=`<div class="ga-insight-label">Síntesis personalizada</div><h3>${esc(n)}, esto es lo que entendí de nuestra conversación.</h3><p class="ga-validation-paragraph">${narrative}</p>${barrierParagraph}<div class="ga-insight-grid"><div class="ga-insight-item"><span>Prioridad principal</span><strong>${esc(priorities[0])}</strong></div><div class="ga-insight-item"><span>Horizonte</span><strong>${years} años · hasta los ${target}</strong></div><div class="ga-insight-item"><span>Aportación estimada para la meta</span><strong>${suggested?money(suggested):'Por calcular'}</strong></div><div class="ga-insight-item"><span>Punto de partida sostenible</span><strong>${real?money(real)+' al mes':'Por definir en la calculadora'}</strong></div><div class="ga-insight-item"><span>Ruta fiscal seleccionada</span><strong>${esc(tax)}</strong></div></div>`;
   scheduleValidationReveal();
 }
 function scheduleValidationReveal(){
@@ -3175,6 +3175,7 @@ function scheduleValidationReveal(){
    $('gaSlideImage').classList.remove('ga-slide-image-in');
    requestAnimationFrame(()=>{
      $('gaSlideImage').src=d.src;
+     window.GaSupport?.render(slideList[slideIdx]);
      $('gaSlideTitle').textContent=d.title;
      $('gaSlideReason').textContent=d.reason;
      $('gaSlideCountLabel').textContent=`${slideIdx+1} de ${slideList.length}`;
@@ -3514,16 +3515,10 @@ function updateDiagnosisRecommendation(){
    }
  }
 
- function openProposal(){
-   const age=+$('gaAge').value||0,retireAge=+$('gaRetireAge').value||65;
-   const years=snapYears(retireAge-age||10);
-   if($('gaPlazoConfirmYears'))$('gaPlazoConfirmYears').textContent=years+' años';
-   if($('gaPlazoConfirmEdadFin'))$('gaPlazoConfirmEdadFin').textContent=String(age+years);
-   $('gaPlazoConfirm')?.classList.add('show');
- }
+ function openProposal(){proceedOpenProposal()}
  function proceedOpenProposal(){
    const errBox=$('errorMsg');if(errBox)errBox.classList.remove('vis');
-   const realPmt=Math.max(0,+$('gaPmt').value||0);
+   const realPmt=$('gaPmt').value.trim()===''?'':Math.max(0,+$('gaPmt').value||0);
    const fiscal=$('gaTax').value;
    if($('nombreOpt'))$('nombreOpt').value=$('gaName').value;
    if($('edad'))$('edad').value=$('gaAge').value;
@@ -3554,6 +3549,7 @@ function updateDiagnosisRecommendation(){
      try{
        updateSuggestion();
        if($('pmt'))$('pmt').value=realPmt;
+       if(realPmt===''){$('pmt').value='';$('captureView').classList.add('active');$('resultsView').classList.add('active');window.GaPresentation?.refresh({force:true});return;}
        const ok=calcAccum();
        if(!ok)throw new Error('No fue posible generar la proyección con los datos capturados.');
        $('captureView').classList.remove('active');
@@ -4228,6 +4224,7 @@ updateGaGoalInsight();if(!gaSessionRestored)show(0);
 })();
 </script>
 <script src="advisor-v2.js"></script>
+<script src="support-resources.js"></script>
 <script src="presentation.js"></script>
 </body>
 </html>

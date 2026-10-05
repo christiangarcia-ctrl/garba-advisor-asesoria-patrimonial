@@ -38,7 +38,7 @@ async function main(){
   const openCalc=async(p)=>{
     await p.evaluate(()=>{
       for(const [id,value] of Object.entries({gaName:'Cliente de prueba',gaAge:'32',gaRetireAge:'65',gaGoal:'25000',gaPmt:'3000',gaTax:'93'}))document.getElementById(id).value=value;
-      GaShell.proceedOpenProposal();
+      if(window.GaPresentation)GaShell.openProposal();else GaShell.proceedOpenProposal();
     });
     await p.locator('#resultsView.active').waitFor();await wait(200);
   };
@@ -70,13 +70,36 @@ async function main(){
     const resourceBefore=await page.locator('#gaSlideImage').getAttribute('src');
     await page.keyboard.press('ArrowRight');await wait(100);
     assert.notEqual(await page.locator('#gaSlideImage').getAttribute('src'),resourceBefore);
+    assert.equal(await page.locator('#gaSupportContent').getAttribute('data-view'),'retirement');
+    await page.screenshot({path:path.join(output,'support-retirement-desktop.png')});
+    for(let i=0;i<5;i++){await page.locator('#gaSlideNext').click();await wait(60)}
+    assert.equal(await page.locator('#gaSupportContent').getAttribute('data-view'),'stages');
+    await page.screenshot({path:path.join(output,'support-stages-desktop.png')});
+    await page.locator('[data-support-view="bonus"]').click();
+    assert.equal(await page.locator('#gaSupportContent').getAttribute('data-view'),'bonus');
+    await page.screenshot({path:path.join(output,'support-bonus-desktop.png')});
+    await page.keyboard.press('Escape');
+    assert.equal(await page.locator('#gaSupportContent').getAttribute('data-view'),'stages');
+    await page.locator('[data-support-view="fiscal"]').click();
+    await page.screenshot({path:path.join(output,'support-fiscal-desktop.png')});
+    await page.keyboard.press('Escape');
+    await page.locator('[data-support-view="costs"]').click();
+    await page.screenshot({path:path.join(output,'support-costs-desktop.png')});
+    await page.keyboard.press('Escape');
     await page.keyboard.press('Escape');
     assert.equal(await page.locator('#gaResourcesPanel').evaluate(el=>el.classList.contains('show')),false);
     assert.equal(await page.evaluate(()=>document.activeElement.id),'gaOpenResources');
+    assert(await page.evaluate(()=>GaShell.scenes.find(s=>s.dataset.scene==='6').dataset.skip==='1'));
     await openCalc(page);
+    assert(!await page.locator('#gaPlazoConfirm').evaluate(el=>el.classList.contains('show')));
     assert(await page.locator('#captureView').isVisible());
     assert(await page.locator('#resultsView').isVisible());
     await page.screenshot({path:path.join(output,'calculator-desktop.png')});
+    assert(await page.locator('#gaProjectionGraph #chartCanvas').isVisible());
+    assert((await page.locator('#gaProjectionGap').innerText()).includes('Brecha'));
+    await page.locator('#gaTrySuggested').click();await wait(350);
+    assert(await page.evaluate(()=>Math.abs(chart.data.datasets[0].data.at(-1)-chart.data.datasets[1].data.at(-1))<100),'Suggested contribution reaches the same capital target under the original non-deductible assumptions');
+    await page.locator('#pmt').fill('3000');await wait(350);
     const before=await page.locator('#keyFondoPlan').innerText();
     await page.locator('#pmt').fill('5000');await wait(350);
     assert.notEqual(await page.locator('#keyFondoPlan').innerText(),before,'input updates without simulation button');
@@ -108,7 +131,7 @@ async function main(){
       await old.close();
     }
     await setCase(page,{regimenFiscal:'93',edad:32,years:15,metaHoy:25000,pmt:3000,lumpSum:0,rate:8.8,inflation:4,reinvertISR:false});
-    await page.setViewportSize({width:1366,height:768});
+    await page.setViewportSize({width:1366,height:768});await page.evaluate(()=>window.scrollTo(0,0));await wait(200);
     await page.screenshot({path:path.join(output,'calculator-laptop.png')});
     for(const viewport of [{width:390,height:844},{width:844,height:390},{width:1024,height:768}]){
       await page.setViewportSize(viewport);
@@ -129,7 +152,49 @@ async function main(){
     await page.screenshot({path:path.join(output,'resources-mobile.png')});
     await page.setViewportSize({width:844,height:390});await wait(500);
     await page.screenshot({path:path.join(output,'resources-mobile-landscape.png')});
+    await page.locator('#gaAllSlides').click();await page.locator('#gaSlideNext').click();await wait(150);
+    await page.screenshot({path:path.join(output,'support-retirement-landscape.png')});
+    await page.setViewportSize({width:390,height:844});await wait(200);
+    await page.screenshot({path:path.join(output,'support-retirement-mobile.png')});
+    assert(await page.locator('#gaSupportContent').evaluate(el=>el.scrollWidth<=el.clientWidth),'Native support fits phone width');
+    for(const view of ['stages','bonus','costs','fiscal']){
+      await page.evaluate(view=>GaSupport.show(view),view);await wait(100);
+      assert(await page.locator('#gaSupportContent').evaluate(el=>el.scrollWidth<=el.clientWidth),view+' fits phone width');
+      await page.screenshot({path:path.join(output,'support-'+view+'-mobile.png')});
+    }
+    await page.setViewportSize({width:844,height:390});await wait(200);
     assert.equal(await page.locator('.ga-resources-panel-card').evaluate(el=>Math.round(el.getBoundingClientRect().height)),390);
+    const blank=await make();await load(blank,origin);
+    await blank.evaluate(()=>{
+      for(const [id,value] of Object.entries({gaName:'Cliente de prueba',gaAge:'32',gaRetireAge:'65',gaGoal:'25000',gaPmt:'',gaTax:'93'}))document.getElementById(id).value=value;
+      GaShell.show(GaShell.scenes.findIndex(s=>s.dataset.scene==='5'));
+    });
+    assert.equal(await blank.evaluate(()=>GaShell.scenes[GaShell.nextIdx()].dataset.scene),'7','Main flow skips the old reality page');
+    await blank.evaluate(()=>GaShell.openProposal());await wait(1100);
+    assert(await blank.locator('#captureView').isVisible());
+    assert.equal(await blank.evaluate(()=>GaPresentation.isCurrent()),false,'A new diagnosis asks for sustainable contribution in the calculator');
+    await blank.locator('#pmt').fill('3000');await wait(350);
+    assert.equal(await blank.evaluate(()=>GaPresentation.isCurrent()),true);
+    await blank.close();
+    const identified=await make();await load(identified,origin);
+    await identified.evaluate(()=>{
+      window.__testSaved=[];
+      window.GarbaAccess={call:async(action,payload)=>{if(action==='advisory_save')window.__testSaved.push(payload);return {revision:window.__testSaved.length}}};
+      window.garbaIdentified=true;
+      window.__gaKnown={nom:'Cliente de prueba',edad:32,edadR:65,des:25000,ahorro:3000,reg:'NOM',dolor:['Retiro'],meta:['Seguridad'],porque:['Familia'],condicion:['Flexibilidad'],freno:['Tiempo']};
+      window.__gaAdvisoryBoot={revision:0};GaV2.boot();
+    });
+    await openCalc(identified);await wait(1100);
+    assert(await identified.evaluate(()=>GaV2._state.escenarios.length>0),'Identified session records the completed projection');
+    await identified.locator('#pmt').fill('6000');await wait(1400);
+    assert.equal(await identified.evaluate(()=>GaV2._state.escenarios.at(-1).in.pmt),6000,'History records live input');
+    const historyCount=await identified.evaluate(()=>GaV2._state.escenarios.length);
+    await identified.locator('#pmt').fill('');await wait(1100);
+    assert.equal(await identified.evaluate(()=>GaV2._state.escenarios.length),historyCount,'Incomplete live input does not add a stale scenario');
+    assert(await identified.evaluate(()=>window.__testSaved.length>0),'Identified saving reaches the mocked service');
+    await identified.evaluate(()=>document.querySelector('#gaV2Known button.ga-v2-link').click());
+    assert(await identified.evaluate(()=>GaShell.scenes.find(s=>s.dataset.scene==='6').dataset.skip==='1'),'Deepening a known diagnosis still keeps reality in the calculator');
+    await identified.close();
     assert.deepEqual(errors,[],'No browser runtime errors');
     console.log('PASS: full-width advisory, full-screen resources, keyboard return, live input/results/chart, stale-output protection, mobile summary, responsive layouts.');
     console.log('Screenshots:',output);
