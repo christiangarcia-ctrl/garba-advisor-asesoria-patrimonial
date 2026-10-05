@@ -144,6 +144,7 @@ function viewed(id){if(id&&!st.recursos.includes(id)&&st.recursos.length<20){st.
 // ---------------- Historial automático de escenarios ----------------
 const regName=r=>r==='93'?'Art. 93':r==='151'?'Art. 151':'Sin beneficio fiscal inmediato'
 function readScenario(){
+ if(window.GaPresentation&& !window.GaPresentation.isCurrent())return null;
  const R=typeof reportState!=='undefined'?reportState:null;if(!R||!(R.fondoPlan>0)||!(R.pmtSugerido>0))return null
  const pmt=parseFloat($('pmt')?.value);if(!(pmt>0))return null
  const pick=(o,keys)=>{const r={};for(const k of keys)if(typeof o[k]==='number'&&Number.isFinite(o[k]))r[k]=o[k];return r}
