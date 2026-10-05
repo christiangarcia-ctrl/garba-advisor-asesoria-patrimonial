@@ -43,6 +43,7 @@
       chart.options.plugins.tooltip.callbacks.label=ctx=>`${ctx.dataset.label}: ${money(ctx.parsed.y)}`;
       chart.update('none');
     }
+    window.GaLayout?.update(coverage,target);
   }
   let timer=null,lastSignature=null,current=false;
   const disabledBeforePending=new Map();
@@ -54,7 +55,7 @@
     status.dataset.state=state;
   }
   function setPending(message){
-    current=false;app.classList.add('ga-live-pending');
+    current=false;app.classList.add('ga-live-pending');window.GaLayout?.identity();
     setStatus(message,'pending');
     results.querySelectorAll('button').forEach(button=>{
       if(button.id==='gaExitToShell'||button.id==='editBtn')return;
@@ -112,8 +113,7 @@
   }
   function focusInputs(){
     capture.classList.add('active');
-    capture.scrollTo({top:0,behavior:'smooth'});
-    if(matchMedia('(max-width:760px)').matches)capture.scrollIntoView({block:'start',behavior:'smooth'});
+    window.GaLayout?.select('projection');
     byId('pmt').focus({preventScroll:true});
   }
   function onAdjust(){

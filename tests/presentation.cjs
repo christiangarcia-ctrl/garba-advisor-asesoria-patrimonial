@@ -28,7 +28,7 @@ async function main(){
   const make=async()=>{
     const context=await browser.newContext({viewport:{width:1440,height:900}});
     const page=await context.newPage();
-    page.on('pageerror',error=>errors.push(error.message));
+    page.on('pageerror',error=>{errors.push(error.message);console.error('Browser error:',error.message)});
     page.on('dialog',dialog=>dialog.dismiss());
     await page.route('https://**/*',route=>route.abort());
     return page;
@@ -62,6 +62,7 @@ async function main(){
     await load(page,origin);
     await page.screenshot({path:path.join(output,'intro-desktop.png')});
     assert.equal(await page.locator('.ga-card').evaluate(el=>Math.round(el.getBoundingClientRect().width)),1440,'Advisory uses full viewport width');
+    assert.equal(await page.locator('.ga-intro-portrait').count(),0);
     await page.locator('#gaOpenResources').click();await wait(150);
     const panel=await page.locator('.ga-resources-panel-card').boundingBox();
     assert.deepEqual([Math.round(panel.width),Math.round(panel.height)],[1440,900]);
@@ -72,9 +73,12 @@ async function main(){
     assert.notEqual(await page.locator('#gaSlideImage').getAttribute('src'),resourceBefore);
     assert.equal(await page.locator('#gaSupportContent').getAttribute('data-view'),'retirement');
     await page.screenshot({path:path.join(output,'support-retirement-desktop.png')});
-    for(let i=0;i<5;i++){await page.locator('#gaSlideNext').click();await wait(60)}
+    for(let i=0;i<4;i++){await page.locator('#gaSlideNext').click();await wait(60)}
     assert.equal(await page.locator('#gaSupportContent').getAttribute('data-view'),'stages');
     await page.screenshot({path:path.join(output,'support-stages-desktop.png')});
+    await page.locator('[data-support-view="investment"]').click();
+    await page.screenshot({path:path.join(output,'support-investment-desktop.png')});
+    await page.keyboard.press('Escape');
     await page.locator('[data-support-view="bonus"]').click();
     assert.equal(await page.locator('#gaSupportContent').getAttribute('data-view'),'bonus');
     await page.screenshot({path:path.join(output,'support-bonus-desktop.png')});
@@ -96,9 +100,20 @@ async function main(){
     assert(await page.locator('#resultsView').isVisible());
     await page.screenshot({path:path.join(output,'calculator-desktop.png')});
     assert(await page.locator('#gaProjectionGraph #chartCanvas').isVisible());
+    assert(await page.locator('#edad').evaluate(el=>el.readOnly));
+    assert((await page.locator('#gaCalculatorTitle').innerText()).startsWith('Cliente,'));
+    await page.locator('#gaMoreSettings').click();
+    assert(await page.locator('#gaCalculatorSettings #rate').isVisible());
+    assert(await page.locator('#gaCalculatorSettings').evaluate(el=>Math.abs(el.getBoundingClientRect().left-(innerWidth-el.getBoundingClientRect().width)/2)<2),'Settings dialog is centered');
+    await page.screenshot({path:path.join(output,'calculator-settings-desktop.png')});
+    await page.keyboard.press('Escape');
+    assert.equal(await page.evaluate(()=>document.activeElement.id),'gaMoreSettings');
+    await page.locator('#gaTab-gap').click();
+    await page.screenshot({path:path.join(output,'calculator-gap-desktop.png')});
     assert((await page.locator('#gaProjectionGap').innerText()).includes('Brecha'));
     await page.locator('#gaTrySuggested').click();await wait(350);
     assert(await page.evaluate(()=>Math.abs(chart.data.datasets[0].data.at(-1)-chart.data.datasets[1].data.at(-1))<100),'Suggested contribution reaches the same capital target under the original non-deductible assumptions');
+    await page.locator('#gaTab-projection').click();
     await page.locator('#pmt').fill('3000');await wait(350);
     const before=await page.locator('#keyFondoPlan').innerText();
     await page.locator('#pmt').fill('5000');await wait(350);
@@ -112,7 +127,9 @@ async function main(){
     assert.equal(await page.locator('#printBtn').isDisabled(),true,'stale projection cannot be exported');
     await page.locator('#pmt').fill('3000');await wait(350);
     assert.equal(await page.locator('#printBtn').isDisabled(),false);
+    await page.locator('#gaTab-detail').click();
     await page.locator('#editBtn').click();
+    await page.locator('#gaTab-projection').click();
     assert(await page.locator('#resultsView').isVisible(),'adjust leaves results visible');
 
     if(baseline){
@@ -136,14 +153,19 @@ async function main(){
     for(const viewport of [{width:390,height:844},{width:844,height:390},{width:1024,height:768}]){
       await page.setViewportSize(viewport);
       assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),'No horizontal overflow');
+      assert(await page.locator('#captureView').evaluate(el=>el.scrollHeight<=el.clientHeight+1),'Controls have no internal scrolling');
+      assert(await page.locator('#resultsView').evaluate(el=>el.clientHeight>100),'Results have space in the viewport');
     }
     await page.setViewportSize({width:390,height:844});
     await page.locator('#captureView').scrollIntoViewIfNeeded();
     await page.screenshot({path:path.join(output,'calculator-mobile.png')});
-    assert(await page.locator('.ga-live-mobile-result').isVisible());
+    assert(await page.locator('#pmt').isVisible());
+    const toolbarTop=await page.locator('.calculator-toolbar').evaluate(el=>el.getBoundingClientRect().top);
     await page.locator('#pmt').fill('4000');await wait(350);
-    assert.equal(await page.locator('#gaMobileAmount').innerText(),await page.locator('#keyFondoPlan').innerText());
-    await page.locator('#gaMobileResults').click();await wait(500);
+    assert((await page.locator('#gaProjectedIncome').innerText()).includes('/mes'));
+    await page.locator('#gaTab-detail').click();
+    await page.locator('#resultsView').evaluate(el=>el.scrollTop=400);
+    assert.equal(await page.locator('.calculator-toolbar').evaluate(el=>el.getBoundingClientRect().top),toolbarTop,'Controls stay fixed while results scroll');
     await page.screenshot({path:path.join(output,'results-mobile.png')});
     await page.locator('#gaExitToShell').click();await wait(1200);
     await page.evaluate(()=>GaShell.show(0));await wait(300);
@@ -157,7 +179,7 @@ async function main(){
     await page.setViewportSize({width:390,height:844});await wait(200);
     await page.screenshot({path:path.join(output,'support-retirement-mobile.png')});
     assert(await page.locator('#gaSupportContent').evaluate(el=>el.scrollWidth<=el.clientWidth),'Native support fits phone width');
-    for(const view of ['stages','bonus','costs','fiscal']){
+    for(const view of ['ppr','investment','stages','bonus','costs','fiscal']){
       await page.evaluate(view=>GaSupport.show(view),view);await wait(100);
       assert(await page.locator('#gaSupportContent').evaluate(el=>el.scrollWidth<=el.clientWidth),view+' fits phone width');
       await page.screenshot({path:path.join(output,'support-'+view+'-mobile.png')});
@@ -196,7 +218,7 @@ async function main(){
     assert(await identified.evaluate(()=>GaShell.scenes.find(s=>s.dataset.scene==='6').dataset.skip==='1'),'Deepening a known diagnosis still keeps reality in the calculator');
     await identified.close();
     assert.deepEqual(errors,[],'No browser runtime errors');
-    console.log('PASS: full-width advisory, full-screen resources, keyboard return, live input/results/chart, stale-output protection, mobile summary, responsive layouts.');
+    console.log('PASS: full-width advisory, full-screen resources, keyboard return, live input/results/chart, stale-output protection, fixed controls, result tabs, responsive layouts.');
     console.log('Screenshots:',output);
   }finally{await browser.close();await new Promise(resolve=>server.close(resolve))}
 }

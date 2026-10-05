@@ -1362,7 +1362,7 @@ td{padding:8px;border-bottom:1px solid #edf2f7;color:#334155;font-weight:600;}
 <button id="gaImportSession" type="button" style="background:none;border:none;color:#94a3b8;font-size:11.5px;text-decoration:underline;cursor:pointer;padding:4px">¿Retomas una sesión guardada?</button>
 <input accept="application/json" id="gaImportSessionFile" style="display:none" type="file"/>
 </div>
-</div><figure class="ga-intro-portrait"><img src="img/christian-asesoria.jpg" alt="Christian GarBa, tu asesor patrimonial"/><figcaption><strong>Christian GarBa</strong>Consultoría patrimonial · Distribuidor autorizado Allianz</figcaption></figure></div></section>
+</div></div></section>
 <section class="ga-scene" data-scene="1">
 <div class="ga-kicker">La experiencia de hoy</div>
 <h2>Una asesoría estructurada para ayudarte a tomar <span class="ga-hl">una mejor decisión</span>.</h2>
@@ -3158,10 +3158,11 @@ function scheduleValidationReveal(){
    relatedSlideList=[...new Set(ids)].slice(0,6);
    setSlideMode('related');
  }
- function allSlideIds(){return Object.keys(slidesData).map(Number).sort((a,b)=>a-b)}
+ function allSlideIds(){return Object.keys(slidesData).map(Number).filter(id=>![3,9,11].includes(id)).sort((a,b)=>a-b)}
  function setSlideMode(mode){
    slideMode=mode;
-   slideList=mode==='all'?allSlideIds():relatedSlideList.slice();
+   slideList=mode==='all'?allSlideIds():[...new Set(relatedSlideList.filter(id=>id!==9).map(id=>id===3?4:id===11?8:id))];
+   if(!slideList.length)slideList=[4];
    slideIdx=0;
    $('gaRelatedSlides').classList.toggle('active',mode==='related');
    $('gaAllSlides').classList.toggle('active',mode==='all');
@@ -4226,5 +4227,6 @@ updateGaGoalInsight();if(!gaSessionRestored)show(0);
 <script src="advisor-v2.js"></script>
 <script src="support-resources.js"></script>
 <script src="presentation.js"></script>
+<script src="calculator-layout.js"></script>
 </body>
 </html>
