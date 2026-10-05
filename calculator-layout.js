@@ -33,10 +33,14 @@
  const gapHeading=document.createElement('h2');gapHeading.textContent='Lo que deseas y lo que construye tu aportación';
  panes.gap.append(gapHeading,gap);
  panes.projection.append(hero,timeline);
+ const indicators=hero.querySelector('.plan-strip');indicators.remove();
+ const milestones=document.createElement('div');milestones.id='gaProjectionMilestones';milestones.className='calculator-milestones';hero.append(milestones);
  const income=document.createElement('div');income.id='gaProjectedIncome';income.className='calculator-income-highlight';hero.querySelector('.ph-left').after(income);
  const coverageNode=document.createElement('p');coverageNode.id='gaCoverageSummary';coverageNode.className='calculator-coverage-summary';hero.append(coverageNode);
  const go= document.createElement('button');go.type='button';go.textContent='Explorar tu meta y la brecha →';go.className='calculator-gap-link';go.onclick=()=>select('gap');panes.projection.append(go);
  [...results.children].forEach(child=>panes.detail.append(child));
+ const indicatorTitle=document.createElement('h2');indicatorTitle.textContent='Indicadores de tu escenario';
+ panes.detail.prepend(indicatorTitle,indicators);
  results.append(...Object.values(panes));
  const back=$('gaExitToShell');back.classList.add('calculator-return');intro.append(back);
  $('gaGoToValidation').addEventListener('click',()=>select('detail'),true);
@@ -52,6 +56,10 @@
  function update(coverage,target){
   identity();
   if(!window.GaPresentation?.isCurrent())return;
+  const money=value=>new Intl.NumberFormat('es-MX',{style:'currency',currency:'MXN',maximumFractionDigits:0}).format(value);
+  const finish=Math.round(reportState.edadFinPlan);
+  const points=[{age:60,label:'A los 60',amount:reportState.fondo60,note:reportState.edad>60?'Este hito es anterior a tu edad actual.':'Capital proyectado a los 60 años.'},{age:finish,label:'Fin de aportaciones',amount:reportState.fondoPlan,note:'Capital al terminar el periodo simulado de aportación.'},{age:65,label:'A los 65',amount:reportState.fondo65,note:'Capital proyectado para tu retiro.'}].sort((a,b)=>a.age-b.age);
+  milestones.replaceChildren(...points.map(point=>{const card=document.createElement('section');const label=document.createElement('span');label.textContent=point.label;const amount=document.createElement('strong');amount.textContent=point.amount==null?'—':money(point.amount);const age=document.createElement('b');age.textContent=point.age+' años';const note=document.createElement('small');note.textContent=point.note;card.append(label,amount,age,note);return card}));
   income.innerHTML='<span>Ingreso mensual estimado desde los 65</span><strong></strong><small>Durante 20 años · en pesos futuros · referencia ilustrativa</small>';
   income.querySelector('strong').textContent=$('pmtReal').textContent+'/mes';
   coverageNode.textContent=target>0?`Con esta aportación cubres aproximadamente el ${Math.round(coverage)}% de tu capital objetivo. Proyección sujeta a los supuestos del escenario.`:'Define tu ingreso deseado para comparar este escenario con tu meta.';

@@ -359,7 +359,7 @@
  .calculator-income-highlight span,.calculator-income-highlight small { display:block;color:#c7d2e4;font-size:12px;line-height:1.5; }
  .calculator-income-highlight strong { display:block;font-size:clamp(24px,2.8vw,44px);margin:8px 0; }
  .calculator-workspace .projection-graph { grid-column:1/-1;margin:0; }
- .calculator-workspace .projection-graph .card-body,.calculator-workspace .projection-graph canvas { height:clamp(180px,30vh,330px)!important; }
+ .calculator-workspace .projection-graph .card-body,.calculator-workspace .projection-graph canvas { height:clamp(160px,24vh,280px)!important; }
  .calculator-workspace .plan-strip { grid-column:1/-1;display:grid;grid-template-columns:repeat(4,1fr);padding-top:12px!important;margin:0!important; }
  .calculator-coverage-summary { grid-column:1/-1;margin:0;color:#bfd1f8;font-size:12px;line-height:1.5; }
  .calculator-workspace .calculator-timeline { font-size:12px;padding:10px 0;margin:8px 0; }
@@ -389,4 +389,9 @@
   .calculator-workspace .plan-strip { grid-template-columns:1fr 1fr;gap:12px; }.calculator-workspace .projection-gap { grid-template-columns:1fr; }.calculator-workspace .projection-gap .projection-coverage { grid-column:auto; }
  }
  @media(max-height:550px) and (min-width:761px) { #legacyApp.calculator-workspace .topbar { display:none; }.calculator-heading .calculator-title { font-size:22px; }.calculator-heading { margin-bottom:6px; }.calculator-assumptions-summary { margin:4px 0; }.calculator-result-tabs button { padding:7px 4px; } }
+}
+
+@media screen {
+.calculator-milestones {grid-column:1/-1;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;border-top:1px solid #ffffff30;padding-top:14px}.calculator-milestones section {padding:8px 12px;border-left:3px solid #8bafff}.calculator-milestones span,.calculator-milestones small {display:block;color:#c7d2e4;font-size:12px;line-height:1.4}.calculator-milestones strong {display:block;font-size:clamp(23px,2.3vw,34px);margin:7px 0}.calculator-milestones b {display:block;font-size:12px;margin-bottom:7px}#gaPane-detail>.etapas {display:none}#gaPane-detail>.plan-strip {background:#122641;color:white;border-radius:12px;padding:24px!important;margin-bottom:24px!important}#gaPane-detail>.plan-strip span {color:#c7d2e4}#gaPane-detail>h2 {font-size:24px;margin:8px 0 20px;color:#122641}
+@media(max-width:760px){.calculator-milestones {grid-template-columns:1fr}.calculator-milestones section {display:grid;grid-template-columns:1fr 1fr;gap:4px 12px}.calculator-milestones strong {grid-row:span 2;margin:0;font-size:24px}.calculator-milestones small {grid-column:1/-1}.calculator-milestones b {margin:0}}
 }

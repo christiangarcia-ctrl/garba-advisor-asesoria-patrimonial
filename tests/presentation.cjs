@@ -100,6 +100,11 @@ async function main(){
     assert(await page.locator('#resultsView').isVisible());
     await page.screenshot({path:path.join(output,'calculator-desktop.png')});
     assert(await page.locator('#gaProjectionGraph #chartCanvas').isVisible());
+    assert.equal(await page.locator('#gaProjectionMilestones section').count(),3);
+    assert.equal(await page.locator('#gaPane-projection .plan-strip').count(),0);
+    assert.equal(await page.locator('#gaPane-detail .plan-strip').count(),1);
+    assert((await page.locator('#gaProjectionMilestones').innerText()).includes('Fin de aportaciones'));
+    assert(!(await page.locator('#gaProjectionMilestones').innerText()).includes('Etapa'));
     assert(await page.locator('#edad').evaluate(el=>el.readOnly));
     assert((await page.locator('#gaCalculatorTitle').innerText()).startsWith('Cliente,'));
     await page.locator('#gaMoreSettings').click();
