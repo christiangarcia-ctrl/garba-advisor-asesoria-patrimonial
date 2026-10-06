@@ -9,7 +9,7 @@
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1" name="viewport"/>
 <meta content="Asesoría patrimonial personalizada con Christian GarBa." name="description"/>
-<meta content="#071522" name="theme-color"/>
+<meta content="#FFFFFF" name="theme-color"/>
 <meta content="noindex,nofollow" name="robots"/>
 <title>Asesoría Patrimonial · Christian GarBa</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&amp;family=Poppins:wght@500;600;700;800;900&amp;display=swap" rel="stylesheet"/>
@@ -1332,6 +1332,7 @@ td{padding:8px;border-bottom:1px solid #edf2f7;color:#334155;font-weight:600;}
 .strat-pdf-block p,.strat-pdf-block li{font-size:11.5px;color:#334155;line-height:1.5;}
 .strat-pdf-foot{margin-top:24px;border-top:1px solid #dbe4f0;padding-top:12px;font-size:10px;color:#94a3b8;}
 </style>
+<link rel="stylesheet" href="fonts.css"/><link rel="stylesheet" href="support-resources.css"/><link rel="stylesheet" href="presentation.css"/>
 </head>
 <body>
 <div id="gaShell">
@@ -1351,7 +1352,7 @@ td{padding:8px;border-bottom:1px solid #edf2f7;color:#334155;font-weight:600;}
 <header class="ga-head"><div class="ga-head-left"><div class="ga-mark"><img alt="Christian GarBa" src="img/logo-garba.png"/></div><div class="ga-head-copy"><strong id="gaHeadTitle">Una conversación que se convierte en estrategia</strong><span id="gaHeadSub">Construyendo tu plan a tu ritmo</span></div></div><div class="ga-progress-wrap"><div class="ga-dots" id="gaDots"></div><span class="ga-count" id="gaCounter">1 de 9</span></div></header><div class="ga-topbar-progress" id="gaTopProgress"></div>
 <main class="ga-main">
 <section class="ga-scene active" data-scene="0">
-<div class="ga-kicker">Antes de comenzar</div>
+<div class="ga-intro-layout"><div class="ga-intro-copy"><div class="ga-kicker">Antes de comenzar</div>
 <h2>Las mejores decisiones patrimoniales comienzan con <span class="ga-hl">una buena conversación</span>.</h2>
 <p id="gaIntroLead">Hoy vamos a entender qué es importante para ti, ordenar la información relevante y construir una ruta que tenga sentido para tu situación. No partiremos de un producto ni de una respuesta predeterminada.</p>
 <div class="ga-intro-focus">
@@ -1361,7 +1362,7 @@ td{padding:8px;border-bottom:1px solid #edf2f7;color:#334155;font-weight:600;}
 <button id="gaImportSession" type="button" style="background:none;border:none;color:#94a3b8;font-size:11.5px;text-decoration:underline;cursor:pointer;padding:4px">¿Retomas una sesión guardada?</button>
 <input accept="application/json" id="gaImportSessionFile" style="display:none" type="file"/>
 </div>
-</section>
+</div></div></section>
 <section class="ga-scene" data-scene="1">
 <div class="ga-kicker">La experiencia de hoy</div>
 <h2>Una asesoría estructurada para ayudarte a tomar <span class="ga-hl">una mejor decisión</span>.</h2>
@@ -1514,7 +1515,7 @@ td{padding:8px;border-bottom:1px solid #edf2f7;color:#334155;font-weight:600;}
 </div>
 </div>
 </section>
-<section class="ga-scene" data-scene="6">
+<section class="ga-scene" data-scene="6" data-skip="1">
 <div class="ga-kicker">Tu realidad actual</div>
 <h2>Ahora pensemos únicamente en lo que puedes <span class="ga-hl">sostener hoy</span>.</h2>
 <p>Sin intentar alcanzar todavía la cifra ideal, ¿qué cantidad podrías ahorrar cada mes de manera constante sin afectar tu estilo de vida actual?</p>
@@ -1561,10 +1562,10 @@ td{padding:8px;border-bottom:1px solid #edf2f7;color:#334155;font-weight:600;}
 <section class="ga-scene" data-scene="v2r" data-skip="1"><div id="gaV2Resume"></div></section>
 <section class="ga-scene" data-scene="v2a" data-skip="1"><div id="gaV2Known"></div></section>
 <section class="ga-scene" data-scene="v2b" data-skip="1"><div id="gaV2Missing"></div></section>
-<div class="ga-resources-panel" id="gaResourcesPanel">
+<div class="ga-resources-panel" id="gaResourcesPanel" role="dialog" aria-modal="true" aria-hidden="true" aria-labelledby="gaResourcesTitle">
 <div class="ga-resources-panel-card">
-<button class="ga-resources-close" id="gaResourcesClose" type="button">✕</button>
-<div class="ga-kicker">Recursos de apoyo</div>
+<button class="ga-resources-close" id="gaResourcesClose" type="button">Volver a la asesoría</button>
+<div class="ga-kicker" id="gaResourcesTitle">Recursos de apoyo</div>
 <h2>Revisemos solamente lo que aporte valor a esta conversación.</h2>
 <p>Seleccionamos los recursos más relacionados con lo que compartiste. Si quieres ver algo adicional, también puedes abrir la biblioteca completa.</p>
 <div class="ga-slide-mode">
@@ -1592,8 +1593,8 @@ td{padding:8px;border-bottom:1px solid #edf2f7;color:#334155;font-weight:600;}
 <span id="gaSlideReason"></span>
 </div>
 <div class="ga-slide-nav">
-<button id="gaSlidePrev" type="button">←</button>
-<button id="gaSlideNext" type="button">→</button>
+<button id="gaSlidePrev" type="button" aria-label="Recurso anterior">←</button>
+<button id="gaSlideNext" type="button" aria-label="Recurso siguiente">→</button>
 </div>
 </div>
 <div class="ga-slide-dots" id="gaSlideDots"></div>
@@ -1785,7 +1786,7 @@ td{padding:8px;border-bottom:1px solid #edf2f7;color:#334155;font-weight:600;}
       </div>
 </div>
 </header>
-<main class="page">
+<main class="page" aria-label="Datos y proyección de retiro"><h1 class="calculator-title">Construyamos tu escenario de retiro.</h1>
 <!-- ── CAPTURE VIEW ── -->
 <section class="view active" id="captureView">
 <div class="hero-copy">
@@ -1828,13 +1829,13 @@ td{padding:8px;border-bottom:1px solid #edf2f7;color:#334155;font-weight:600;}
 </div>
 </div>
 <div class="block">
-<div class="sec-title"><span class="sec-num">2</span> Tu aportación</div>
+<div class="sec-title"><span class="sec-num">2</span> Tu realidad actual</div><p class="calculator-question">¿Qué cantidad podrías ahorrar de manera constante sin afectar tu estilo de vida?</p>
 <div class="sugg-row">
 <div><small>Aportación mensual inicial sugerida</small><strong id="pmtHint">$0</strong></div>
 <span style="font-size:11px;color:#001868;font-weight:700;">Escenario ilustrativo</span>
 </div>
 <div class="grid-2">
-<div class="fg"><label class="fl">Aportación mensual inicial</label><input class="fi" id="pmt" min="0" step="0.01" type="number" value="2500"/></div>
+<div class="fg"><label class="fl">¿Cuánto puedes sostener al mes?</label><input class="fi" id="pmt" min="0" step="0.01" type="number" value="2500"/></div>
 <div class="fg"><label class="fl">Aportación única inicial</label><input class="fi" id="lumpSum" min="0" step="0.01" type="number" value="0"/></div>
 </div>
 <input id="frequency" type="hidden" value="12"/>
@@ -1881,10 +1882,11 @@ td{padding:8px;border-bottom:1px solid #edf2f7;color:#334155;font-weight:600;}
 </div>
 </div>
 </div>
-<button class="btn-simulate" id="simulateBtn">
+<button class="btn-simulate" id="simulateBtn" type="button">
 <svg fill="none" height="18" stroke="currentColor" stroke-width="2.5" viewbox="0 0 24 24" width="18"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline><polyline points="17 6 23 6 23 12"></polyline></svg>
-                Ver mi simulación
+                Ver resultados
               </button>
+<p class="ga-live-status" id="gaLiveStatus" role="status" aria-live="polite">Los resultados se actualizan al ajustar tus datos.</p>
 </div>
 </div>
 </div>
@@ -1907,6 +1909,7 @@ td{padding:8px;border-bottom:1px solid #edf2f7;color:#334155;font-weight:600;}
 <a class="btn-wa-sm" id="waBtn" rel="noopener" target="_blank">💬 Contactar asesor</a>
 </div>
 </div>
+<div class="ga-live-empty">Tu proyección aparecerá aquí junto a los datos que estamos ajustando.</div>
 <!-- Plan Hero -->
 <div class="plan-hero">
 <div class="ph-left">
@@ -1914,7 +1917,7 @@ td{padding:8px;border-bottom:1px solid #edf2f7;color:#334155;font-weight:600;}
 <div class="ph-amount" id="keyFondoPlan">—</div>
 <div class="ph-meta" id="keyEdadPlan">—</div>
 </div>
-<div class="plan-strip">
+<div class="projection-graph" id="gaProjectionGraph"></div><div class="projection-gap" id="gaProjectionGap" aria-live="polite"></div><div class="plan-strip">
 <div class="phs-item"><span>Aportación mensual inicial</span><strong id="stripPmt">—</strong></div>
 <div class="phs-item"><span>Total aportado estimado</span><strong id="totalAportado">—</strong></div>
 <div class="phs-item"><span>Rendimiento proyectado</span><strong id="rendimiento">—</strong></div>
@@ -2055,6 +2058,7 @@ td{padding:8px;border-bottom:1px solid #edf2f7;color:#334155;font-weight:600;}
 <div class="small-note"><strong>Importante:</strong> esta simulación es únicamente ilustrativa. No constituye garantía de rendimiento, oferta contractual, asesoría fiscal personalizada ni promesa de pago.</div>
 </section>
 </main>
+<div class="ga-live-mobile-result"><div><span id="gaMobileLabel">Capital proyectado para retiro</span><strong id="gaMobileAmount">—</strong></div><button id="gaMobileResults" type="button">Ver resultados ↓</button></div>
 </div>
 <!-- ══ PDF REPORT ══ -->
 <div class="report-view">
@@ -2655,11 +2659,11 @@ function actualizarGrafica(labels,data){
       return;
     }
     canvas.style.display='block';
-    if(chart) chart.destroy();
+    if(chart){chart.data.labels=labels;chart.data.datasets[0].data=data;chart.update('none');return;}
     chart=new Chart(canvas.getContext('2d'),{
       type:'line',
       data:{labels,datasets:[{label:'Fondo proyectado',data,borderColor:'#133f7a',backgroundColor:'rgba(19,63,122,.08)',borderWidth:3,fill:true,tension:.35,pointRadius:0,pointHoverRadius:4}]},
-      options:{responsive:true,maintainAspectRatio:true,plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>'Fondo: '+money(ctx.parsed.y)}}},scales:{y:{beginAtZero:true,ticks:{callback:v=>'$'+(v/1000000).toFixed(1)+'M',color:'#64748b'},grid:{color:'#edf2f7'}},x:{ticks:{color:'#64748b',maxRotation:0,autoSkip:true,maxTicksLimit:9},grid:{display:false}}}}
+      options:{responsive:true,maintainAspectRatio:true,animation:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>'Fondo: '+money(ctx.parsed.y)}}},scales:{y:{beginAtZero:true,ticks:{callback:v=>'$'+(v/1000000).toFixed(1)+'M',color:'#64748b'},grid:{color:'#edf2f7'}},x:{ticks:{color:'#64748b',maxRotation:0,autoSkip:true,maxTicksLimit:9},grid:{display:false}}}}
     });
   }catch(e){
     console.warn('[GarBa Advisor] No fue posible renderizar la gráfica:',e);
@@ -2922,10 +2926,10 @@ $('pmt').addEventListener('input',()=>{userEditedPMT=true;linkWhatsApp();});
 ['lumpSum','regimenFiscal','isrPct','nombreOpt'].forEach(id=>{const el=$(id);if(!el)return;el.addEventListener('change',linkWhatsApp);el.addEventListener('input',linkWhatsApp);});
 $('advancedToggle').addEventListener('click',function(){$('advancedContent').classList.toggle('vis');});
 $('simulateBtn').addEventListener('click',()=>{
-  try{updateSuggestion();const ok=calcAccum();if(!ok)return;$('captureView').classList.remove('active');$('resultsView').classList.add('active');try{populateCloseReminder()}catch(e){}try{populateCloseReminder()}catch(e){}window.scrollTo({top:0,behavior:'smooth'});}
+  try{if(!window.GaPresentation.refresh({force:true}))return;if(matchMedia('(max-width:760px)').matches)$('resultsView').scrollIntoView({block:'start',behavior:'smooth'});}
   catch(error){console.error(error);alert('Hubo un problema al generar la simulación.');}
 });
-$('editBtn').addEventListener('click',()=>{$('resultsView').classList.remove('active');$('captureView').classList.add('active');window.scrollTo({top:0,behavior:'smooth'});});
+$('editBtn').addEventListener('click',()=>window.GaPresentation.focusInputs());
 $('csvBtn').addEventListener('click',exportCSV);
 $('printBtn').addEventListener('click',prepararPDF);
 $('toggleTable').addEventListener('click',function(){$('details').classList.toggle('vis');});
@@ -2945,7 +2949,7 @@ window.addEventListener('load',()=>{
   4:{src:"img/slide-04.jpg",title:"Un PPR explicado simple.",reason:"Aclara estructura, plazo, disciplina y componentes."},
   5:{src:"img/slide-05.jpg",title:"Tu dinero siempre está bajo tu control.",reason:"Resuelve inquietudes de propiedad, transparencia y respaldo."},
   6:{src:"img/slide-06.jpg",title:"La confianza empieza con una asesoría verificable.",reason:"Muestra acreditación y respaldo cuando la confianza es central."},
-  8:{src:"img/slide-07.jpg",title:"Tu plan se adapta a tu vida y estrategia fiscal.",reason:"Explica Art. 93, Art. 151, flexibilidad y etapas."},
+  8:{src:"img/slide-07.jpg",title:"Etapas del plan, bono y artículos fiscales.",reason:"Explica Art. 93, Art. 151, flexibilidad y etapas."},
   9:{src:"img/slide-08.jpg",title:"Antes de elegir un PPR, veamos tus números.",reason:"Sirve como puente hacia la proyección personalizada."},
   10:{src:"img/slide-09.jpg",title:"Abrir tu plan es más simple de lo que parece.",reason:"Reduce fricción en el momento de decisión."},
   11:{src:"img/slide-10.jpg",title:"La volatilidad es parte del camino.",reason:"Resuelve la objeción de riesgo y horizonte."},
@@ -3132,7 +3136,7 @@ window.addEventListener('load',()=>{
   const sceneConfirmed=window.__gaSceneConfirmed||{};
   const narrative=buildValidationParagraph(nm,esc(pain||goal),esc(goal),esc(meaning),esc(concern),esc(priorityWhy),sceneConfirmed);
   const barrierParagraph=barrier?(sceneConfirmed[4]?'<p class="ga-validation-barrier">Y ya confirmaste también qué te había frenado hasta hoy.</p>':`<p class="ga-validation-barrier">Y algo que te ha frenado hasta hoy: «${esc(gaLower(barrier))}».</p>`):'';
-  $('gaSummary').innerHTML=`<div class="ga-insight-label">Síntesis personalizada</div><h3>${esc(n)}, esto es lo que entendí de nuestra conversación.</h3><p class="ga-validation-paragraph">${narrative}</p>${barrierParagraph}<div class="ga-insight-grid"><div class="ga-insight-item"><span>Prioridad principal</span><strong>${esc(priorities[0])}</strong></div><div class="ga-insight-item"><span>Horizonte</span><strong>${years} años · hasta los ${target}</strong></div><div class="ga-insight-item"><span>Aportación estimada para la meta</span><strong>${suggested?money(suggested):'Por calcular'}</strong></div><div class="ga-insight-item"><span>Punto de partida sostenible</span><strong>${money(real)} al mes</strong></div><div class="ga-insight-item"><span>Ruta fiscal seleccionada</span><strong>${esc(tax)}</strong></div></div>`;
+  $('gaSummary').innerHTML=`<div class="ga-insight-label">Síntesis personalizada</div><h3>${esc(n)}, esto es lo que entendí de nuestra conversación.</h3><p class="ga-validation-paragraph">${narrative}</p>${barrierParagraph}<div class="ga-insight-grid"><div class="ga-insight-item"><span>Prioridad principal</span><strong>${esc(priorities[0])}</strong></div><div class="ga-insight-item"><span>Horizonte</span><strong>${years} años · hasta los ${target}</strong></div><div class="ga-insight-item"><span>Aportación estimada para la meta</span><strong>${suggested?money(suggested):'Por calcular'}</strong></div><div class="ga-insight-item"><span>Punto de partida sostenible</span><strong>${real?money(real)+' al mes':'Por definir en la calculadora'}</strong></div><div class="ga-insight-item"><span>Ruta fiscal seleccionada</span><strong>${esc(tax)}</strong></div></div>`;
   scheduleValidationReveal();
 }
 function scheduleValidationReveal(){
@@ -3154,10 +3158,11 @@ function scheduleValidationReveal(){
    relatedSlideList=[...new Set(ids)].slice(0,6);
    setSlideMode('related');
  }
- function allSlideIds(){return Object.keys(slidesData).map(Number).sort((a,b)=>a-b)}
+ function allSlideIds(){return Object.keys(slidesData).map(Number).filter(id=>![3,9,11].includes(id)).sort((a,b)=>a-b)}
  function setSlideMode(mode){
    slideMode=mode;
-   slideList=mode==='all'?allSlideIds():relatedSlideList.slice();
+   slideList=mode==='all'?allSlideIds():[...new Set(relatedSlideList.filter(id=>id!==9).map(id=>id===3?4:id===11?8:id))];
+   if(!slideList.length)slideList=[4];
    slideIdx=0;
    $('gaRelatedSlides').classList.toggle('active',mode==='related');
    $('gaAllSlides').classList.toggle('active',mode==='all');
@@ -3171,6 +3176,7 @@ function scheduleValidationReveal(){
    $('gaSlideImage').classList.remove('ga-slide-image-in');
    requestAnimationFrame(()=>{
      $('gaSlideImage').src=d.src;
+     window.GaSupport?.render(slideList[slideIdx]);
      $('gaSlideTitle').textContent=d.title;
      $('gaSlideReason').textContent=d.reason;
      $('gaSlideCountLabel').textContent=`${slideIdx+1} de ${slideList.length}`;
@@ -3460,7 +3466,7 @@ function updateDiagnosisRecommendation(){
  $('gaGoToValidation')?.addEventListener('click',()=>{populateCloseReminder();$('gaPostCalcValidation')?.scrollIntoView({behavior:'smooth',block:'start'})});
  $('gaPostCalcContinue').onclick=()=>{
    const decision=postCalcChecks.decision;
-   if(decision==='adjust'){$('resultsView').classList.remove('active');$('captureView').classList.add('active');window.scrollTo({top:0,behavior:'smooth'});return}
+   if(decision==='adjust'){window.GaPresentation.focusInputs();return}
    if(decision==='schedule'){setPreValue('preOpeningDate',$('gaOpeningDate')?.value||'');setPreValue('preOpeningTime',$('gaOpeningTime')?.value||'');setPreValue('preOpeningParticipants',$('gaOpeningParticipants')?.value||'')}
    preopenUsed=true;openPreopen(decision==='schedule'?'later':'now')
  };
@@ -3510,16 +3516,10 @@ function updateDiagnosisRecommendation(){
    }
  }
 
- function openProposal(){
-   const age=+$('gaAge').value||0,retireAge=+$('gaRetireAge').value||65;
-   const years=snapYears(retireAge-age||10);
-   if($('gaPlazoConfirmYears'))$('gaPlazoConfirmYears').textContent=years+' años';
-   if($('gaPlazoConfirmEdadFin'))$('gaPlazoConfirmEdadFin').textContent=String(age+years);
-   $('gaPlazoConfirm')?.classList.add('show');
- }
+ function openProposal(){proceedOpenProposal()}
  function proceedOpenProposal(){
    const errBox=$('errorMsg');if(errBox)errBox.classList.remove('vis');
-   const realPmt=Math.max(0,+$('gaPmt').value||0);
+   const realPmt=$('gaPmt').value.trim()===''?'':Math.max(0,+$('gaPmt').value||0);
    const fiscal=$('gaTax').value;
    if($('nombreOpt'))$('nombreOpt').value=$('gaName').value;
    if($('edad'))$('edad').value=$('gaAge').value;
@@ -3550,6 +3550,7 @@ function updateDiagnosisRecommendation(){
      try{
        updateSuggestion();
        if($('pmt'))$('pmt').value=realPmt;
+       if(realPmt===''){$('pmt').value='';$('captureView').classList.add('active');$('resultsView').classList.add('active');window.GaPresentation?.refresh({force:true});return;}
        const ok=calcAccum();
        if(!ok)throw new Error('No fue posible generar la proyección con los datos capturados.');
        $('captureView').classList.remove('active');
@@ -4040,7 +4041,7 @@ function openPreopen(from){if(window.GaV2?.active&&from==='later'){window.GaV2.s
 });
 
  (function initGaAiCanvas(){
-   const canvas=$('gaAiCanvas');if(!canvas)return;const ctx=canvas.getContext('2d');let nodes=[],w=0,h=0,dpr=1;
+   const canvas=$('gaAiCanvas');if(!canvas||getComputedStyle(canvas).display==='none')return;const ctx=canvas.getContext('2d');let nodes=[],w=0,h=0,dpr=1;
    function resize(){dpr=Math.min(window.devicePixelRatio||1,2);w=canvas.clientWidth;h=canvas.clientHeight;canvas.width=w*dpr;canvas.height=h*dpr;ctx.setTransform(dpr,0,0,dpr,0,0);const count=Math.max(22,Math.min(48,Math.floor(w/28)));nodes=Array.from({length:count},()=>({x:Math.random()*w,y:Math.random()*h,vx:(Math.random()-.5)*.16,vy:(Math.random()-.5)*.16,r:Math.random()*1.5+.5,p:Math.random()*Math.PI*2}))}
    function draw(t){ctx.clearRect(0,0,w,h);for(const n of nodes){n.x+=n.vx;n.y+=n.vy;n.p+=.018;if(n.x<0||n.x>w)n.vx*=-1;if(n.y<0||n.y>h)n.vy*=-1;ctx.beginPath();ctx.arc(n.x,n.y,n.r+Math.sin(n.p)*.25,0,Math.PI*2);ctx.fillStyle='rgba(100,196,255,.40)';ctx.fill()}for(let i=0;i<nodes.length;i++)for(let j=i+1;j<nodes.length;j++){const a=nodes[i],b=nodes[j],dx=a.x-b.x,dy=a.y-b.y,d=Math.hypot(dx,dy);if(d<135){ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);ctx.strokeStyle=`rgba(73,190,226,${(1-d/135)*.13})`;ctx.lineWidth=.7;ctx.stroke()}}requestAnimationFrame(draw)}
    resize();window.addEventListener('resize',resize);requestAnimationFrame(draw)
@@ -4224,5 +4225,8 @@ updateGaGoalInsight();if(!gaSessionRestored)show(0);
 })();
 </script>
 <script src="advisor-v2.js"></script>
+<script src="support-resources.js"></script>
+<script src="presentation.js"></script>
+<script src="calculator-layout.js"></script>
 </body>
 </html>

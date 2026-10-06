@@ -1,0 +1,406 @@
+/* Presentation layer only. Financial calculations and advisory routing remain in index.html. */
+@media screen {
+  :root { --presentation-navy:#001868; --presentation-blue:#0830e8; --presentation-muted:#526174; --presentation-line:#dce3ee; --presentation-soft:#f5f7fb; }
+  html,body { background:#fff; color:#1c2a3a; }
+  button,input,select,textarea { font-family:'Inter',system-ui,sans-serif; }
+  button:focus-visible,a:focus-visible,summary:focus-visible { outline:3px solid #0830e8; outline-offset:3px; }
+  button:disabled { cursor:default; opacity:.45; }
+  #gaShell { padding:0; background:#fff; color:var(--presentation-navy); min-height:100dvh; align-items:stretch; overflow:visible; }
+  #gaShell::before,#gaShell::after,#legacyApp::before,#legacyApp::after { display:none; }
+  #gaAiCanvas,.ga-topline,.ga-slide-scan,.ga-goal-orb,.ga-ai-core { display:none; }
+  .ga-wrap { width:100%; display:flex; flex-direction:column; }
+  .ga-brand { padding:14px clamp(20px,4vw,64px); margin:0; border-bottom:1px solid var(--presentation-line); background:#fff; }
+  .ga-brand strong { color:var(--presentation-navy); font-size:16px; }
+  .ga-brand span { color:var(--presentation-muted); font-size:12px; }
+  #gaShell .ga-card { flex:1; min-height:0; max-height:none; border:0; border-radius:0; box-shadow:none; overflow:visible; }
+  .ga-head { padding:14px clamp(20px,4vw,64px); background:#fff; }
+  .ga-mark { width:38px; height:38px; border-radius:0; padding:0; box-shadow:none; }
+  .ga-head-copy strong { font-size:14px; }
+  .ga-head-copy span,.ga-count { font-size:12px; color:var(--presentation-muted); }
+  .ga-topbar-progress { background:var(--presentation-blue); height:2px; }
+  #gaShell .ga-main { padding:clamp(28px,5vh,60px) clamp(20px,5vw,80px) 0; overflow:visible; min-height:0; }
+  .ga-scene.active { animation:gaPresentationIn .2s ease; }
+  .ga-scene h2 { font-size:clamp(32px,3.7vw,58px); line-height:1.13; font-weight:650; max-width:1050px; letter-spacing:-.035em; }
+  .ga-scene>p { font-size:clamp(16px,1.25vw,19px); line-height:1.65; color:var(--presentation-muted); max-width:900px; margin-bottom:26px; }
+  .ga-kicker { font-size:12px; font-weight:700; letter-spacing:.1em; }
+  .ga-grid,.ga-options,.ga-options-pain,.ga-route,.ga-insight,.ga-strategy-validation,.ga-route-recommendation { max-width:1120px; }
+  .ga-field label,.ga-guided-answer>label { font-size:13px; color:#40516a; letter-spacing:.035em; }
+  .ga-field input,.ga-field select,.ga-field textarea { background:#fff; border:1px solid #bdc9db; border-radius:8px; font-size:17px; padding:13px 15px; }
+  .ga-option,.ga-choice,.ga-route button,.ga-question-block,.ga-scene-synthesis,.ga-validation-question,.ga-value-card { border-radius:10px; background:#fff; box-shadow:none; border-color:var(--presentation-line); }
+  .ga-option strong { font-size:17px; }
+  .ga-option span,.ga-option small { font-size:14px; color:var(--presentation-muted); line-height:1.5; }
+  .ga-option:hover,.ga-option.selected,.ga-choice.selected,.ga-route button.selected,.ga-preset-row[data-max-select] button.selected,.ga-validation-options button.selected { background:#eef2ff; border-color:var(--presentation-blue); box-shadow:none; transform:none; }
+  .ga-option.primary { background:#eef2ff!important; color:var(--presentation-navy)!important; }
+  .ga-option.secondary { background:var(--presentation-soft)!important; }
+  .ga-preset-row button,.ga-choice,.ga-validation-options button { font-size:14px; padding:11px 15px; font-weight:600; }
+  .ga-option::after,.ga-choice::after,.ga-route button::after,.ga-btn::after,.ga-slide-mode button::after,.ga-validation-options button::after { display:none; }
+  .ga-question-block h3,.ga-validation-question strong { font-size:18px; }
+  .ga-method-note,.ga-select-note,.ga-priority-note { background:var(--presentation-soft); color:var(--presentation-muted); border-left-color:var(--presentation-blue); font-size:14px; line-height:1.6; }
+  .ga-goal-insight,.ga-insight,.ga-route-recommendation,.ga-value-anchor,.ga-intelligence-intro,.ga-tool-package,.ga-credentials { background:var(--presentation-navy); box-shadow:none; border:0; border-radius:12px; }
+  .ga-goal-insight span,.ga-route-recommendation .ga-kicker,.ga-insight-label,.ga-intelligence-intro span,.ga-value-price b,.ga-tool-package>strong,.ga-credentials-tags span,.ga-cred-proof b { color:#b7c7ff; }
+  .ga-goal-insight strong { font-size:20px; }
+  .ga-goal-insight small,.ga-route-recommendation p,.ga-insight p,.ga-intelligence-intro p { font-size:14px; color:#dce3ff; }
+  .ga-insight::after { display:none; }
+  .ga-reality-compare,.ga-intro-focus span,.ga-ai-strip,.ga-question-block-accent,.ga-value-card,.ga-method-step { background:var(--presentation-soft); box-shadow:none; }
+  .ga-intro-focus { margin-top:28px; gap:20px; }
+  .ga-intro-focus span { background:transparent; border:0; border-top:2px solid var(--presentation-blue); border-radius:0; padding:12px 0; font-size:16px; font-weight:600; }
+  .ga-actions { position:sticky; bottom:0; z-index:5; margin:32px calc(-1 * clamp(20px,5vw,80px)) 0; padding:16px clamp(20px,5vw,80px); background:#fff; border-top:1px solid var(--presentation-line); min-height:74px; }
+  .ga-btn { border-radius:8px; padding:13px 20px; font-size:14px; font-weight:650; box-shadow:none; }
+  .ga-next,.ga-primary,.btn-simulate { background:var(--presentation-navy); box-shadow:none; }
+  .ga-next:hover,.btn-simulate:hover { background:var(--presentation-blue); box-shadow:none; transform:none; }
+  .ga-mini { font-size:12px; color:var(--presentation-muted); }
+  .ga-back,.ga-light { background:var(--presentation-soft); }
+  .ga-error { font-size:14px; }
+
+  /* A real portrait establishes identity without filling the conversational screens with photos. */
+  .ga-intro-layout { display:grid; grid-template-columns:minmax(0,1.4fr) minmax(280px,.6fr); gap:clamp(32px,5vw,90px); align-items:center; min-height:calc(100dvh - 295px); }
+  .ga-intro-copy h2 { font-size:clamp(34px,3.8vw,62px); }
+  .ga-intro-copy>p { font-size:clamp(16px,1.25vw,19px); color:var(--presentation-muted); line-height:1.65; max-width:760px; }
+  .ga-intro-portrait { margin:0; align-self:stretch; display:flex; flex-direction:column; justify-content:center; }
+  .ga-intro-portrait img { width:100%; height:clamp(280px,46vh,500px); object-fit:cover; object-position:50% 28%; border-radius:4px; }
+  .ga-intro-portrait figcaption { padding:14px 0; border-bottom:1px solid var(--presentation-line); font-size:14px; color:var(--presentation-muted); }
+  .ga-intro-portrait figcaption strong { display:block; font-size:16px; color:var(--presentation-navy); margin-bottom:4px; }
+
+  /* The resource is the full-page content, with its own compact navigation. */
+  .ga-resources-panel { padding:0; background:#fff; backdrop-filter:none; }
+  .ga-resources-panel.show { display:block; }
+  .ga-resources-panel-card { width:100%; height:100dvh; max-height:none; padding:18px 24px 12px; border-radius:0; box-shadow:none; display:flex; flex-direction:column; overflow:hidden; }
+  .ga-resources-panel-card>.ga-kicker { margin:0 130px 12px 0; }
+  .ga-resources-panel-card>h2,.ga-resources-panel-card>p { display:none; }
+  .ga-resources-close { top:10px; right:18px; width:auto; height:38px; border-radius:8px; padding:0 14px; font:600 13px 'Inter',system-ui,sans-serif; }
+  .ga-slide-mode { display:flex; gap:10px; max-width:none; margin:0 0 8px; }
+  .ga-slide-mode button { border-radius:8px; padding:8px 14px; box-shadow:none; }
+  .ga-slide-mode button.active { background:#eef2ff; box-shadow:none; border-color:var(--presentation-blue); }
+  .ga-slide-mode button strong { font-size:13px; margin:0; }
+  .ga-slide-mode button span { display:none; }
+  .ga-slide-stage { max-width:none; flex:1; min-height:0; display:flex; flex-direction:column; }
+  .ga-slide-status { font-size:11px; margin-bottom:6px; }
+  .ga-slide-frame { padding:0; border-radius:0; box-shadow:none; background:#fff; flex:1; min-height:0; display:flex; align-items:center; justify-content:center; }
+  .ga-slide-frame img { width:100%; height:100%; aspect-ratio:auto; object-fit:contain; border-radius:0; animation:none; }
+  .ga-slide-meta { margin-top:8px; gap:12px; align-items:center; flex-shrink:0; }
+  .ga-slide-copy strong { font-size:15px; }
+  .ga-slide-copy span { font-size:12px; }
+  .ga-slide-nav button { min-width:46px; min-height:42px; font-size:18px; }
+  .ga-slide-dots { margin-top:8px; flex-shrink:0; }
+  body.ga-resources-open { overflow:hidden; }
+
+  /* The original fields and result sequence now share one presentation workspace. */
+  #legacyApp { background:#fff; overflow:visible; }
+  #legacyApp .topbar { background:#fff; color:var(--presentation-navy); border-bottom:1px solid var(--presentation-line); box-shadow:none; padding:18px clamp(20px,4vw,64px); position:relative; }
+  #legacyApp .brand-copy strong { color:var(--presentation-navy); font-size:16px; }
+  #legacyApp .brand-copy span { color:var(--presentation-muted); font-size:12px; }
+  #legacyApp .brand-main>div>div>div { color:var(--presentation-navy)!important; }
+  #legacyApp .brand-divider { background:var(--presentation-line); }
+  #legacyApp .topbar-badge { color:var(--presentation-muted); border-color:var(--presentation-line); background:#fff; }
+  #legacyApp .page { width:100%; margin:0; padding:24px clamp(20px,3vw,48px) 40px; display:grid; grid-template-columns:minmax(320px,28%) minmax(0,1fr); gap:clamp(24px,3vw,48px); align-items:start; }
+  #legacyApp #captureView { display:block; min-width:0; position:sticky; top:20px; max-height:calc(100dvh - 40px); overflow-y:auto; scrollbar-gutter:stable; }
+  #legacyApp #captureView .hero-copy { display:none; }
+  #legacyApp .form-card { border:0; border-right:1px solid var(--presentation-line); border-radius:0; box-shadow:none; padding-right:22px; background:#fff; }
+  .form-card::before { display:none; }
+  #legacyApp .form-head { padding:0 0 16px; display:block; }
+  #legacyApp .form-head h2 { font-size:21px; font-weight:600; }
+  #legacyApp .form-head p { font-size:13px; margin-top:6px; line-height:1.6; }
+  #legacyApp .disclaimer-inline { background:transparent; border:0; padding:10px 0 0; font-size:12px; max-width:none; }
+  #legacyApp .form-body { padding:18px 0 0; }
+  #legacyApp .form-grid-main { display:block; }
+  #legacyApp .block { padding:0 0 20px; margin-bottom:20px; border:0; border-bottom:1px solid var(--presentation-line); border-radius:0; }
+  #legacyApp .sec-title { font-size:12px; font-weight:700; letter-spacing:.04em; }
+  #legacyApp .fl { font-size:12px; text-transform:none; letter-spacing:0; font-weight:600; }
+  #legacyApp .fi { font-size:16px; font-weight:500; border-radius:7px; background:#fff; border:1px solid #bdc9db; height:43px; }
+  #legacyApp .fhint { font-size:12px; line-height:1.5; }
+  #legacyApp .grid-2 { grid-template-columns:1fr; gap:0; }
+  #legacyApp .sugg-row { background:#eef2ff; border:0; padding:14px; border-radius:8px; align-items:start; flex-direction:column; gap:5px; }
+  #legacyApp .sugg-row small { font-size:11px; }
+  #legacyApp .sugg-row strong { font-size:24px; }
+  #legacyApp .adv-head { font-size:14px; }
+  #legacyApp .advisor-fixed { background:var(--presentation-soft); border-radius:8px; padding:12px; }
+  #legacyApp .advisor-fixed-name { color:var(--presentation-navy); }
+  #legacyApp .advisor-fixed-role { color:var(--presentation-muted); font-size:12px; }
+  #legacyApp .btn-simulate { font-size:14px; text-transform:none; letter-spacing:0; border-radius:8px; }
+  .ga-live-status { font-size:13px; line-height:1.5; color:var(--presentation-muted); margin:10px 0; display:flex; align-items:center; gap:7px; }
+  .ga-live-status::before { content:''; width:7px; height:7px; border-radius:50%; background:var(--presentation-blue); flex-shrink:0; }
+  #legacyApp #resultsView { min-width:0; scroll-margin-top:20px; }
+  #legacyApp #resultsView:not(.active) { display:block; }
+  #legacyApp #resultsView:not(.active)>:not(.results-head):not(.ga-live-empty) { display:none; }
+  .ga-live-empty { padding:60px 28px; background:var(--presentation-soft); border:1px solid var(--presentation-line); font-size:18px; color:var(--presentation-muted); text-align:center; }
+  #resultsView.active .ga-live-empty { display:none; }
+  #legacyApp .results-head { display:block; margin-bottom:20px; }
+  #legacyApp .results-title h2 { font-size:clamp(26px,2.5vw,38px); font-weight:600; color:var(--presentation-navy); }
+  #legacyApp .results-title p,#legacyApp .results-title p strong { color:var(--presentation-muted); font-size:14px; }
+  #legacyApp .scenario-badge { background:var(--presentation-soft); border:0; border-radius:6px; color:var(--presentation-navy); font-size:12px; }
+  #legacyApp .action-row { justify-content:flex-start; gap:7px; margin-top:14px; }
+  #legacyApp .btn-secondary,#legacyApp .btn-light { font-size:12px; padding:8px 10px; border-radius:6px; font-weight:600; }
+  #legacyApp .plan-hero { background:var(--presentation-navy); padding:24px; border-radius:12px; box-shadow:none; grid-template-columns:1fr; gap:18px; }
+  #legacyApp .plan-hero::before,#legacyApp .plan-hero::after { display:none; }
+  #legacyApp .ph-eyebrow { font-size:12px; color:#c5cff0; letter-spacing:.05em; }
+  #legacyApp .ph-amount { font-size:clamp(34px,3.7vw,58px); font-weight:700; }
+  #legacyApp .ph-meta { font-size:14px; color:#dce3ff; }
+  #legacyApp .plan-strip { min-width:0; width:100%; background:transparent; border:0; border-top:1px solid #435687; border-radius:0; }
+  #legacyApp .phs-item { padding:14px 12px 0 0; background:transparent; border-right:0; }
+  #legacyApp .phs-item span { font-size:11px; color:#c5cff0; text-transform:none; letter-spacing:0; font-weight:500; }
+  #legacyApp .phs-item strong { font-size:16px; }
+  #legacyApp .etapa,#legacyApp .ingreso-card,#legacyApp .card,#legacyApp .comp-card { border-radius:10px; box-shadow:none; }
+  #legacyApp .etapa { padding:16px; }
+  #legacyApp .etapa-step,#legacyApp .etapa-label,#legacyApp .ic-tag { font-size:11px; }
+  #legacyApp .etapa-val { font-size:clamp(20px,1.9vw,30px); }
+  #legacyApp .etapa-desc,#legacyApp .ic-caption,#legacyApp .ic-ref,#legacyApp .ic-optional { font-size:12px; line-height:1.5; }
+  #legacyApp .ingreso-header { display:block; }
+  #legacyApp .ingreso-title { font-size:21px; font-weight:600; }
+  #legacyApp .ingreso-note { max-width:none; text-align:left; margin-top:6px; font-size:13px; }
+  #legacyApp .ingreso-card.desde65-full { max-width:none; }
+  #legacyApp .ingreso-card.desde60 .ic-tag,#legacyApp .etapa-60 .etapa-age,#legacyApp .etapa-60 .etapa-step { color:var(--presentation-navy); }
+  #legacyApp .ic-exento { background:#eef2ff; color:var(--presentation-navy); font-size:11px; }
+  #legacyApp .comp-card.winner { background:#eef2ff; border-color:#a6b8ff; }
+  #legacyApp .comp-card.winner :is(.cc-label,.cc-val,.cc-sub) { color:var(--presentation-navy); }
+  #legacyApp .comp-card .cc-label,#legacyApp .comp-card .cc-sub { font-size:12px; }
+  #legacyApp .comp-note { background:var(--presentation-soft); border-color:var(--presentation-line); font-size:13px; color:var(--presentation-muted); }
+  #legacyApp .card-head h3 { font-size:15px; }
+  #legacyApp .card-head span,#legacyApp .side-param span,#legacyApp .side-note { font-size:12px; }
+  #legacyApp .side-param strong { font-size:13px; }
+  #legacyApp .results-grid { grid-template-columns:1fr; }
+  #legacyApp #chartCanvas { max-height:330px; }
+  #legacyApp .ga-personal-banner { background:var(--presentation-soft); color:var(--presentation-muted); box-shadow:none; border:0; border-left:3px solid var(--presentation-blue); border-radius:0; }
+  #legacyApp .ga-personal-banner b { color:var(--presentation-navy); }
+  #legacyApp .tbl-toggle { font-size:13px; }
+  #legacyApp .ga-postcalc-validation { scroll-margin-top:24px; }
+  #legacyApp.ga-live-pending #resultsView { opacity:.55; }
+  .ga-live-status[data-state='pending'] { color:#8a3b14; }
+  .ga-live-status[data-state='pending']::before { background:#8a3b14; }
+
+  /* Keep later stages in the same restrained visual language. */
+  #gaDecisionView,#gaPreopenView,#gaReferralView,#gaLaterView,#gaStrategyView { background:#fff; }
+  .ga-decision-card { background:var(--presentation-navy); box-shadow:none; border:0; }
+  .ga-decision-progress i,.ga-pre-bar i { background:var(--presentation-blue); box-shadow:none; }
+  .ga-decision-primary,.ga-pre-continue,.ga-primary { background:var(--presentation-blue); box-shadow:none; }
+  .ga-ref-head,.ga-later-head { background:var(--presentation-navy); }
+  .ga-pre-head h1,.ga-pre-head h2 { color:var(--presentation-navy); }
+  .ga-pre-head p { color:var(--presentation-muted); }
+  .ga-pre-side,.ga-pre-panel { background:var(--presentation-soft); border-color:var(--presentation-line); box-shadow:none; }
+  .ga-pre-side h3,.ga-pre-section h2 { color:var(--presentation-navy); }
+  .ga-pre-field label,.ga-pre-side p,.ga-pre-section>p,.ga-pre-progress span { color:var(--presentation-muted); }
+  .ga-pre-field input,.ga-pre-field select,.ga-pre-field textarea { background:#fff; color:var(--presentation-navy); border-color:#bdc9db; font-size:15px; }
+  .ga-pre-tab.active { background:#eef2ff; color:var(--presentation-navy); box-shadow:none; border-color:var(--presentation-blue); }
+  .ga-pre-tab em,.ga-pre-status { color:var(--presentation-blue); }
+  .ga-pre-status { background:#eef2ff; border-color:#bdc9ff; }
+  .ga-pre-download { background:var(--presentation-navy); color:#fff; }
+  .ga-pre-note { background:#eef2ff; color:var(--presentation-muted); border-left-color:var(--presentation-blue); font-size:13px; }
+  .ga-pre-beneficiary,.ga-beneficiary { border-color:var(--presentation-line); }
+  .ga-thinking-orb,.ga-processing-core { background:var(--presentation-blue); box-shadow:none; animation:none; }
+  .ga-thinking-card { background:var(--presentation-navy); border:0; box-shadow:none; }
+  .ga-thinking-line i { background:#b7c7ff; }
+
+  @media(min-width:1800px) { #legacyApp .grid-2 { grid-template-columns:1fr 1fr; gap:12px; } }
+  @media(max-width:1050px) {
+    #legacyApp .page { grid-template-columns:minmax(290px,35%) minmax(0,1fr); gap:24px; padding:24px; }
+    #legacyApp .plan-strip { grid-template-columns:repeat(2,1fr); gap:12px; }
+    #legacyApp .etapas,#legacyApp .comp-banner { grid-template-columns:repeat(2,1fr); }
+    #legacyApp .ingreso-dual { grid-template-columns:1fr; }
+    .ga-intro-layout { grid-template-columns:1.4fr .6fr; gap:28px; }
+    .ga-intro-copy h2 { font-size:36px; }
+  }
+  @media(max-width:760px) {
+    .ga-brand { padding:12px 20px; }
+    .ga-brand>span { max-width:130px; text-align:right; font-size:11px; }
+    .ga-head { padding:12px 20px; }
+    .ga-head-copy strong { font-size:12px; max-width:220px; }
+    .ga-head-copy span,.ga-dots { display:none; }
+    #gaShell .ga-main { padding:28px 20px 0; }
+    .ga-scene h2 { font-size:32px; }
+    .ga-grid,.ga-options,.ga-options-pain,.ga-route,.ga-reality-card { grid-template-columns:1fr; }
+    .ga-intro-layout { display:block; min-height:0; }
+    .ga-intro-copy h2 { font-size:34px; }
+    .ga-intro-portrait { display:none; }
+    .ga-actions { margin:28px -20px 0; padding:12px 20px calc(12px + env(safe-area-inset-bottom)); flex-wrap:wrap; }
+    .ga-actions .ga-mini { display:none; }
+    .ga-btn { padding:12px; font-size:13px; }
+    .ga-actions .ga-light { margin:0; }
+    .ga-option { min-height:0; padding:18px; }
+    .ga-resources-panel-card { padding:14px 10px 10px; }
+    .ga-resources-panel-card>.ga-kicker { margin-left:4px; }
+    .ga-slide-mode { gap:6px; }
+    .ga-slide-mode button { flex:1; padding:8px; }
+    .ga-slide-mode button strong { font-size:11px; }
+    .ga-slide-meta { flex-direction:row; }
+    .ga-slide-copy strong { font-size:12px; }
+    .ga-slide-copy span { display:none; }
+    .ga-resources-close { right:10px; }
+    #legacyApp .topbar { padding:14px 20px; flex-direction:row; gap:10px; }
+    #legacyApp .brand-divider,#legacyApp .topbar-badge,#legacyApp .brand-main>div:first-child>div { display:none; }
+    #legacyApp .brand-main { gap:12px; }
+    #legacyApp .brand-copy strong { font-size:13px; }
+    #legacyApp .brand-copy span { font-size:11px; }
+    #legacyApp .logo-allianz-top { height:24px; padding:0; }
+    #legacyApp .page { display:flex; flex-direction:column; padding:22px 20px 40px; gap:24px; }
+    #legacyApp #captureView { position:static; max-height:none; overflow:visible; width:100%; }
+    #legacyApp .form-card { border:0; padding:0; }
+    #legacyApp .form-head { padding-bottom:14px; }
+    #legacyApp .grid-2 { grid-template-columns:1fr 1fr; gap:12px; }
+    #legacyApp .form-head h2 { font-size:23px; }
+    #legacyApp .advisor-fixed { display:none; }
+    #legacyApp #resultsView { width:100%; }
+    #legacyApp .plan-hero { padding:20px; }
+    #legacyApp .ph-amount { font-size:36px; }
+    #legacyApp .etapas,#legacyApp .comp-banner { grid-template-columns:1fr; }
+    #legacyApp .etapa-val { font-size:28px; }
+    #legacyApp .ingreso-dual { grid-template-columns:1fr; }
+    #legacyApp .ingreso-header { display:block; }
+    #legacyApp .ga-live-mobile-result { display:flex; position:sticky; bottom:0; z-index:20; background:var(--presentation-navy); color:#fff; padding:12px 16px calc(12px + env(safe-area-inset-bottom)); gap:14px; justify-content:space-between; align-items:center; }
+    .ga-live-mobile-result span { display:block; font-size:11px; color:#dce3ff; }
+    .ga-live-mobile-result strong { font-size:22px; }
+    .ga-live-mobile-result button { border:1px solid #849ada; background:transparent; color:#fff; border-radius:6px; padding:10px; font-size:12px; }
+  }
+  .ga-live-mobile-result { display:none; }
+  @media(max-width:420px) {
+    #legacyApp .grid-2 { grid-template-columns:1fr; gap:0; }
+    .ga-head-copy strong { max-width:180px; }
+    .ga-head-left { gap:8px; }
+    .ga-mark { width:30px; height:30px; }
+    .ga-intro-focus { gap:12px; }
+    .ga-intro-focus span { font-size:14px; }
+  }
+  @media(max-height:550px) and (orientation:landscape) {
+    .ga-resources-panel-card { padding:8px 16px; }
+    .ga-resources-panel-card>.ga-kicker,.ga-slide-copy span,.ga-slide-dots { display:none; }
+    .ga-slide-mode { margin-right:130px; }
+    .ga-slide-meta { margin-top:4px; }
+    .ga-slide-nav button { min-height:32px; padding:4px 12px; }
+  }
+  @media(prefers-reduced-motion:reduce) { *,*::before,*::after { animation:none!important; transition:none!important; scroll-behavior:auto!important; } }
+}
+@keyframes gaPresentationIn { from{opacity:.6} to{opacity:1} }
+@media screen {
+ #gaShell,#legacyApp,#gaLaterView,#gaDecisionView,#gaPreopenView,#gaReferralView,#gaStrategyView,
+ #gaShell h1,#gaShell h2,#legacyApp h1,#legacyApp h2,#legacyApp h3,#gaShell button,#legacyApp button,#legacyApp input,#legacyApp select { font-family:Montserrat,system-ui,sans-serif!important; }
+ .calculator-title { grid-column:1/-1; font-size:clamp(28px,3vw,46px); line-height:1.15; color:#122641; margin:0 0 6px; font-weight:800; letter-spacing:-.035em; }
+ .calculator-question { font-size:13px; line-height:1.6; color:#536277; margin:8px 0 16px; }
+ #legacyApp .plan-hero { display:block; background:#122641; }
+ #legacyApp .ph-amount { font-size:clamp(36px,4vw,68px); }
+ .projection-graph { margin:20px 0; }
+ .projection-graph .card { border:0; background:transparent; box-shadow:none; margin:0; }
+ .projection-graph .card-head { display:none; }
+ .projection-graph .card-body { padding:0!important; height:260px; }
+ .projection-graph canvas { width:100%!important; height:260px!important; }
+ .projection-gap { display:grid; grid-template-columns:repeat(3,1fr); gap:20px; border-top:1px solid #ffffff30; padding:20px 0; color:white; }
+ .projection-gap span { font-size:12px; color:#c7d2e4; display:block; }
+ .projection-gap strong { display:block; font-size:clamp(21px,2vw,30px); margin:6px 0; }
+ .projection-gap small { color:#c7d2e4; font-size:11px; }
+ .projection-coverage { grid-column:1/-1; display:flex; gap:16px;align-items:center; }
+ .projection-coverage meter { width:140px; height:18px; accent-color:#8bafff; }
+ .projection-coverage p { color:#d2dced; font-size:13px; margin:0; }
+ .projection-gap button { background:white;color:#122641;border:0;border-radius:6px;padding:10px;font:700 12px Montserrat,sans-serif;cursor:pointer;margin-top:12px; }
+ .calculator-timeline { margin:14px 0; padding:14px 0; border-top:1px solid #ccd6e4; font-size:12px; line-height:1.8; color:#536277; }
+ .calculator-timeline strong { color:#122641; }
+ @media(max-width:760px) { .projection-gap { grid-template-columns:1fr;gap:14px; } .projection-graph .card-body,.projection-graph canvas { height:220px!important; } .calculator-title { font-size:28px; } }
+}
+@media screen {
+ #legacyApp .form-head>div>p { display:none; }
+ #legacyApp .form-head { padding-bottom:10px; }
+ #legacyApp .form-head h2 { font-size:18px; }
+ .calculator-about { font-size:11px;margin-top:8px;color:#536277; }
+ .calculator-about summary,.calculator-assumptions summary { cursor:pointer; }
+ #legacyApp .block { padding-bottom:12px;margin-bottom:12px; }
+ #legacyApp .sec-title { margin-bottom:12px; }
+ #legacyApp .grid-2 { gap:12px;margin-bottom:10px; }
+ #legacyApp #captureView .grid-2 .fg { display:grid;grid-template-columns:minmax(0,1fr) 42%;gap:8px;align-items:center;margin-bottom:8px; }
+ #legacyApp #captureView .fg .fl { margin:0;line-height:1.4; }
+ #legacyApp #captureView .fg .fhint { grid-column:1/-1; }
+ #legacyApp .calculator-timeline { margin:8px 0;padding:10px 0 0; }
+ #legacyApp .results-title h2,#legacyApp .scenario-badge { display:none; }
+ #legacyApp .results-head { margin-bottom:14px; }
+ #legacyApp .results-title p { font-size:12px;margin:0; }
+ #legacyApp .action-row { margin:18px 0 28px; }
+ #legacyApp .ph-eyebrow { text-transform:none;letter-spacing:0;font-size:14px; }
+ #legacyApp .plan-hero { padding:24px; }
+ #legacyApp .plan-strip { margin-top:6px;border-top:1px solid #ffffff30;padding-top:14px; }
+ #legacyApp .phs-item { background:transparent; }
+ .calculator-assumptions { border:1px solid #dce3ed;border-radius:8px;padding:14px;margin:16px 0; }
+ .calculator-assumptions summary { font-size:13px;font-weight:700;color:#122641; }
+ .calculator-assumptions .block { margin-top:16px; }
+ @media(max-width:760px) { #legacyApp #captureView .grid-2 .fg { grid-template-columns:minmax(0,1fr) 44%; } .calculator-about { font-size:12px; } }
+ @media(min-width:761px) and (max-height:800px) { #legacyApp .page { padding-top:18px; } .calculator-title { font-size:32px; } .projection-graph .card-body,.projection-graph canvas { height:200px!important; } .projection-gap { padding:14px 0;gap:14px; } #legacyApp .ph-amount { font-size:48px; } }
+}
+@media screen {
+ #legacyApp #captureView .grid-2 { gap:0;margin-bottom:6px; }
+ #legacyApp #captureView .grid-2 .fg { margin-bottom:8px; }
+ #legacyApp .sugg-row,#legacyApp #metaFuturaHint { display:none!important; }
+ .projection-coverage meter::-webkit-meter-optimum-value { background:#8bafff; }
+ .projection-coverage meter::-moz-meter-bar { background:#8bafff; }
+}
+@media screen {
+ .ga-intro-layout { grid-template-columns:1fr;min-height:calc(100dvh - 290px); }
+ .ga-intro-copy { max-width:1060px; }
+ .ga-intro-copy h2 { font-size:clamp(34px,4.3vw,70px); }
+ #legacyApp.calculator-workspace { height:100dvh;min-height:0;overflow:hidden; }
+ #legacyApp.calculator-workspace .topbar { flex-shrink:0;padding:10px 28px; }
+ #legacyApp.calculator-workspace .page { display:flex!important;flex-direction:column;width:100%;max-width:none;flex:1;min-height:0;padding:16px 32px 0;gap:0;overflow:hidden; }
+ .calculator-heading { position:relative;flex-shrink:0;padding-right:190px;margin-bottom:12px; }
+ .calculator-heading .calculator-title { font-size:clamp(23px,2.2vw,36px);margin:0; }
+ .calculator-heading>p { font-size:13px;color:#5b6b80;margin:6px 0 0; }
+ .calculator-return { position:absolute;right:0;top:2px;font-size:12px!important;padding:10px!important; }
+ #legacyApp.calculator-workspace #captureView { position:static;flex-shrink:0;width:100%;max-height:none;overflow:visible;scrollbar-gutter:auto;padding:0; }
+ #legacyApp.calculator-workspace #captureView>.form-card { display:none; }
+ .calculator-toolbar { display:grid;grid-template-columns:1fr .85fr 1.2fr auto;gap:22px;align-items:end; }
+ #legacyApp.calculator-workspace .calculator-toolbar .fg { display:block!important;margin:0!important; }
+ .calculator-toolbar .fl { display:block;font-size:12px!important;margin:0 0 6px!important; }
+ .calculator-toolbar .fi { height:40px!important;width:100%;font-size:17px!important;font-weight:600!important; }
+ .calculator-toolbar .fhint { display:none; }
+ .calculator-more { height:40px;padding:0 20px;background:#eef2fa;color:#122641;border:1px solid #bdc9db;border-radius:7px;font-weight:700;cursor:pointer; }
+ .calculator-assumptions-summary { font-size:11px;color:#536277;margin:8px 0 12px;line-height:1.4; }
+ .calculator-result-tabs { display:flex;gap:24px;flex-shrink:0;border-bottom:1px solid #dce3ed;margin-bottom:0; }
+ .calculator-result-tabs button { padding:12px 4px;border:0;border-bottom:3px solid transparent;background:none;color:#58687e;font-size:14px;font-weight:600;cursor:pointer; }
+ .calculator-result-tabs button[aria-selected="true"] { color:#122641;border-bottom-color:#0830e8; }
+ #legacyApp.calculator-workspace #resultsView { flex:1;width:100%;min-height:0;overflow:auto;padding:18px 0 32px;scrollbar-gutter:stable; }
+ .calculator-workspace [hidden] { display:none!important; }
+ .calculator-result-pane { max-width:1400px;margin:auto; }
+ #legacyApp.calculator-workspace .plan-hero { position:relative;display:grid;grid-template-columns:1fr .65fr;gap:14px 30px;padding:24px 30px;margin:0; }
+ .calculator-workspace .ph-amount { font-size:clamp(36px,4vw,62px)!important; }
+ .calculator-workspace .ph-meta { font-size:12px!important; }
+ .calculator-income-highlight { border-left:1px solid #ffffff30;padding:4px 0 0 28px;color:white; }
+ .calculator-income-highlight span,.calculator-income-highlight small { display:block;color:#c7d2e4;font-size:12px;line-height:1.5; }
+ .calculator-income-highlight strong { display:block;font-size:clamp(24px,2.8vw,44px);margin:8px 0; }
+ .calculator-workspace .projection-graph { grid-column:1/-1;margin:0; }
+ .calculator-workspace .projection-graph .card-body,.calculator-workspace .projection-graph canvas { height:clamp(160px,24vh,280px)!important; }
+ .calculator-workspace .plan-strip { grid-column:1/-1;display:grid;grid-template-columns:repeat(4,1fr);padding-top:12px!important;margin:0!important; }
+ .calculator-coverage-summary { grid-column:1/-1;margin:0;color:#bfd1f8;font-size:12px;line-height:1.5; }
+ .calculator-workspace .calculator-timeline { font-size:12px;padding:10px 0;margin:8px 0; }
+ .calculator-gap-link { border:0;background:#eef2fa;color:#0830e8;padding:10px 16px;border-radius:7px;font-weight:700;cursor:pointer; }
+ #gaPane-gap>h2 { font-size:28px;color:#122641;margin:8px 0 24px; }
+ #legacyApp.calculator-workspace .projection-gap { color:#122641;border:0;padding:0;gap:24px; }
+ .calculator-workspace .projection-gap>div { background:#f4f6fa;border:1px solid #dce3ed;border-radius:12px;padding:28px; }
+ .calculator-workspace .projection-gap span,.calculator-workspace .projection-gap small { color:#596a82; }
+ .calculator-workspace .projection-gap strong { font-size:clamp(28px,3.4vw,48px);margin:16px 0; }
+ .calculator-workspace .projection-gap button { background:#122641;color:white;padding:13px 18px;font-size:14px; }
+ .calculator-workspace .projection-gap .projection-coverage { background:#122641; }
+ .calculator-workspace .projection-coverage p { color:white; }
+ .calculator-settings { position:fixed;inset:0;margin:auto; width:min(620px,calc(100vw - 32px));max-height:85dvh;border:0;border-radius:14px;padding:24px;overflow:auto;box-shadow:0 25px 80px #00186840;color:#122641; }
+ .calculator-settings::backdrop { background:#00132a66; }
+ .calculator-settings header { display:flex;justify-content:space-between;align-items:center;margin-bottom:20px; }
+ .calculator-settings h2 { font-size:23px;margin:0; }
+ .calculator-settings header button { background:#eef2fa;border:0;border-radius:6px;font-size:25px;cursor:pointer;width:36px;height:36px; }
+ .calculator-settings .fi { width:100%; }.calculator-settings .fl { display:block;margin-bottom:8px; }
+ .calculator-workspace .ga-live-mobile-result { display:none!important; }
+ #legacyApp.calculator-workspace~.ga-live-mobile-result { display:none!important; }
+ .calculator-workspace.ga-live-pending .plan-hero,.calculator-workspace.ga-live-pending #gaPane-gap { opacity:.4; }
+ @media(max-width:760px) {
+  #legacyApp.calculator-workspace .page { padding:12px 16px 0; }.calculator-heading { padding-right:0;margin-bottom:10px; }.calculator-heading .calculator-title { font-size:22px; }
+  .calculator-return { position:static;margin-top:8px; }.calculator-toolbar { grid-template-columns:1fr 1fr;gap:10px; }.calculator-toolbar .fl { font-size:11px!important; }.calculator-toolbar .fi { font-size:16px!important;height:36px!important; }.calculator-more { height:36px; }
+  .calculator-assumptions-summary { font-size:10px;margin-bottom:6px; }.calculator-result-tabs { gap:10px; }.calculator-result-tabs button { font-size:11px;padding:9px 2px; }
+  #legacyApp.calculator-workspace .plan-hero { grid-template-columns:1fr;padding:18px; }.calculator-income-highlight { border-left:0;border-top:1px solid #ffffff30;padding:12px 0 0; }.calculator-workspace .ph-amount { font-size:36px!important; }
+  .calculator-workspace .plan-strip { grid-template-columns:1fr 1fr;gap:12px; }.calculator-workspace .projection-gap { grid-template-columns:1fr; }.calculator-workspace .projection-gap .projection-coverage { grid-column:auto; }
+ }
+ @media(max-height:550px) and (min-width:761px) { #legacyApp.calculator-workspace .topbar { display:none; }.calculator-heading .calculator-title { font-size:22px; }.calculator-heading { margin-bottom:6px; }.calculator-assumptions-summary { margin:4px 0; }.calculator-result-tabs button { padding:7px 4px; } }
+}
+
+@media screen {
+.calculator-milestones {grid-column:1/-1;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;border-top:1px solid #ffffff30;padding-top:14px}.calculator-milestones section {padding:8px 12px;border-left:3px solid #8bafff}.calculator-milestones span,.calculator-milestones small {display:block;color:#c7d2e4;font-size:12px;line-height:1.4}.calculator-milestones strong {display:block;font-size:clamp(23px,2.3vw,34px);margin:7px 0}.calculator-milestones b {display:block;font-size:12px;margin-bottom:7px}#gaPane-detail>.etapas {display:none}#gaPane-detail>.plan-strip {background:#122641;color:white;border-radius:12px;padding:24px!important;margin-bottom:24px!important}#gaPane-detail>.plan-strip span {color:#c7d2e4}#gaPane-detail>h2 {font-size:24px;margin:8px 0 20px;color:#122641}
+@media(max-width:760px){.calculator-milestones {grid-template-columns:1fr}.calculator-milestones section {display:grid;grid-template-columns:1fr 1fr;gap:4px 12px}.calculator-milestones strong {grid-row:span 2;margin:0;font-size:24px}.calculator-milestones small {grid-column:1/-1}.calculator-milestones b {margin:0}}
+}
+@media screen {
+ #gaShell {height:100dvh;min-height:0;overflow:hidden;}
+ #gaShell .ga-wrap {height:100%;min-height:0;}
+ #gaShell .ga-brand,#gaShell .ga-head {flex-shrink:0;}
+ #gaShell .ga-card {display:flex;flex-direction:column;min-height:0;overflow:hidden;}
+ #gaShell .ga-main {flex:1;min-height:0;overflow:auto;}
+ #gaShell .ga-scene.active {flex-shrink:0;}
+ #gaShell .ga-actions {flex-shrink:0;}
+}

@@ -82,7 +82,8 @@ function renderKnown(){
 }
 function profundizar(){ // vuelve al recorrido original completo; nada se pierde
  S().setConfirmed(false);delete S().diagnosisChecks.ready
- for(const k of ['1b','2','3','4','5','6','7'])delete sceneEl(k).dataset.skip
+ for(const k of ['1b','2','3','4','5','7'])delete sceneEl(k).dataset.skip
+ sceneEl('6').dataset.skip='1'
  for(const k of ['v2r','v2a','v2b'])sceneEl(k).dataset.skip='1'
  S().show(idxOf('1b'))
 }
@@ -144,6 +145,7 @@ function viewed(id){if(id&&!st.recursos.includes(id)&&st.recursos.length<20){st.
 // ---------------- Historial automático de escenarios ----------------
 const regName=r=>r==='93'?'Art. 93':r==='151'?'Art. 151':'Sin beneficio fiscal inmediato'
 function readScenario(){
+ if(window.GaPresentation&& !window.GaPresentation.isCurrent())return null;
  const R=typeof reportState!=='undefined'?reportState:null;if(!R||!(R.fondoPlan>0)||!(R.pmtSugerido>0))return null
  const pmt=parseFloat($('pmt')?.value);if(!(pmt>0))return null
  const pick=(o,keys)=>{const r={};for(const k of keys)if(typeof o[k]==='number'&&Number.isFinite(o[k]))r[k]=o[k];return r}
