@@ -74,3 +74,44 @@
 @media(max-width:760px){.support-ppr,.support-investment {grid-template-columns:1fr;gap:20px}.support-ppr>img {max-height:200px}.support-market {max-height:none}}
 @media(min-width:1001px) and (max-height:800px){.support-content {padding-top:24px}.support-content h2 {font-size:36px;margin:12px 0 18px}.support-content h3 {margin:14px 0}.support-phases h3,.support-phases .support-items {margin:16px}.support-flow {margin:12px 0 18px}.support-icon {width:48px;height:48px;margin-bottom:10px}.support-strip {margin-top:16px;padding:14px 20px}.support-note {margin-top:12px}.support-content li {padding:6px 0}.support-content th,.support-content td {padding:10px 8px}.support-retirement img {height:22vh}}
 }
+
+/* GarBa visual V2 — guided retirement scene; preserves original six images and percentages. */
+@media screen {
+ .support-content[data-view="retirement"] { background:linear-gradient(180deg,#fff 0%,#f7f9fc 100%); }
+ .retirement-toolbar { display:flex;justify-content:space-between;align-items:center;gap:18px;margin:10px 0 22px;min-height:42px;color:#53647a;font-size:clamp(13px,1vw,16px);font-weight:600; }
+ .retirement-toolbar button { background:#122641;color:#fff;border-color:#122641;padding:9px 14px; }
+ .retirement-toolbar button[hidden] { display:none; }
+ .support-retirement figure { position:relative;background:white;border:1px solid #e1e7f0;border-radius:14px;overflow:hidden;box-shadow:0 9px 30px rgba(18,38,65,.07);cursor:pointer;transition:transform .24s ease,box-shadow .24s ease,border-color .24s ease; }
+ .support-retirement figure:hover { transform:translateY(-4px);box-shadow:0 16px 40px rgba(18,38,65,.13); }
+ .support-retirement figure:focus-visible { outline:3px solid #3267dd;outline-offset:4px; }
+ .support-retirement figure img,.ga-slide-frame .support-retirement img { border-radius:0;aspect-ratio:4/5;object-position:center; }
+ .support-retirement figcaption { border:0;margin:0;padding:clamp(12px,1.3vw,20px); }
+ .support-retirement figcaption strong { color:#163b75;font-variant-numeric:tabular-nums;letter-spacing:-.04em; }
+ .support-retirement figcaption b { min-height:2.5em; }
+ .support-retirement figcaption p { line-height:1.4; }
+ .support-content.retirement-focused .support-retirement { grid-template-columns:repeat(5,minmax(0,1fr));align-items:stretch; }
+ .support-content.retirement-focused .support-retirement figure:not(.is-featured) { opacity:.63; }
+ .support-content.retirement-focused .support-retirement figure.is-featured { grid-column:span 2;grid-row:span 2;border-color:#3267dd;box-shadow:0 20px 55px rgba(18,38,65,.18); }
+ .support-content.retirement-focused .support-retirement figure.is-featured img { height:clamp(210px,38vh,430px);aspect-ratio:auto; }
+ .support-content.retirement-focused .support-retirement figure.is-featured figcaption strong { font-size:clamp(36px,4vw,60px); }
+ @media(max-width:1000px) {
+  .support-content.retirement-focused .support-retirement { grid-template-columns:repeat(3,minmax(0,1fr)); }
+  .support-content.retirement-focused .support-retirement figure.is-featured { grid-column:span 2;grid-row:span 1; }
+ }
+ @media(max-width:600px) {
+  .retirement-toolbar { align-items:flex-start;flex-direction:column; }
+  .support-retirement { grid-template-columns:repeat(2,minmax(0,1fr)); }
+  .support-retirement figure img,.ga-slide-frame .support-retirement img { height:clamp(140px,23vh,220px); }
+  .support-retirement figcaption { padding:12px; }
+  .support-retirement figcaption strong { font-size:30px; }
+  .support-retirement figcaption b { font-size:13px; }
+  .support-retirement figcaption p { font-size:12px; }
+  .support-content.retirement-focused .support-retirement { grid-template-columns:repeat(2,minmax(0,1fr)); }
+  .support-content.retirement-focused .support-retirement figure.is-featured { grid-column:1/-1;grid-row:auto; }
+  .support-content.retirement-focused .support-retirement figure.is-featured img { height:32vh; }
+ }
+ @media(prefers-reduced-motion:reduce) {
+  .support-retirement figure { transition:none; }
+  .support-retirement figure:hover { transform:none; }
+ }
+}
