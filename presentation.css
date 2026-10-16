@@ -423,3 +423,46 @@
   #legacyApp.calculator-workspace .calculator-result-pane { scroll-behavior:auto; }
  }
 }
+
+/* GARBA DESIGN SYSTEM V2 — advisor-guided experience */
+@media screen {
+ :root { --presentation-navy:#102640;--presentation-blue:#315b91;--presentation-muted:#5b6d80;--presentation-line:#e1e8f0;--presentation-soft:#f5f8fb; }
+ #gaShell { background:radial-gradient(circle at 92% 4%,#e9f0f7 0,transparent 34%),#fff; }
+ #gaShell .ga-brand { border-bottom:1px solid #e1e8f0; }
+ #gaShell .ga-brand strong { color:#142e4c;letter-spacing:-.015em; }
+ #gaShell .ga-topbar-progress { background:linear-gradient(90deg,#a4824b,#315b91);height:3px; }
+ #gaShell .ga-scene h2 { font-weight:730;letter-spacing:-.045em;text-wrap:balance; }
+ #gaShell .ga-kicker { color:#95713d;text-transform:uppercase;letter-spacing:.17em; }
+ #gaShell .ga-scene>p { color:#5b6d80; }
+ #gaShell .ga-option,#gaShell .ga-choice,#gaShell .ga-question-block,#gaShell .ga-value-card { border:1px solid #dfe7ef;border-radius:18px;box-shadow:0 10px 35px #10264008;transition:box-shadow .2s ease,transform .2s ease,border-color .2s ease; }
+ #gaShell .ga-option:hover,#gaShell .ga-choice:hover { border-color:#7797b8;box-shadow:0 14px 36px #10264016;transform:translateY(-2px); }
+ #gaShell .ga-option.selected,#gaShell .ga-choice.selected { border-color:#315b91;background:#edf3f9;box-shadow:inset 0 0 0 1px #315b91;transform:none; }
+ #gaShell .ga-btn { border-radius:12px;min-height:46px; }
+ #gaShell .ga-field input,#gaShell .ga-field select,#gaShell .ga-field textarea { border-radius:12px;border-color:#c6d3e1; }
+ #gaShell .ga-field input:focus,#gaShell .ga-field textarea:focus { outline:3px solid #b6cce6;outline-offset:1px; }
+ #gaShell .ga-v2-card { border:1px solid #e0e8f0;background:#fff;border-radius:20px;box-shadow:0 12px 38px #1026400c; }
+ #gaShell .ga-v2-chip { border-radius:999px; }
+ #gaShell .ga-v2-chip.on,#gaShell .ga-v2-opt.on { background:#eaf1f9;border-color:#315b91;color:#173b62; }
+ #gaShell .ga-v2-stat { background:#f8fafc;border:1px solid #e1e8f0;border-radius:16px; }
+ #gaShell .ga-v2-stat b { color:#143556;letter-spacing:-.03em;font-variant-numeric:tabular-nums; }
+ #gaShell .ga-v2-cta { background:#143b62;border-radius:12px; }
+ #gaShell .ga-v2-slotbtn.on { background:#eaf1f9;border-color:#315b91;color:#143b62; }
+ #gaShell .ga-v2-row b { overflow-wrap:anywhere; }
+ #gaShell .ga-v2-grid { gap:14px; }
+ @media(max-width:760px) {
+  #gaShell .ga-main { padding:22px 16px 12px; }
+  #gaShell .ga-scene h2 { font-size:clamp(28px,7vw,40px); }
+  #gaShell .ga-option,#gaShell .ga-choice { min-height:56px; }
+  #gaShell .ga-v2-card { padding:16px; }
+  #gaShell .ga-v2-grid { grid-template-columns:repeat(2,minmax(0,1fr)); }
+  #gaShell .ga-v2-stat { min-width:0; }
+  #gaShell .ga-v2-stat b { font-size:clamp(15px,4vw,20px);overflow-wrap:anywhere; }
+ }
+ @media(max-width:400px) {
+  #gaShell .ga-v2-grid { grid-template-columns:1fr; }
+ }
+ @media(prefers-reduced-motion:reduce) {
+  #gaShell .ga-option,#gaShell .ga-choice { transition:none; }
+  #gaShell .ga-option:hover,#gaShell .ga-choice:hover { transform:none; }
+ }
+}
