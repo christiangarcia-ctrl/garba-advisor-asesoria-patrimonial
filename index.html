@@ -1682,7 +1682,7 @@ td{padding:8px;border-bottom:1px solid #edf2f7;color:#334155;font-weight:600;}
 <div class="strat-review" id="stratReview"></div>
 <div class="strat-actions">
 <button class="ga-secondary" id="stratOtherOption" type="button">↺ Otra opción</button>
-<button class="ga-secondary" id="stratPdf" type="button">📄 Descargar PDF de estrategia</button>
+<button class="ga-secondary" id="stratPdf" type="button">📄 PDF de estrategia para celular</button>
 <button class="ga-secondary" id="stratPackageDownload" type="button">📦 Descargar todo (mis registros)</button>
 <button class="ga-primary" id="stratContinue" type="button">Continuar a herramientas y referidos →</button>
 </div>
@@ -1905,7 +1905,7 @@ td{padding:8px;border-bottom:1px solid #edf2f7;color:#334155;font-weight:600;}
 <button class="btn-light" id="editBtn">← Ajustar proyección</button>
 <button class="btn-secondary" id="gaGoToValidation" type="button">Continuar hacia la decisión ↓</button>
 <button class="btn-secondary" id="csvBtn">Descargar CSV</button>
-<button class="btn-secondary" id="printBtn">📄 Generar PDF</button><button class="btn-secondary" id="gaContinueClose" style="display:none">Continuar a cierre y referidos →</button>
+<button class="btn-secondary" id="printBtn">📄 Descargar PDF para celular</button><button class="btn-secondary" id="gaContinueClose" style="display:none">Continuar a cierre y referidos →</button>
 <a class="btn-wa-sm" id="waBtn" rel="noopener" target="_blank">💬 Contactar asesor</a>
 </div>
 </div>
@@ -2873,53 +2873,9 @@ function esSafari(){
 }
 
 function prepararPDF(){
-  try{actualizarReporteBase()}catch(e){
-    console.warn('[GarBa Advisor] El reporte se imprimirá con la última información disponible:',e);
-  }
-
-  if(!esChrome()){
-    // Mostrar aviso para navegadores distintos a Chrome
-    const aviso=document.createElement('div');
-    aviso.id='avisoNavegador';
-    aviso.style.cssText=`
-      position:fixed;top:0;left:0;width:100%;height:100%;
-      background:rgba(0,0,0,.6);z-index:999999;
-      display:flex;align-items:center;justify-content:center;
-    `;
-    aviso.innerHTML=`
-      <div style="background:#fff;border-radius:12px;padding:32px;max-width:420px;width:90%;font-family:sans-serif;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.3)">
-        <div style="font-size:2.5rem;margin-bottom:12px">⚠️</div>
-        <h2 style="margin:0 0 12px;font-size:1.15rem;color:#1a2b4b">Para mejor resultado usa Google Chrome</h2>
-        <p style="color:#555;font-size:.9rem;line-height:1.5;margin:0 0 20px">
-          El PDF se genera con el motor de impresión del navegador.<br>
-          <strong>En Chrome el resultado es perfecto</strong> (3 páginas limpias).<br><br>
-          En Safari puede generar páginas en blanco adicionales.
-        </p>
-        <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
-          <button id="btnAvisoCancelar" style="padding:10px 20px;border:2px solid #ccc;background:#fff;border-radius:8px;cursor:pointer;font-size:.9rem">Cancelar</button>
-          <button id="btnAvisoContinuar" style="padding:10px 20px;border:none;background:#b8860b;color:#fff;border-radius:8px;cursor:pointer;font-size:.9rem">Continuar de todos modos</button>
-        </div>
-      </div>
-    `;
-    document.body.appendChild(aviso);
-
-    document.getElementById('btnAvisoCancelar').onclick=()=>aviso.remove();
-    document.getElementById('btnAvisoContinuar').onclick=()=>{
-      aviso.remove();
-      ejecutarPrint();
-    };
-  } else {
-    ejecutarPrint();
-  }
+  return window.GaMobilePDF.downloadProjection();
 }
 
-function ejecutarPrint(){
-  const nombre=(reportState.nombre||'cliente').trim();
-  const regimen=reportState.regimenFiscal==='93'?'Art. 93':reportState.regimenFiscal==='151'?'Art. 151':'Sin régimen';
-  const tituloOriginal=document.title;
-  document.title=`Plan de ${nombre} - ${regimen} · Christian GarBa`;
-  setTimeout(()=>{window.print();setTimeout(()=>{document.title=tituloOriginal;},2000);},250);
-}
 
 $('pmt').addEventListener('input',()=>{userEditedPMT=true;linkWhatsApp();});
 ['edad','years','metaHoy','rate','inflation','lumpSum'].forEach(id=>{$(id).addEventListener('change',updateSuggestion);});
@@ -3736,7 +3692,7 @@ function updateDiagnosisRecommendation(){
  });
  document.querySelectorAll('[data-strat-close]').forEach(x=>x.onclick=()=>$('stratInfoModal').classList.remove('open'));
  $('stratPdf').onclick=async()=>{
-   if(!window.html2canvas||!window.jspdf?.jsPDF){alert('No se cargaron las librerías para generar el PDF.');return}
+   if(!window.GaMobilePDF||!window.jspdf?.jsPDF){alert('No se cargaron las librerías para generar el PDF.');return}
    const d=data().prospecto;
    const page=document.createElement('div');
    page.className='strat-pdf-page';
@@ -3748,12 +3704,7 @@ function updateDiagnosisRecommendation(){
    <div class="strat-pdf-foot">Esta es una simulación con fines ilustrativos, basada en información histórica y contexto actual de mercado. Los rendimientos pasados no garantizan resultados futuros. Ninguna inversión de renta variable ofrece rendimiento garantizado. Próxima revisión: asesoría anual.</div>`;
    document.body.appendChild(page);
    try{
-     const {jsPDF}=window.jspdf;
-     const canvas=await html2canvas(page,{scale:2,backgroundColor:'#ffffff'});
-     const doc=new jsPDF({orientation:'portrait',unit:'mm',format:'a4',compress:true});
-     const imgW=190,imgH=canvas.height*imgW/canvas.width;
-     doc.addImage(canvas.toDataURL('image/jpeg',0.92),'JPEG',10,10,imgW,imgH);
-     doc.save(safeFileName(`GarBa_Estrategia_${d.nombre||'Cliente'}`)+'.pdf');
+     window.GaMobilePDF.downloadStrategy(page,safeFileName(`GarBa_Estrategia_${d.nombre||'Cliente'}`)+'.pdf');
    }catch(e){console.error(e);alert('No se pudo generar el PDF de estrategia.')}
    finally{document.body.removeChild(page)}
  };
@@ -3928,34 +3879,9 @@ function openPreopen(from){if(window.GaV2?.active&&from==='later'){window.GaV2.s
    return '\uFEFF'+headers.map(csvEscape).join(',')+'\n'+rows.map(r=>headers.map(h=>csvEscape(r[h])).join(',')).join('\n');
  }
  async function generateExecutivePdfBlob(){
-   if(!window.html2canvas||!window.jspdf?.jsPDF)throw new Error('No se cargaron las librerías para generar el PDF.');
-   try{actualizarReporteBase()}catch(e){console.warn('[GarBa Advisor] Reporte parcial:',e)}
-   const report=document.querySelector('.report-view');
-   const pages=[...document.querySelectorAll('.report-view .pdf-page')];
-   if(!report||!pages.length)throw new Error('No se encontraron las páginas del reporte.');
-   report.classList.add('pdf-export-active');
-   await new Promise(r=>setTimeout(r,300));
-   try{
-     const {jsPDF}=window.jspdf;
-     const doc=new jsPDF({orientation:'portrait',unit:'mm',format:'a4',compress:true});
-     for(let i=0;i<pages.length;i++){
-       const canvas=await html2canvas(pages[i],{
-         scale:1.55,
-         useCORS:true,
-         backgroundColor:'#ffffff',
-         logging:false,
-         windowWidth:pages[i].scrollWidth,
-         windowHeight:pages[i].scrollHeight
-       });
-       const img=canvas.toDataURL('image/jpeg',0.92);
-       if(i>0)doc.addPage();
-       doc.addImage(img,'JPEG',0,0,210,297,undefined,'FAST');
-     }
-     return doc.output('blob');
-   }finally{
-     report.classList.remove('pdf-export-active');
-   }
+   return window.GaMobilePDF.projectionBlob();
  }
+
  function safeFileName(value){
    return String(value||'Prospecto')
      .normalize('NFD').replace(/[\u0300-\u036f]/g,'')
@@ -4228,6 +4154,6 @@ updateGaGoalInsight();if(!gaSessionRestored)show(0);
 <script src="support-resources.js"></script>
 <script src="presentation.js"></script>
 <script src="calculator-layout.js"></script>
-<script src="pdf-export.js"></script>
+<script src="pdf-mobile.js"></script>
 </body>
 </html>

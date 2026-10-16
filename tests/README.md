@@ -27,4 +27,12 @@ Run `node tests/experience.cjs` with Playwright available through `NODE_PATH` an
 
 `GARBA_AUDIT_OUTPUT` selects the evidence directory. The audit runs the full diagnosis, compares its complete output against baseline, captures advisory scenes and all native support resources at three widths, checks every precapture section, downloads projection/strategy PDFs and the records ZIP, and checks browser errors and horizontal overflow. All external HTTPS requests are blocked. No real identity, email, scheduling, customer save or message is used.
 
-The projection PDF is generated using Chromium's print API after activating the real export button; the strategy and records package are captured as actual application downloads. Existing financial assumptions remain unchanged. The credentials reference is retained as the original image, with an enlarge link.
+The projection, strategy and records package are captured as actual application downloads. PDFs use the mobile format described below. Existing financial assumptions remain unchanged. The credentials reference is retained as the original image, with an enlarge link.
+
+## Mobile PDF acceptance
+
+The default projection, investment strategy and executive report in the records ZIP use `pdf-mobile.js`: 360 × 640 pt portrait pages, one column, selectable text and 16 pt body copy. Pages grow in count rather than shrinking the text. Headings and cards stay with their content where they fit. The renderer reads the existing report values and strategy text without changing financial formulas.
+
+Run `node tests/mobile-pdf.cjs` with `GARBA_AUDIT_ROOT`, `GARBA_AUDIT_OUTPUT`, `NODE_PATH` and optional `CHROME_EXECUTABLE` as above. It captures real downloads from the projection control, strategy control and ZIP. It checks the mobile page dimensions and stores the original report text for PDF extraction comparison. Render generated PDFs at 390 px wide for visual review.
+
+After the mobile download test, run `python3 tests/verify-mobile-pdf.py PATH_TO_EVIDENCE` (PyMuPDF) for independent extraction and layout checks.
