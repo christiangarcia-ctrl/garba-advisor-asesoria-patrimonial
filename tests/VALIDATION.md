@@ -20,3 +20,5 @@ Default PDFs now use the existing Montserrat brand font embedded in the PDF, a w
 Repeated explanations are condensed. Canonical financial values are checked against the existing report DOM, and the full financial disclaimer remains. The renderer does not recalculate the model. Very long personalized narrative may require additional pages rather than clipping text.
 
 Run `tests/mobile-pdf.cjs` for actual downloads and expected financial values, then `python3 tests/verify-mobile-pdf.py PATH_TO_EVIDENCE` (PyMuPDF) for page count, dimensions, embedded selectable text, bounds, financial-value preservation and ZIP equivalence. All pages are rendered at 390 px wide for visual review.
+
+The strategy PDF includes a purely illustrative fluctuating curve with four numbered concepts: appreciation, accumulation, discipline and horizon. It is not calculated from customer balances, a historical price series or a return forecast. The explanatory copy covers both loss of current value and purchasing more units with continuing contributions, and states that recovery is not guaranteed. The standard PDF remains two pages.

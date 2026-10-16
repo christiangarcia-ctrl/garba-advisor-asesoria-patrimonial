@@ -102,6 +102,26 @@
   w.smallTitle('Información importante');w.para(text(document.querySelector('.pdf-disclaimer')),{size:12,gap:0});
   return w.finish();
  }
+
+ function fluctuationChart(w){
+  const h=138;if(w.y+h>596)w.newPage('El recorrido','El camino puede fluctuar.');
+  const top=w.y;
+  const d=w.doc;d.setFillColor(C.white);d.roundedRect(24,top,312,h,8,8,'F');
+  w.write('El recorrido puede fluctuar',38,top+12,{size:12,bold:true,width:284});
+  const points=[[0,.10],[.08,.25],[.16,.66],[.24,.48],[.31,.56],[.40,.23],[.47,.15],[.56,.48],[.64,.36],[.72,.62],[.80,.54],[.88,.86],[.95,.65],[1,.74]].map(([x,y])=>[42+x*276,top+88-y*54]);
+  d.setDrawColor(C.line);d.setLineWidth(.6);d.line(42,top+91,318,top+91);
+  const path=[{op:'m',c:points[0]}];
+  for(let i=0;i<points.length-1;i++){
+   const a=points[Math.max(0,i-1)],b=points[i],c=points[i+1],e=points[Math.min(points.length-1,i+2)];
+   path.push({op:'c',c:[b[0]+(c[0]-a[0])/6,b[1]+(c[1]-a[1])/6,c[0]-(e[0]-b[0])/6,c[1]-(e[1]-b[1])/6,c[0],c[1]]});
+  }
+  d.setDrawColor(C.navy);d.setLineWidth(1.8);d.path(path);d.stroke();
+  [2,6,9,11].forEach((index,i)=>{const [x,y]=points[index];d.setFillColor(C.navy);d.circle(x,y,6,'F');w.write(String(i+1),x-2.4,y-3.2,{size:8,bold:true,color:C.white,width:12});});
+  w.write('Tiempo',277,top+94,{size:10,color:C.muted,width:45});
+  w.write('Ejemplo ilustrativo. No es una proyección ni una serie histórica.',38,top+110,{size:11,color:C.muted,width:284,leading:1.2});
+  w.y=top+h+8;
+ }
+
  function strategy(source){
   const w=layout('Tu estrategia de inversión · Christian GarBa');
   w.newPage('01 · Tu portafolio','Una combinación\ncon intención.');
@@ -109,13 +129,18 @@
   const blocks=[...source.querySelectorAll('.strat-pdf-block')];
   for(const p of blocks[0].querySelectorAll('p')){
    const title=text(p.querySelector('b')),detail=text(p).slice(title.length).replace(/^\s*-\s*/,'');
-   w.smallTitle(title);w.para(detail,{size:15,gap:14});
+   w.smallTitle(title);w.para(detail,{size:14,gap:10});
   }
-  w.newPage('02 · El criterio','Por qué esta\nestrategia para ti.');
-  const reason=text(blocks[1].querySelector('p')).split(/\.\s+/)[0].replace(/\.$/,'')+'.';
-  w.para(reason,{size:15,gap:12});
-  w.smallTitle('Renta fija / renta variable');for(const p of blocks[2].querySelectorAll('p'))w.para(text(p),{size:14,gap:12});
-  w.smallTitle('Antes de decidir');w.para(text(source.querySelector('.strat-pdf-foot')),{size:12,gap:0});
+  fluctuationChart(w);
+  w.newPage('02 · El criterio','Altas y bajas. Decisiones con criterio.');
+  const concepts=[
+   ['1. Apreciación','Las subidas pueden aumentar el valor de tu inversión.'],
+   ['2. Acumulación','La baja reduce el valor actual. Si aportas, puedes comprar más participaciones.'],
+   ['3. Disciplina','Evita decidir por un movimiento aislado; revisa contexto y riesgo.'],
+   ['4. Horizonte','Un plazo largo aporta perspectiva, pero no garantiza recuperación.']
+  ];
+  for(const [label,description] of concepts){w.smallTitle(label);w.para(description,{size:13,gap:8});}
+  w.smallTitle('Antes de decidir');w.para(text(source.querySelector('.strat-pdf-foot')),{size:11.5,gap:0});
   return w.finish();
  }
  window.GaMobilePDF={projection,strategy,downloadProjection(){return projection().save('GarBa_Proyeccion_Celular.pdf')},projectionBlob(){return projection().output('blob')},downloadStrategy(source,name){return strategy(source).save(name)}};

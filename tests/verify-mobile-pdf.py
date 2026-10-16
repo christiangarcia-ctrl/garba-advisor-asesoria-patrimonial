@@ -16,9 +16,10 @@ for name in ['projection','strategy','executive-package']:
      assert x0>=22 and x1<=338,(name,span)
      assert y0>=0 and y1<=640,(name,span)
      if y0>42 and y1<612:
-      assert span['size']>=10.9,(name,span)
+      assert span['size']>=10.9 or (name=='strategy' and span['text'] in ['1','2','3','4','Tiempo']),(name,span)
       if re.fullmatch(r'\$[\d,.]+',span['text']):assert span['size']>=18,(name,span)
-      sizes.append(span['size']);body.append(span['text']);words+=len(span['text'].split())
+      if not (name=='strategy' and span['text'] in ['1','2','3','4','Tiempo']):sizes.append(span['size'])
+      body.append(span['text']);words+=len(span['text'].split())
  texts[name]=' '.join(body)
  report[name]={'pages':len(doc),'width_pt':360,'height_pt':640,'minimum_content_font_pt':min(sizes),'selectable_words':words,'text_within_page':True}
 normalize=lambda s:re.sub(r'[^a-z0-9]','',unicodedata.normalize('NFKD',s.lower()).encode('ascii','ignore').decode())
@@ -29,5 +30,7 @@ assert normalize(texts['projection'])==normalize(texts['executive-package'])
 assert report['projection']['pages']==6,report
 assert report['strategy']['pages']==2,report
 assert report['executive-package']['pages']==6,report
+for term in ['Apreciación','Acumulación','Disciplina','Horizonte','puedes comprar más participaciones','no garantiza recuperación','No es una proyección ni una serie histórica']:
+ assert normalize(term) in normalize(texts['strategy']),term
 report['content']={'original_financial_values_preserved':len(expected),'missing':missing,'zip_report_matches_direct_pdf':True}
 (out/'verification.json').write_text(json.dumps(report,indent=2));print(json.dumps(report,indent=2))

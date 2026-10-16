@@ -36,3 +36,5 @@ The default projection, investment strategy and executive report in the records 
 Run `node tests/mobile-pdf.cjs` with `GARBA_AUDIT_ROOT`, `GARBA_AUDIT_OUTPUT`, `NODE_PATH` and optional `CHROME_EXECUTABLE` as above. It captures real downloads from the projection control, strategy control and ZIP. It checks the mobile page dimensions and stores the original report text for PDF extraction comparison. Render generated PDFs at 390 px wide for visual review.
 
 After the mobile download test, run `python3 tests/verify-mobile-pdf.py PATH_TO_EVIDENCE` (PyMuPDF) for independent extraction and layout checks.
+
+The strategy PDF includes a purely illustrative fluctuating curve with four numbered concepts: appreciation, accumulation, discipline and horizon. It is not calculated from customer balances, a historical price series or a return forecast. The explanatory copy covers both loss of current value and purchasing more units with continuing contributions, and states that recovery is not guaranteed. The standard PDF remains two pages.
