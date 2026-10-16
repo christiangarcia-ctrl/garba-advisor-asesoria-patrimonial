@@ -31,7 +31,7 @@ The projection, strategy and records package are captured as actual application 
 
 ## Mobile PDF acceptance
 
-The default projection, investment strategy and executive report in the records ZIP use `pdf-mobile.js`: 360 × 640 pt portrait pages, one column, selectable text and 16 pt body copy. Pages grow in count rather than shrinking the text. Headings and cards stay with their content where they fit. The renderer reads the existing report values and strategy text without changing financial formulas.
+The default projection, investment strategy and executive report in the records ZIP use `pdf-mobile.js`: 360 × 640 pt portrait pages, embedded Montserrat, selectable text, large figures and a compact editorial layout. The standard synthetic projection is six pages and the strategy is two. Narrative is condensed while canonical financial values and the full financial disclaimer remain. Headings and cards stay with their content where they fit. The renderer reads the existing report values and strategy text without changing financial formulas.
 
 Run `node tests/mobile-pdf.cjs` with `GARBA_AUDIT_ROOT`, `GARBA_AUDIT_OUTPUT`, `NODE_PATH` and optional `CHROME_EXECUTABLE` as above. It captures real downloads from the projection control, strategy control and ZIP. It checks the mobile page dimensions and stores the original report text for PDF extraction comparison. Render generated PDFs at 390 px wide for visual review.
 

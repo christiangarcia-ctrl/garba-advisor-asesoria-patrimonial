@@ -13,10 +13,10 @@ Validated in local Chromium with Playwright and synthetic identity only. Externa
 
 See `tests/README.md` for reproducible commands. Browser evidence and synthetic PDF/ZIP examples were delivered with the task. This validates preservation of existing calculations, not a change or independent certification of the underlying financial methodology.
 
-## Mobile PDF update
+## Compact editorial PDF update
 
-Default PDF exports use 360 × 640 pt portrait pages, a single column, selectable text and a minimum 16 pt body font. Projection and ZIP executive report: 15 pages for the synthetic sample. Investment strategy: 3 pages. Page count varies with actual client text. Headers and pagination use smaller auxiliary text.
+Default PDFs now use the existing Montserrat brand font embedded in the PDF, a warm neutral background, navy figure cards, paired indicators and compact comparison rows. Standard synthetic sample: six projection pages, two strategy pages and six pages for the identical ZIP report. The layout uses 24 pt titles, 26–32 pt primary figures, 14–15 pt main copy and 12–13 pt auxiliary copy and legal text.
 
-The `mobile-pdf.js` renderer reads current report DOM values and strategy copy. It does not recalculate or alter financial methodology. All 144 visible original report text fragments in the sample are preserved. ZIP executive text equals the direct projection PDF. Extracted text bounds stay inside the pages.
+Repeated explanations are condensed. Canonical financial values are checked against the existing report DOM, and the full financial disclaimer remains. The renderer does not recalculate the model. Very long personalized narrative may require additional pages rather than clipping text.
 
-Run `tests/mobile-pdf.cjs` for real browser downloads, then `python3 tests/verify-mobile-pdf.py PATH_TO_EVIDENCE` with PyMuPDF installed to verify dimensions, body font sizes, selectable text, bounds, original report text preservation and ZIP equivalence. All pages were rendered at 390 px wide and inspected visually.
+Run `tests/mobile-pdf.cjs` for actual downloads and expected financial values, then `python3 tests/verify-mobile-pdf.py PATH_TO_EVIDENCE` (PyMuPDF) for page count, dimensions, embedded selectable text, bounds, financial-value preservation and ZIP equivalence. All pages are rendered at 390 px wide for visual review.

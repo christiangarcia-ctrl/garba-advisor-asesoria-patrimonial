@@ -16,14 +16,18 @@ for name in ['projection','strategy','executive-package']:
      assert x0>=22 and x1<=338,(name,span)
      assert y0>=0 and y1<=640,(name,span)
      if y0>42 and y1<612:
-      assert span['size']>=16,(name,span)
+      assert span['size']>=10.9,(name,span)
+      if re.fullmatch(r'\$[\d,.]+',span['text']):assert span['size']>=18,(name,span)
       sizes.append(span['size']);body.append(span['text']);words+=len(span['text'].split())
  texts[name]=' '.join(body)
- report[name]={'pages':len(doc),'width_pt':360,'height_pt':640,'minimum_body_font_pt':min(sizes),'selectable_words':words,'text_within_page':True}
+ report[name]={'pages':len(doc),'width_pt':360,'height_pt':640,'minimum_content_font_pt':min(sizes),'selectable_words':words,'text_within_page':True}
 normalize=lambda s:re.sub(r'[^a-z0-9]','',unicodedata.normalize('NFKD',s.lower()).encode('ascii','ignore').decode())
-expected=json.loads((out/'expected-report-text.json').read_text());actual=normalize(texts['projection'])
-missing=[s for s in expected if normalize(s) not in actual]
+expected=json.loads((out/'expected-financial-values.json').read_text());actual=normalize(texts['projection'])
+missing=[item for item in expected if normalize(item['value']) not in actual]
 assert not missing,missing
 assert normalize(texts['projection'])==normalize(texts['executive-package'])
-report['content']={'original_text_fragments_preserved':len(expected),'missing':missing,'zip_report_matches_direct_pdf':True}
+assert report['projection']['pages']==6,report
+assert report['strategy']['pages']==2,report
+assert report['executive-package']['pages']==6,report
+report['content']={'original_financial_values_preserved':len(expected),'missing':missing,'zip_report_matches_direct_pdf':True}
 (out/'verification.json').write_text(json.dumps(report,indent=2));print(json.dumps(report,indent=2))
