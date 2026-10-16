@@ -222,6 +222,31 @@ async function main(){
     await identified.evaluate(()=>document.querySelector('#gaV2Known button.ga-v2-link').click());
     assert(await identified.evaluate(()=>GaShell.scenes.find(s=>s.dataset.scene==='6').dataset.skip==='1'),'Deepening a known diagnosis still keeps reality in the calculator');
     await identified.close();
+    // Design V2 regression: guided retirement scene, six original images and figures.
+    const visual=await make();await load(visual,origin);
+    await visual.evaluate(()=>{
+      document.getElementById('gaResourcesPanel').classList.add('show');
+      window.GaSupport.show('retirement');
+    });
+    const cards=visual.locator('#gaSupportContent [data-retirement-card]');
+    assert.equal(await cards.count(),6,'Retirement retains all six stories');
+    assert.deepEqual(await visual.locator('#gaSupportContent .support-retirement figcaption strong').allTextContents(),
+      ['2%','4%','8%','11%','20%','55%'],'Original figures remain unchanged');
+    const photos=await visual.locator('#gaSupportContent .support-retirement img').evaluateAll(nodes=>
+      nodes.map(img=>({src:img.getAttribute('src'),loaded:img.complete&&img.naturalWidth>0})));
+    assert(photos.every((p,i)=>p.src===`img/retiro-${i+1}.jpg`&&p.loaded),'All six photographs load');
+    await cards.nth(2).click();
+    assert.equal(await cards.nth(2).getAttribute('aria-pressed'),'true','Chosen retirement scenario is announced');
+    assert(await visual.locator('#gaSupportContent').evaluate(el=>el.classList.contains('retirement-focused')),
+      'Guided focus layout activates');
+    await visual.locator('[data-retirement-reset]').click();
+    assert.equal(await cards.nth(2).getAttribute('aria-pressed'),'false','Guided focus can be reset');
+    for(const size of [{width:390,height:844},{width:844,height:390},{width:1440,height:900}]){
+      await visual.setViewportSize(size);
+      const overflow=await visual.evaluate(()=>document.documentElement.scrollWidth>innerWidth+2);
+      assert.equal(overflow,false,`No document overflow at ${size.width}x${size.height}`);
+    }
+    await visual.close();
     assert.deepEqual(errors,[],'No browser runtime errors');
     console.log('PASS: full-width advisory, full-screen resources, keyboard return, live input/results/chart, stale-output protection, fixed controls, result tabs, responsive layouts.');
     console.log('Screenshots:',output);
