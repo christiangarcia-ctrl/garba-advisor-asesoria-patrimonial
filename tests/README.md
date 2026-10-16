@@ -15,3 +15,16 @@ The calculator keeps three controls fixed above a single scrollable results area
 Support consolidation: resources 3 and 4 share a single PPR explanation; resource 11 is integrated as the Investment tab of resource 8. Library entries 3, 9 and 11 are removed from the visible sequence; personalized routes are normalized to the retained resources. Existing accreditation, Allianz backing and onboarding resources remain.
 
 Image provenance: `img/allianz-familia.png` is extracted unchanged from page 4 of the local official “Folleto OptiMaxx plus 2025.pdf”. Retirement category photographs remain from the colleague reference; the percentages remain labeled as reference figures without a specified statistical source. The welcome portrait is removed.
+
+## Full two-application acceptance audit
+
+Run `node tests/experience.cjs` with Playwright available through `NODE_PATH` and optionally `CHROME_EXECUTABLE`. Set `GARBA_AUDIT_ROOT` to a directory containing these checkouts:
+
+- `garba-advisor`: this design branch.
+- `mi-punto-de-partida`: the companion design branch.
+- `advisor-baseline`: commit `0f46b4c`.
+- `pdp-baseline`: companion commit `6ae0c6e`.
+
+`GARBA_AUDIT_OUTPUT` selects the evidence directory. The audit runs the full diagnosis, compares its complete output against baseline, captures advisory scenes and all native support resources at three widths, checks every precapture section, downloads projection/strategy PDFs and the records ZIP, and checks browser errors and horizontal overflow. All external HTTPS requests are blocked. No real identity, email, scheduling, customer save or message is used.
+
+The projection PDF is generated using Chromium's print API after activating the real export button; the strategy and records package are captured as actual application downloads. Existing financial assumptions remain unchanged. The credentials reference is retained as the original image, with an enlarge link.

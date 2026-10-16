@@ -466,3 +466,31 @@
   #gaShell .ga-option:hover,#gaShell .ga-choice:hover { transform:none; }
  }
 }
+
+/* Carry the same visual system through portfolio selection and the closing journey. */
+@media screen {
+ #gaStrategyView .strat-card { background:linear-gradient(145deg,#102640,#234766);border:1px solid #dce6ef;border-radius:22px;box-shadow:0 20px 60px #10264018; }
+ #gaStrategyView .strat-head h1 { letter-spacing:-.035em;text-wrap:balance; }
+ #gaStrategyView .strat-chart-box { background:#0d2238;border-color:#ffffff25; }
+ #gaStrategyView .strat-theme-card { background:#ffffff0a;border-color:#ffffff28; }
+ #gaStrategyView .strat-meta span,#gaStrategyView .strat-tag.mixto { color:#e8d6b5;background:#ad875020;border-color:#ad875060; }
+ #gaStrategyView .strat-pct,#gaStrategyView .strat-layer b,#gaStrategyView .strat-review { color:#e8d6b5; }
+ #gaStrategyView .strat-actions button { min-height:46px;border-radius:12px; }
+ #gaStrategyView .strat-actions .ga-primary { background:#e8d6b5;color:#102640; }
+ #gaStrategyView .strat-info-btn { min-width:32px;min-height:32px;color:#e8d6b5;background:#ffffff12;border-color:#ffffff35; }
+ .ga-pre-field input:focus-visible,.ga-pre-field select:focus-visible,.ga-pre-field textarea:focus-visible { outline:3px solid #a5c2e1;outline-offset:2px; }
+ @media(max-width:760px) {
+  #gaStrategyView .strat-card { padding:24px 16px;border-radius:18px; }
+  #gaStrategyView .strat-actions button { flex:1 1 100%; }
+  #gaStrategyView .strat-theme-name { min-width:0;overflow-wrap:anywhere; }
+  #gaStrategyView .strat-head h1 { font-size:clamp(25px,7vw,34px); }
+ }
+}
+@media screen {
+ #gaPreopenView input,#gaPreopenView select,#gaPreopenView textarea,#gaPreopenView button { font-family:Inter,system-ui,sans-serif; }
+ #gaPreopenView .ga-kicker { color:#95713d!important; }
+ @media(max-width:760px) {
+  #gaPreopenView .ga-pre-head { flex-direction:column;align-items:flex-start;gap:12px; }
+  #gaPreopenView .ga-pre-head h1 { font-size:clamp(28px,8vw,36px);line-height:1.15;letter-spacing:-.03em; }
+ }
+}

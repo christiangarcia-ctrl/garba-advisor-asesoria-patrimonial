@@ -232,6 +232,7 @@ async function main(){
     assert.equal(await cards.count(),6,'Retirement retains all six stories');
     assert.deepEqual(await visual.locator('#gaSupportContent .support-retirement figcaption strong').allTextContents(),
       ['2%','4%','8%','11%','20%','55%'],'Original figures remain unchanged');
+    await visual.locator('#gaSupportContent .support-retirement img').evaluateAll(nodes=>Promise.all(nodes.map(img=>img.decode())));
     const photos=await visual.locator('#gaSupportContent .support-retirement img').evaluateAll(nodes=>
       nodes.map(img=>({src:img.getAttribute('src'),loaded:img.complete&&img.naturalWidth>0})));
     assert(photos.every((p,i)=>p.src===`img/retiro-${i+1}.jpg`&&p.loaded),'All six photographs load');
