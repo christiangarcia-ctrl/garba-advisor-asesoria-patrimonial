@@ -22,3 +22,10 @@ Repeated explanations are condensed. Canonical financial values are checked agai
 Run `tests/mobile-pdf.cjs` for actual downloads and expected financial values, then `python3 tests/verify-mobile-pdf.py PATH_TO_EVIDENCE` (PyMuPDF) for page count, dimensions, embedded selectable text, bounds, financial-value preservation and ZIP equivalence. All pages are rendered at 390 px wide for visual review.
 
 The strategy PDF includes a purely illustrative fluctuating curve with four numbered concepts: appreciation, accumulation, discipline and horizon. It is not calculated from customer balances, a historical price series or a return forecast. The explanatory copy covers both loss of current value and purchasing more units with continuing contributions, and states that recovery is not guaranteed. The standard PDF remains two pages.
+
+
+## Recomposición visual — 16 de octubre de 2026
+
+Se conservan los nodos y controladores originales de formularios y cálculos. La capa experience-layout recompone las pantallas para escritorio y celular. Asesoría incorpora navegación lateral, separación de preguntas y controles, recursos nativos y cierre en columnas. Punto de Partida incorpora fotografía editorial, progreso lateral y formularios en una columna.
+
+Validación local con Chromium/Playwright: recorrido completo de ambas aplicaciones, estado financiero y fiscal del diagnóstico idéntico al original, siete escenarios financieros de asesoría, exportaciones PDF y ZIP reales, capturas a 390/844/1440 px sin errores de ejecución ni desbordamientos. Se preservan las seis fotografías y porcentajes originales. Evidencia local: outputs/redesign/acceptance/audit.json, outputs/redesign/preservation.json y comparaciones en outputs/redesign/. No se modifica producción.

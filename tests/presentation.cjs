@@ -61,8 +61,10 @@ async function main(){
   try{
     await load(page,origin);
     await page.screenshot({path:path.join(output,'intro-desktop.png')});
-    assert.equal(await page.locator('.ga-card').evaluate(el=>Math.round(el.getBoundingClientRect().width)),1440,'Advisory uses full viewport width');
+    assert.equal(await page.locator('.ga-wrap').evaluate(el=>Math.round(el.getBoundingClientRect().width)),1440,'Advisory workspace uses full viewport width');
     assert.equal(await page.locator('.ga-intro-portrait').count(),0);
+    assert(await page.locator('.experience-rail').isVisible(),'Advisory has its composition rail');
+    assert.equal(await page.locator('.experience-map-step').count(),3,'Welcome presents the route visually');
     await page.locator('#gaOpenResources').click();await wait(150);
     const panel=await page.locator('.ga-resources-panel-card').boundingBox();
     assert.deepEqual([Math.round(panel.width),Math.round(panel.height)],[1440,900]);

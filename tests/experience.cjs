@@ -4,7 +4,7 @@ const base=process.env.GARBA_AUDIT_ROOT;assert(base,'Set GARBA_AUDIT_ROOT to a f
 const server=http.createServer((req,res)=>{let file=path.join(base,decodeURIComponent(req.url.split('?')[0]));if(file.endsWith('/'))file+='index.html';try{res.setHeader('Content-Type',({'.html':'text/html','.css':'text/css','.js':'text/javascript','.png':'image/png','.jpg':'image/jpeg'})[path.extname(file)]||'application/octet-stream');res.end(fs.readFileSync(file));}catch{res.writeHead(404).end()}});
 (async()=>{await new Promise(r=>server.listen(0,'127.0.0.1',r));const browser=await chromium.launch({...(process.env.CHROME_EXECUTABLE?{executablePath:process.env.CHROME_EXECUTABLE}:{})});let report={checks:[],errors:[],overflow:[]};try{
  const context=await browser.newContext();await context.route('https://**/*',r=>r.abort());const p=await context.newPage();p.on('pageerror',e=>report.errors.push(e.message));const origin='http://127.0.0.1:'+server.address().port;
- const shot=async(name)=>{await p.screenshot({path:path.join(out,name+'.png'),fullPage:true})};
+ const shot=async(name)=>{await p.evaluate(()=>window.scrollTo(0,0));await p.screenshot({path:path.join(out,name+'.png'),fullPage:true,animations:'disabled'})};
  const checkWidth=async(label)=>{const x=await p.evaluate(()=>({w:innerWidth,s:document.documentElement.scrollWidth}));if(x.s>x.w+1)report.overflow.push({label,...x})};
  let states=[];
  for(const repo of ['pdp-baseline','mi-punto-de-partida']){
