@@ -28,13 +28,25 @@ if(original){original.before(hero);hero.after(options,detail,future)}
 const extraCss=make('style');
 extraCss.textContent='.ga-act-hero{margin:18px 0}.ga-act-hero p{font-size:clamp(22px,3.4vw,48px);line-height:1.25;font-weight:700}.ga-act-hero strong{color:var(--presentation-navy,#001868)}.ga-act-actions{display:flex;flex-wrap:wrap;gap:12px}.ga-act-option{padding:16px;border:1px solid var(--presentation-line,#dce3ee);border-radius:14px;margin:8px 0}.ga-act-option strong{display:block;font-size:24px}.ga-think-panel{padding:18px;margin-top:16px}.ga-think-panel .ga-field{margin:12px 0}.ga-three-mobile .ga-act-hero p{font-size:clamp(60px,5vw,76px)}.ga-three-mobile .projection-graph,.ga-three-mobile .ga-act-technical{display:none}.ga-three-mobile #gaActTechnical{display:none}.ga-three-mobile #gaActOptions .ga-act-option strong{font-size:42px}.ga-three-mobile #gaActHero{padding:24px}.ga-think-panel[hidden]{display:none!important}';
 document.head.append(extraCss);
+let comparing=false;
+function sameEngineProjection(amount){
+ const input=existing('pmt'),engine=window.calcAccum;
+ if(!input||typeof engine!=='function'||!(amount>0))return null;
+ const saved=input.value;
+ if(Number(saved)===amount)return existing('fondo65')?.textContent||null;
+ comparing=true;
+ let value=null;
+ try{input.value=String(amount);if(engine()!==false)value=existing('fondo65')?.textContent||null}
+ finally{input.value=saved;try{engine()}catch(e){console.error('No se pudo restaurar la proyección',e)}comparing=false}
+ return value;
+}
 function refresh(){
  const amount=pmt();assign('gaActPmt',money(amount));assign('gaActFuture',existing('fondo65')?.textContent||'—');
  const tax=existing('regimenFiscal')?.value;const fiscal=existing('gaActFiscal');
  if(fiscal)fiscal.textContent=tax==='151'?'Consulta el beneficio fiscal anual en los resultados de esta proyección.':tax==='93'?'Consulta el tratamiento del Art. 93 en los resultados de esta proyección.':'';
  const candidates=[amount];const suggested=Number((existing('gaSuggestedMini')?.textContent||'').replace(/[^\d.-]/g,''))||0;
  if(suggested>amount){const intermediate=Math.round(((amount+suggested)/2)/500)*500;if(intermediate>amount&&intermediate<suggested)candidates.push(intermediate);candidates.push(suggested)}
- const wrap=existing('gaActOptionCards');if(wrap){wrap.replaceChildren();for(const n of [...new Set(candidates)].filter(n=>n>0)){const row=make('div','ga-act-option');const label=make('strong','',money(n)+'/mes');const btn=make('button','ga-btn','Elegir este');btn.type='button';btn.onclick=()=>{if(!existing('pmt'))return;existing('pmt').value=n;existing('pmt').dispatchEvent(new Event('input',{bubbles:true}));existing('pmt').dispatchEvent(new Event('change',{bubbles:true}));existing('gaPmt').value=n;refresh();persist()};row.append(label,btn);wrap.append(row)}}
+ const wrap=existing('gaActOptionCards');if(wrap){wrap.replaceChildren();for(const n of [...new Set(candidates)].filter(n=>n>0)){const row=make('div','ga-act-option');const label=make('strong','',money(n)+'/mes');const btn=make('button','ga-btn','Elegir este');btn.type='button';btn.onclick=()=>{if(!existing('pmt'))return;existing('pmt').value=n;existing('pmt').dispatchEvent(new Event('input',{bubbles:true}));existing('pmt').dispatchEvent(new Event('change',{bubbles:true}));if(existing('gaPmt'))existing('gaPmt').value=n;window.calcAccum?.();refresh();persist()};const value=make('div','ga-mini',sameEngineProjection(n)||'Proyección no disponible');row.append(label,value,btn);wrap.append(row)}}
 }
 const decisions=existing('gaPostCalcValidation');
 const thinkButton=make('button','','');thinkButton.type='button';thinkButton.dataset.postcalc='decision';thinkButton.dataset.value='think';thinkButton.innerHTML='<strong>Necesito pensarlo</strong><span>Identifiquemos qué te falta para tomar una decisión.</span>';
@@ -76,7 +88,7 @@ existing('gaFlowToggle')?.after(panelButton);
 const signal=new MutationObserver(sendPanel);if(workspace())signal.observe(workspace(),{attributes:true,attributeFilter:['class']});
 for(const key of ['gaBarrier','gaConcern','gaTax','gaPmt','pmt','gaThinkReason'])existing(key)?.addEventListener('change',sendPanel);
 channel?.addEventListener('message',e=>{if(e.data?.type==='ready')sendPanel()});
-const obs=new MutationObserver(()=>{if(!view())return;const newVal=existing('fondo65')?.textContent;if(newVal!==hero.dataset.last){hero.dataset.last=newVal;refresh()}});
+const obs=new MutationObserver(()=>{if(!view()||comparing)return;const newVal=existing('fondo65')?.textContent;if(newVal!==hero.dataset.last){hero.dataset.last=newVal;refresh()}});
 if(workspace())obs.observe(workspace(),{childList:true,subtree:true,characterData:true});
 refresh();
 window.GaThreeActs={state,refresh,summary};
