@@ -26,7 +26,7 @@ if(graph)future.append(graph);
 const original=workspace()?.querySelector('.plan-hero');
 if(original){original.before(hero);hero.after(options,detail,future)}
 const extraCss=make('style');
-extraCss.textContent='.ga-act-hero{margin:18px 0}.ga-act-hero p{font-size:clamp(22px,3.4vw,48px);line-height:1.25;font-weight:700}.ga-act-hero strong{color:var(--presentation-navy,#001868)}.ga-act-actions{display:flex;flex-wrap:wrap;gap:12px}.ga-act-option{padding:16px;border:1px solid var(--presentation-line,#dce3ee);border-radius:14px;margin:8px 0}.ga-act-option strong{display:block;font-size:24px}.ga-think-panel{padding:18px;margin-top:16px}.ga-think-panel .ga-field{margin:12px 0}.ga-three-mobile .ga-act-hero p{font-size:clamp(60px,5vw,76px)}.ga-three-mobile .projection-graph,.ga-three-mobile .ga-act-technical{display:none}.ga-three-mobile #gaActTechnical{display:none}.ga-three-mobile #gaActOptions .ga-act-option strong{font-size:42px}.ga-three-mobile #gaActHero{padding:24px}.ga-think-panel[hidden]{display:none!important}';
+extraCss.textContent='.ga-act-hero{margin:18px 0}.ga-act-hero p{font-size:clamp(22px,3.4vw,48px);line-height:1.25;font-weight:700}.ga-act-hero strong{color:var(--presentation-navy,#001868)}.ga-act-actions{display:flex;flex-wrap:wrap;gap:12px}.ga-act-option{padding:16px;border:1px solid var(--presentation-line,#dce3ee);border-radius:14px;margin:8px 0}.ga-act-option strong{display:block;font-size:24px}.ga-think-panel{padding:18px;margin-top:16px}.ga-think-panel .ga-field{margin:12px 0}.ga-three-mobile .ga-act-hero p{font-size:clamp(60px,5vw,76px)}.ga-three-mobile .projection-graph,.ga-three-mobile #resultsView table,.ga-three-mobile #resultsView .table-wrap,.ga-three-mobile .ga-act-technical{display:none}.ga-three-mobile #gaActTechnical{display:none}.ga-three-mobile #gaActOptions .ga-act-option strong{font-size:42px}.ga-three-mobile #gaActHero{padding:24px}.ga-think-panel[hidden]{display:none!important}';
 document.head.append(extraCss);
 let comparing=false;
 function sameEngineProjection(amount,delay=0){
@@ -44,7 +44,7 @@ function sameEngineProjection(amount,delay=0){
 function refresh(){
  const amount=pmt();assign('gaActPmt',money(amount));assign('gaActFuture',existing('fondo65')?.textContent||'—');
  const tax=existing('regimenFiscal')?.value;const fiscal=existing('gaActFiscal');
- if(fiscal)fiscal.textContent=tax==='151'?'Consulta el beneficio fiscal anual en los resultados de esta proyección.':tax==='93'?'Consulta el tratamiento del Art. 93 en los resultados de esta proyección.':'';
+ if(fiscal)fiscal.textContent=tax==='151'&&existing('taxFirstAmount')?.textContent&&existing('taxFirstAmount').textContent!=='—'?'Beneficio fiscal estimado del primer año: '+existing('taxFirstAmount').textContent:tax==='93'?(existing('rptFiscalText')?.textContent||'Consulta el tratamiento del Art. 93 en los resultados de esta proyección.') :'';
  const candidates=[amount];const suggested=Number((existing('gaSuggestedMini')?.textContent||'').replace(/[^\d.-]/g,''))||0;
  if(suggested>amount){const intermediate=Math.round(((amount+suggested)/2)/500)*500;if(intermediate>amount&&intermediate<suggested)candidates.push(intermediate);candidates.push(suggested)}
  const wrap=existing('gaActOptionCards');if(wrap){wrap.replaceChildren();for(const n of [...new Set(candidates)].filter(n=>n>0)){const row=make('div','ga-act-option');const label=make('strong','',money(n)+'/mes');const btn=make('button','ga-btn','Elegir este');btn.type='button';btn.onclick=()=>{if(!existing('pmt'))return;existing('pmt').value=n;existing('pmt').dispatchEvent(new Event('input',{bubbles:true}));existing('pmt').dispatchEvent(new Event('change',{bubbles:true}));if(existing('gaPmt'))existing('gaPmt').value=n;window.calcAccum?.();refresh();persist()};const value=make('div','ga-mini',sameEngineProjection(n)||'Proyección no disponible');row.append(label,value,btn);wrap.append(row)}}
@@ -65,7 +65,7 @@ if(date){date.value=state.date;date.onchange=()=>{state.date=date.value;persist(
 if(reason)reason.dispatchEvent(new Event('change'));
 thinkButton.addEventListener('click',()=>{think.hidden=false;think.scrollIntoView({behavior:'smooth',block:'nearest'});});
 existing('gaThinkConfirm')?.addEventListener('click',()=>{if(!state.reason||(!state.noDate&&(!state.date||!state.time))){assign('gaThinkError','Elige una razón y acuerda fecha y hora, o marca expresamente sin fecha.');return}assign('gaThinkError','Siguiente paso guardado en esta sesión.');persist();});
-function summary(){return [existing('gaName')?.value||existing('nombreOpt')?.value||'','Aportación mensual: '+money(pmt()),'Monto proyectado a los 65: '+(existing('fondo65')?.textContent||'—'),'Siguiente paso: '+(state.nextStep||'Por definir'),'Fecha acordada: '+(state.noDate?'Sin fecha acordada':(state.date+' '+state.time)),'Cualquier duda, aquí estoy. — Christian'].filter(Boolean).join('\n')}
+function summary(){return [existing('gaName')?.value||existing('nombreOpt')?.value||'','Aportación mensual: '+money(pmt()),'Monto proyectado a los 65: '+(existing('fondo65')?.textContent||'—'),existing('regimenFiscal')?.value==='151'&&existing('taxFirstAmount')?.textContent?'Beneficio fiscal estimado del primer año: '+existing('taxFirstAmount').textContent:'','Siguiente paso: '+(state.nextStep||'Por definir'),'Fecha acordada: '+(state.noDate?'Sin fecha acordada':(state.date+' '+state.time)),'Cualquier duda, aquí estoy. — Christian'].filter(Boolean).join('\n')}
 existing('gaActCopy')?.addEventListener('click',()=>navigator.clipboard?.writeText(summary()));
 existing('gaActDecision')?.addEventListener('click',()=>decisions?.scrollIntoView({behavior:'smooth',block:'start'}));
 const mobile=make('button','ga-btn','Modo celular');mobile.id='gaThreeMobileToggle';
@@ -87,12 +87,12 @@ hideClassic();
 const panelButton=make('button','ga-btn','Panel del asesor');panelButton.type='button';panelButton.id='gaAdvisorPanelButton';
 const channel=typeof BroadcastChannel==='function'?new BroadcastChannel('garba-advisor-three-act'):null;
 const panelState=()=>({act:workspace()?.classList.contains('active')?(decisions?.getBoundingClientRect().top<innerHeight/2?3:2):1,priority:document.querySelector('.ga-option.selected')?.textContent?.trim()||'',barrier:existing('gaBarrier')?.value||'',condition:existing('gaConcern')?.value||'',amount:pmt(),fiscal:existing('regimenFiscal')?.value||existing('gaTax')?.value||'',reason:state.reason});
-const sendPanel=()=>channel?.postMessage({type:'state',data:panelState()});
+const sendPanel=()=>{const msg={type:'state',data:panelState(),at:Date.now()};channel?.postMessage(msg);try{localStorage.setItem('gaAdvisorPanelSignal',JSON.stringify(msg))}catch(e){}};
 panelButton.onclick=()=>{const w=window.open('advisor-panel.html','GarBaAdvisorPanel','popup=yes,width=360,height=560');if(w)w.focus();sendPanel()};
 existing('gaFlowToggle')?.after(panelButton);
 const signal=new MutationObserver(sendPanel);if(workspace())signal.observe(workspace(),{attributes:true,attributeFilter:['class']});
 for(const key of ['gaBarrier','gaConcern','gaTax','gaPmt','pmt','gaThinkReason'])existing(key)?.addEventListener('change',sendPanel);
-channel?.addEventListener('message',e=>{if(e.data?.type==='ready')sendPanel()});
+channel?.addEventListener('message',e=>{if(e.data?.type==='ready')sendPanel()});window.addEventListener('scroll',sendPanel,{passive:true});
 const obs=new MutationObserver(()=>{if(!view()||comparing)return;const newVal=existing('fondo65')?.textContent;if(newVal!==hero.dataset.last){hero.dataset.last=newVal;refresh()}});
 if(workspace())obs.observe(workspace(),{childList:true,subtree:true,characterData:true});
 refresh();
