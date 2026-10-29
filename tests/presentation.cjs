@@ -11,13 +11,13 @@ fs.mkdirSync(output,{recursive:true});
 const server=http.createServer((req,res)=>{
   const url=new URL(req.url,'http://localhost');
   const isBaseline=url.pathname.startsWith('/baseline/');
-  const name=decodeURIComponent(url.pathname.replace(isBaseline?'/baseline/':'/',''))||'index.html';
+  const name=(decodeURIComponent(url.pathname.replace(isBaseline?'/baseline/':'/',''))||'index.html').replace(/\/$/,'/index.html');
   const base=isBaseline?baseline:root;
   if(!base){res.writeHead(404).end();return;}
   const file=path.resolve(base,name);
   if(!file.startsWith(path.resolve(base)+path.sep)){res.writeHead(403).end();return;}
   const type={'.html':'text/html','.css':'text/css','.js':'text/javascript','.jpg':'image/jpeg','.png':'image/png'}[path.extname(file)]||'application/octet-stream';
-  try{res.writeHead(200,{'Content-Type':type});res.end(fs.readFileSync(file))}catch{res.writeHead(404).end()}
+  try{const bytes=fs.readFileSync(file);res.writeHead(200,{'Content-Type':type});res.end(bytes)}catch{if(!res.headersSent)res.writeHead(404);res.end()}
 });
 const wait=ms=>new Promise(resolve=>setTimeout(resolve,ms));
 async function main(){
