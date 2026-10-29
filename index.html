@@ -3208,20 +3208,19 @@ function scheduleValidationReveal(){
  gaFlowCredentials.type='button';gaFlowCredentials.className='ga-btn';
  gaFlowCredentials.id='gaFlowCredentials';
  gaFlowCredentials.textContent='Ver credenciales';
- gaFlowCredentials.onclick=()=>document.getElementById('gaCredentialsModal')?.classList.add('show');
+ gaFlowCredentials.onclick=()=>document.getElementById('gaOpenCredentials')?.click();
  gaFlowToolbar.append(gaFlowToggle,gaFlowCredentials);
  document.getElementById('gaOpenResources')?.before(gaFlowToolbar);
- function gaSetClassicFlow(classic){
+ function gaSetClassicFlow(classic,initial=false){
    gaFlowClassic=!!classic;
    if(gaFlowStepOne){if(gaFlowClassic)delete gaFlowStepOne.dataset.skip;else gaFlowStepOne.dataset.skip='1'}
    gaFlowToggle.textContent=gaFlowClassic?'Recorrido clásico · cambiar a 3 actos':'Flujo 3 actos · cambiar a clásico';
    gaFlowToggle.setAttribute('aria-pressed',String(gaFlowClassic));
    window.GA_FLOW_CLASSIC=gaFlowClassic;
-   if(!gaFlowClassic&&scenes[idx]===gaFlowStepOne)showImmediate(idx+1);
-   else showImmediate(idx);
+   if(!initial){if(!gaFlowClassic&&scenes[idx]===gaFlowStepOne)showImmediate(idx+1);else showImmediate(idx)}
  }
  gaFlowToggle.onclick=()=>gaSetClassicFlow(!gaFlowClassic);
- gaSetClassicFlow(gaFlowClassicInitial);
+ gaSetClassicFlow(gaFlowClassicInitial,true);
  function show(i){
    const target=Math.max(0,Math.min(scenes.length-1,i));
    const transition=target===8;
