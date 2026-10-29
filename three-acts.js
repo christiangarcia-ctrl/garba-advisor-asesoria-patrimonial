@@ -68,11 +68,35 @@ existing('gaThinkConfirm')?.addEventListener('click',()=>{if(!state.reason||(!st
 function summary(){return [existing('gaName')?.value||existing('nombreOpt')?.value||'','Aportación mensual: '+money(pmt()),'Monto proyectado a los 65: '+(existing('fondo65')?.textContent||'—'),existing('regimenFiscal')?.value==='151'&&existing('taxFirstAmount')?.textContent?'Beneficio fiscal estimado del primer año: '+existing('taxFirstAmount').textContent:'','Siguiente paso: '+(state.nextStep||'Por definir'),'Fecha acordada: '+(state.noDate?'Sin fecha acordada':(state.date+' '+state.time)),'Cualquier duda, aquí estoy. — Christian'].filter(Boolean).join('\n')}
 existing('gaActCopy')?.addEventListener('click',()=>navigator.clipboard?.writeText(summary()));
 existing('gaActDecision')?.addEventListener('click',()=>decisions?.scrollIntoView({behavior:'smooth',block:'start'}));
-const mobile=make('button','ga-btn','Modo celular');mobile.id='gaThreeMobileToggle';
-mobile.type='button';mobile.onclick=()=>{state.mobile=!state.mobile;document.body.classList.toggle('ga-three-mobile',state.mobile);mobile.textContent=state.mobile?'Vista normal':'Modo celular';persist()};
+const mobile=make('button','ga-btn','Modo celular');mobile.id='gaThreeMobileToggle';mobile.type='button';
 existing('gaActHero')?.prepend(mobile);
-document.body.classList.toggle('ga-three-mobile',state.mobile);
-if(state.mobile)mobile.textContent='Vista normal';
+const decisionAnchor=document.createComment('Original decision position');
+if(decisions)decisions.before(decisionAnchor);
+const mobileDeck=make('section','ga-mobile-deck');mobileDeck.id='gaMobileDeck';mobileDeck.hidden=true;
+mobileDeck.innerHTML='<header class="ga-kicker">Asesoría · 3 actos <button class="ga-btn" id="gaMobileExit">Salir del modo celular</button></header><article class="card ga-mobile-stage"><div class="ga-kicker">1 · Tu número</div><h2>Aportación mensual</h2><p class="ga-mobile-number" id="gaMobilePmt">—</p><h2>Capital estimado a los 65</h2><p class="ga-mobile-number" id="gaMobileFuture">—</p></article><article class="card ga-mobile-stage" hidden><div class="ga-kicker">2 · Beneficio fiscal</div><h2>Tratamiento fiscal del plan</h2><p id="gaMobileFiscal">—</p></article><article class="card ga-mobile-stage" hidden><div class="ga-kicker">3 · Opciones de arranque</div><h2>¿Con cuánto comenzar?</h2><div id="gaMobileOptions"></div></article><article class="card ga-mobile-stage" hidden><div class="ga-kicker">4 · Decisión</div><div id="gaMobileDecision"></div></article><footer class="ga-mobile-controls"><button class="ga-btn" id="gaMobilePrev">← Anterior</button><span id="gaMobileCount">1 de 4</span><button class="ga-btn" id="gaMobileNext">Siguiente →</button><button class="ga-btn" id="gaMobileCopy">Copiar resumen</button></footer>';
+document.body.append(mobileDeck);
+extraCss.textContent+=' .ga-mobile-deck{position:fixed;inset:0;z-index:9998;overflow:auto;padding:20px clamp(18px,4vw,60px);background:#fff;color:var(--presentation-navy,#001868)}.ga-mobile-deck[hidden],.ga-mobile-stage[hidden]{display:none!important}.ga-mobile-deck header{display:flex;justify-content:space-between;align-items:center;gap:10px}.ga-mobile-deck .ga-mobile-number{font-size:clamp(60px,5vw,76px);font-weight:800;line-height:1.14;margin:14px 0}.ga-mobile-deck #gaMobileFiscal{font-size:clamp(30px,3vw,46px);line-height:1.25;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}.ga-mobile-controls{display:flex;gap:9px;align-items:center;flex-wrap:wrap;margin:15px 0 60px}.ga-mobile-stage{min-height:60vh}.ga-mobile-deck .ga-close-options{grid-template-columns:1fr 1fr}.ga-mobile-deck #gaPostCalcValidation{display:block!important}@media(max-width:600px){.ga-mobile-deck .ga-close-options{grid-template-columns:1fr}}';
+let mobilePage=0;
+const stages=[...mobileDeck.querySelectorAll('.ga-mobile-stage')];
+function updateDeck(){
+ assign('gaMobilePmt',existing('gaActPmt')?.textContent||'—');assign('gaMobileFuture',existing('gaActFuture')?.textContent||'—');
+ assign('gaMobileFiscal',existing('gaActFiscal')?.textContent||'Consulta los beneficios de tu escenario.');
+ const wrap=existing('gaMobileOptions');if(wrap){wrap.replaceChildren();existing('gaActOptionCards')?.querySelectorAll('.ga-act-option').forEach(source=>{const row=make('div','ga-act-option');const amount=make('strong','',source.querySelector('strong')?.textContent||'');const result=make('p','',source.querySelector('.ga-mini')?.textContent||'');const choose=make('button','ga-btn','Elegir este');choose.onclick=()=>{source.querySelector('button')?.click();updateDeck()};row.append(amount,result,choose);wrap.append(row)})}
+ stages.forEach((el,i)=>el.hidden=i!==mobilePage);assign('gaMobileCount',(mobilePage+1)+' de 4');
+}
+function syncDeck(){
+ const active=state.mobile&&!classic()&&workspace()?.classList.contains('active');
+ mobileDeck.hidden=!active;document.body.classList.toggle('ga-three-mobile',active);
+ if(active){existing('gaMobileDecision')?.append(decisions);updateDeck()}else if(decisions&&decisionAnchor.parentNode)decisionAnchor.parentNode.insertBefore(decisions,decisionAnchor.nextSibling);
+ mobile.textContent=state.mobile?'Vista normal':'Modo celular';
+}
+mobile.onclick=()=>{state.mobile=!state.mobile;persist();syncDeck()};
+existing('gaMobileExit').onclick=()=>{state.mobile=false;persist();syncDeck()};
+existing('gaMobilePrev').onclick=()=>{mobilePage=Math.max(0,mobilePage-1);updateDeck();mobileDeck.scrollTo(0,0)};
+existing('gaMobileNext').onclick=()=>{mobilePage=Math.min(3,mobilePage+1);updateDeck();mobileDeck.scrollTo(0,0)};
+existing('gaMobileCopy').onclick=()=>navigator.clipboard?.writeText(summary());
+new MutationObserver(syncDeck).observe(workspace(),{attributes:true,attributeFilter:['class']});
+syncDeck();
 const responseIndex=[['¿Es seguro? ¿Quién respalda?',5],['¿Cómo funciona un PPR?',4],['¿Qué pasa si necesito el dinero o dejo de pagar?',8],['¿Cómo funciona el Art. 151?',8,'151'],['¿Cómo funciona el Art. 93?',8,'93'],['¿Y la volatilidad?',11],['¿Cuánto cuesta?',13],['¿Cómo se abre?',10]];
 responseIndex.push(['¿Y si empiezo el próximo año?',0]);
 const resourcePanel=existing('gaResourcesPanel');
@@ -84,7 +108,7 @@ function prioritizeResponses(){const relevant=new Set(window.GaRelatedSlides?.()
 
 const resourceCard=resourcePanel?.querySelector('.ga-resources-panel-card');if(resourceCard)resourceCard.prepend(library);
 existing('gaOpenResources')?.addEventListener('click',()=>{library.hidden=classic();if(!classic())prioritizeResponses()});
-const hideClassic=()=>{const isClassic=classic();for(const el of [hero,options,detail,future,wait,thinkButton,mobile])if(el)el.hidden=isClassic;thinkButton.style.display=isClassic?'none':'';if(isClassic){think.hidden=true;if(graph&&graphAnchor.parentNode)graphAnchor.parentNode.insertBefore(graph,graphAnchor.nextSibling);if(gap&&gapAnchor.parentNode)gapAnchor.parentNode.insertBefore(gap,gapAnchor.nextSibling)}else{if(graph)future.append(graph);if(gap)detail.append(gap)}document.body.classList.toggle('ga-three-classic',isClassic)};
+const hideClassic=()=>{const isClassic=classic();for(const el of [hero,options,detail,future,wait,thinkButton,mobile])if(el)el.hidden=isClassic;thinkButton.style.display=isClassic?'none':'';if(isClassic){think.hidden=true;if(graph&&graphAnchor.parentNode)graphAnchor.parentNode.insertBefore(graph,graphAnchor.nextSibling);if(gap&&gapAnchor.parentNode)gapAnchor.parentNode.insertBefore(gap,gapAnchor.nextSibling)}else{if(graph)future.append(graph);if(gap)detail.append(gap)}document.body.classList.toggle('ga-three-classic',isClassic);syncDeck()};
 extraCss.textContent+=' .ga-three-classic #gaActHero,.ga-three-classic #gaActOptions,.ga-three-classic #gaActGoal,.ga-three-classic #gaActTechnical,.ga-three-classic #gaActWait,.ga-three-classic #gaThreeMobileToggle{display:none!important}';
 existing('gaFlowToggle')?.addEventListener('click',()=>{hideClassic()});
 if(existing('gaFlowToggle'))existing('gaFlowToggle').style.display='none';
@@ -100,7 +124,7 @@ document.body.append(panelButton);panelButton.style.cssText='position:fixed;left
 const signal=new MutationObserver(sendPanel);if(workspace())signal.observe(workspace(),{attributes:true,attributeFilter:['class']});
 for(const key of ['gaBarrier','gaConcern','gaTax','gaPmt','pmt','gaThinkReason'])existing(key)?.addEventListener('change',sendPanel);
 channel?.addEventListener('message',e=>{if(e.data?.type==='ready')sendPanel();if(e.data?.type==='flow-toggle'){existing('gaFlowToggle')?.click();sendPanel()}});window.addEventListener('storage',e=>{if(e.key==='gaAdvisorPanelCommand'){try{const command=JSON.parse(e.newValue);if(command?.type==='flow-toggle'){existing('gaFlowToggle')?.click();sendPanel()}}catch(err){}}});window.addEventListener('scroll',sendPanel,{passive:true});const diagnosticScenes=document.querySelectorAll('.ga-scene');for(const scene of diagnosticScenes){new MutationObserver(sendPanel).observe(scene,{attributes:true,attributeFilter:['class']})}
-const obs=new MutationObserver(()=>{if(!view()||comparing)return;const newVal=existing('fondo65')?.textContent;if(newVal!==hero.dataset.last){hero.dataset.last=newVal;refresh()}});
+const obs=new MutationObserver(()=>{if(!view()||comparing)return;const newVal=existing('fondo65')?.textContent;if(newVal!==hero.dataset.last){hero.dataset.last=newVal;refresh();if(state.mobile)updateDeck()}});
 if(workspace())obs.observe(workspace(),{childList:true,subtree:true,characterData:true});
 refresh();
 window.GaThreeActs={state,refresh,summary};
