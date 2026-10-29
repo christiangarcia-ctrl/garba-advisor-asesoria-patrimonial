@@ -262,6 +262,62 @@ async function main(){
     assert.equal(await modern.locator('#preOpeningParticipants').inputValue(),'Prospecto y pareja');
     await modern.screenshot({path:path.join(output,'three-acts-second-appointment.png'),fullPage:true});
 
+
+    // Every objection must retain its own next step and preserve an explicit scheduling decision.
+    const allReasons=['El monto','Platicarlo con mi pareja','Compararlo con otra opción','No sé si tendré liquidez','Quiero empezar más adelante','Quiero estar seguro de con quién lo hago','Otra'];
+    const reasonCase=await make();await load(reasonCase,origin,false);await openCalc(reasonCase);
+    for(const [n,choice] of allReasons.entries()){
+      await reasonCase.evaluate(choice=>{
+        document.getElementById('gaResourcesPanel').classList.remove('show');
+        document.getElementById('gaCredentialsModal').classList.remove('open');
+        document.querySelector('[data-postcalc="decision"][data-value="think"]').click();
+        const el=document.getElementById('gaThinkReason');el.value=choice;el.dispatchEvent(new Event('change',{bubbles:true}));
+        if(choice==='Otra'){const other=document.getElementById('gaThinkOther');other.value='Necesito revisar una condición';other.dispatchEvent(new Event('input',{bubbles:true}))}
+      },choice);
+      assert.equal(await reasonCase.evaluate(()=>GaThreeActs.state.reason),choice);
+      assert((await reasonCase.locator('#gaThinkNext').innerText()).length>10,'A reason must produce an explicit next step');
+      if(choice==='El monto')assert(await reasonCase.locator('#gaActOptions').count()===1);
+      if(choice==='Quiero empezar más adelante')assert(await reasonCase.locator('#gaActWait').evaluate(el=>el.open));
+      if(choice==='No sé si tendré liquidez')assert(await reasonCase.locator('#gaResourcesPanel').evaluate(el=>el.classList.contains('show')));
+      if(choice==='Quiero estar seguro de con quién lo hago')assert(await reasonCase.locator('#gaCredentialsModal').evaluate(el=>el.classList.contains('open')));
+      await reasonCase.evaluate(()=>{
+        const date=document.getElementById('gaThinkDate');date.value='2026-11-05';date.dispatchEvent(new Event('change',{bubbles:true}));
+        const time=document.getElementById('gaThinkTime');time.value='18:00';time.dispatchEvent(new Event('change',{bubbles:true}));
+        document.getElementById('gaThinkConfirm').click();
+      });
+      assert.equal(await reasonCase.locator('#gaThinkError').innerText(),'Siguiente paso guardado en esta sesión.');
+      assert((await reasonCase.evaluate(()=>GaThreeActs.summary())).includes('2026-11-05 18:00'));
+      if(n===0||n===6)await reasonCase.screenshot({path:path.join(output,'think-reason-'+n+'.png'),fullPage:true});
+    }
+    await reasonCase.evaluate(()=>{
+      const el=document.getElementById('gaThinkNoDate');el.checked=true;el.dispatchEvent(new Event('change',{bubbles:true}));
+      document.getElementById('gaThinkDate').value='';document.getElementById('gaThinkTime').value='';
+      document.getElementById('gaThinkConfirm').click();
+    });
+    assert((await reasonCase.evaluate(()=>GaThreeActs.summary())).includes('Sin fecha acordada'));
+    await reasonCase.close();
+
+    // Actual jsPDF production path: download PDF and inspect the text calls used to build it.
+    const pdfCase=await make();await load(pdfCase,origin,false);await openCalc(pdfCase);
+    await pdfCase.evaluate(()=>{
+      const state=GaThreeActs.state;state.reason='Platicarlo con mi pareja';state.date='2026-11-05';state.time='18:00';state.noDate=false;state.nextStep='Agendemos una segunda cita con ambos.';
+      document.getElementById('gaLaterView').style.display='block';
+      window.__pdfTexts=[];
+      const proto=window.jspdf.jsPDF.API;
+      const old=proto.text;
+      proto.text=function(...args){window.__pdfTexts.push(String(args[0]));return old.apply(this,args)};
+    });
+    const pdfDownload=pdfCase.waitForEvent('download');
+    await pdfCase.locator('#gaLaterPdf').click();
+    const pdfFile=await pdfDownload;
+    const pdfPath=path.join(output,'garba-segunda-cita-validacion.pdf');
+    await pdfFile.saveAs(pdfPath);
+    assert(fs.statSync(pdfPath).size>1000,'Real second-meeting PDF was generated');
+    assert.equal(fs.readFileSync(pdfPath).subarray(0,4).toString(),'%PDF','Downloaded document has PDF header');
+    const texts=await pdfCase.evaluate(()=>window.__pdfTexts.join(' | '));
+    assert(texts.includes('2026-11-05')&&texts.includes('18:00'),'PDF includes proposed appointment date and time');
+    assert(texts.includes('Platicarlo con mi pareja'),'PDF includes the decision reason');
+    await pdfCase.close();
     const switched=await make();await load(switched,origin,false);
     await switched.evaluate(()=>document.getElementById('gaName').value='Prospecto ficticio');
     const popupPromise=switched.waitForEvent('popup');
