@@ -74,3 +74,20 @@ El usuario solicitará personalmente la revisión a **Claude Code**. No se invoc
 **Bloqueado:** no se ejecutó Playwright ni se generaron screenshots; el entorno tiene Chromium, pero no el módulo Playwright y no resuelve `github.com` para clonar la rama. La suite deberá ejecutarse en el repositorio local con Playwright ya instalado antes de aprobar la publicación.
 
 **Veredicto:** validación estática parcial. **No aprobado para producción aún.** Aún deben verificarse navegación real, restauración exacta del flujo clásico, vistas de Google Meet, PDF, panel separado y comparación financiera `ADVISOR_BASELINE`.
+
+
+## Validación automatizada aprobada — 29 octubre 2026
+
+**Ejecución:** https://github.com/christiangarcia-ctrl/garba-advisor-asesoria-patrimonial/actions/runs/40834249195
+
+**Commit validado:** `875edf0dfe5272ffca0cc9ce3d54391ae58e3af7`.
+
+**Resultado:** GitHub Actions `success` (Playwright Chromium), incluyendo baseline de `main`. El registro confirma: “PASS: 7 financial scenarios match the original, including report and both detail tables” y “PASS: full-width advisory, full-screen resources, keyboard return, live input/results/chart, stale-output protection, fixed controls, result tabs, responsive layouts”. También se ejecutaron los casos nuevos insertados en `tests/presentation.cjs` antes de la aserción final.
+
+**Evidencia visual:** artifact `garba-advisor-validation` (32 archivos), disponible en la ejecución de Actions. No se ha efectuado todavía revisión humana individual de las capturas antes/después ni una sesión real de Meet.
+
+**Correcciones efectuadas durante las ejecuciones:** superposición del botón del asesor, control de salida del modo celular en pruebas, ubicación visible del Acto 3, doble comando BroadcastChannel/localStorage y resolución de `/asesor/` en el servidor de tests.
+
+**Cobertura pendiente:** pruebas separadas para las siete razones de `think`, descarga e inspección del PDF real con fecha, verificación de legibilidad a 390px de la proyección compartida a 1440px y revisión visual detallada de todas las capturas. No atribuir a la prueba aprobada una cobertura que todavía no tiene.
+
+**Publicación:** ninguna. Aún sin merge a `main`.
