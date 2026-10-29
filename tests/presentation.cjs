@@ -238,10 +238,22 @@ async function main(){
     await modern.locator('#resultsView.active').waitFor({timeout:6000});
     await wait(400);
     assert.equal(await modern.locator('#pmt').inputValue(),'3000');
-    assert.equal(await modern.locator('#gaActGoal').evaluate(el=>el.open),false);
-    assert.equal(await modern.locator('#gaActTechnical').evaluate(el=>el.open),false);
+    // Auditoría 2026-10-29: meta/brecha y detalle se quedan en sus pestañas (antes quedaban vacías).
+    assert.equal(await modern.locator('#gaActGoal').count(),0);assert.equal(await modern.locator('#gaActTechnical').count(),0);
+    assert(await modern.locator('#gaPane-gap #gaProjectionGap').count()===1,'La brecha sigue en su pestaña');
+    assert(await modern.locator('#gaPane-detail .plan-hero').count()===1,'El resumen original pasa a Detalle, sin duplicar la cifra en Tu proyección');
+    assert.equal(await modern.evaluate(()=>[...document.querySelectorAll('#gaAdvisorPanelButton,#gaActLibraryButton')].filter(b=>getComputedStyle(b).position==='fixed').length),0,'Sin botones flotantes sobre la pestaña compartida');
     assert(await modern.locator('#gaActOptionCards .ga-act-option').count()>=1);
     assert.equal(await modern.locator('#gaActFuture').innerText(),await modern.locator('#fondo65').innerText());
+    // Elegir una opción más alta no borra lo que el prospecto dijo poder pagar.
+    const optionCount=await modern.locator('#gaActOptionCards .ga-act-option').count();
+    await modern.locator('#gaActOptionCards .ga-act-option button').nth(optionCount-1).click();await wait(400);
+    assert.equal(await modern.locator('#gaActOptionCards .ga-act-option').count(),optionCount,'Las opciones siguen disponibles después de elegir');
+    assert((await modern.locator('#gaActOptionCards .ga-act-option strong').first().innerText()).startsWith('$3,000'),'La primera opción sigue siendo la capacidad del diagnóstico');
+    await modern.locator('#gaActOptionCards .ga-act-option button').first().click();await wait(400);
+    await modern.evaluate(()=>{const w=document.getElementById('gaActWait');w.open=true;w.dispatchEvent(new Event('toggle'))});await wait(400);
+    assert(!/Diferencia: \$0$/.test(await modern.locator('#gaWaitResult').innerText()),'La diferencia de esperar un año no puede salir en $0');
+    assert(!(await modern.evaluate(()=>GaThreeActs.summary())).includes('Fecha acordada'),'Sin decisión de pensarlo, el resumen no muestra fecha vacía');
     await modern.screenshot({path:path.join(output,'three-acts-desktop.png'),fullPage:true});
     await modern.locator('#gaThreeMobileToggle').click();
     assert(await modern.evaluate(()=>document.body.classList.contains('ga-three-mobile')));
@@ -255,7 +267,7 @@ async function main(){
     await modern.locator('#gaThinkTime').fill('18:00');
     await modern.locator('#gaThinkConfirm').click();
     assert.equal(await modern.evaluate(()=>GaThreeActs.state.date),'2026-11-05');
-    assert((await modern.evaluate(()=>GaThreeActs.summary())).includes('2026-11-05'));
+    assert((await modern.evaluate(()=>GaThreeActs.summary())).includes('05/11/2026 18:00'),'Fecha del resumen en formato de México');
     await modern.screenshot({path:path.join(output,'three-acts-think-partner.png'),fullPage:true});
     await modern.locator('#gaPostCalcContinue').click();
     assert(await modern.locator('#gaPreopenView').isVisible());
@@ -286,7 +298,7 @@ async function main(){
         document.getElementById('gaThinkConfirm').click();
       });
       assert.equal(await reasonCase.locator('#gaThinkError').innerText(),'Siguiente paso guardado en esta sesión.');
-      assert((await reasonCase.evaluate(()=>GaThreeActs.summary())).includes('2026-11-05 18:00'));
+      assert((await reasonCase.evaluate(()=>GaThreeActs.summary())).includes('05/11/2026 18:00'));
       if(n===0||n===6)await reasonCase.screenshot({path:path.join(output,'think-reason-'+n+'.png'),fullPage:true});
     }
     await reasonCase.evaluate(()=>{
