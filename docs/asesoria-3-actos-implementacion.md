@@ -91,3 +91,16 @@ El usuario solicitará personalmente la revisión a **Claude Code**. No se invoc
 **Cobertura pendiente:** pruebas separadas para las siete razones de `think`, descarga e inspección del PDF real con fecha, verificación de legibilidad a 390px de la proyección compartida a 1440px y revisión visual detallada de todas las capturas. No atribuir a la prueba aprobada una cobertura que todavía no tiene.
 
 **Publicación:** ninguna. Aún sin merge a `main`.
+
+
+## Cierre de validación automatizada — 29/10/2026
+
+**Resultado final: PASS.** Ejecución: https://github.com/christiangarcia-ctrl/garba-advisor-asesoria-patrimonial/actions/runs/40835110622
+
+Commit de código probado: `2ccb93416925a0584e73b50d2ec450c823c1201a`.
+
+Las 7 comparaciones financieras con `main` fueron idénticas, incluyendo tablas y reporte. Pasaron el recorrido clásico y el de tres actos, modo celular, panel privado, retorno sin pérdida de datos, navegación de recursos y pantalla de perfil de asesor. También se ejecutaron los 7 motivos distintos de «Necesito pensarlo», fecha/hora, salida «sin fecha», y descarga de un PDF real (`%PDF`) verificando que el texto enviado a jsPDF contenga el motivo y la fecha acordada.
+
+**Archivos:** GitHub Actions adjuntó 35 evidencias, incluidas capturas de pantalla y el PDF sintético de segunda cita en `garba-advisor-validation`. Las pruebas son automatizadas sobre datos ficticios; no sustituyen una revisión de diseño humano con el prospecto en Google Meet. Los archivos se guardaron y su generación se verificó, pero no se realizó una inspección visual manual individual de cada captura en esta sesión.
+
+**Seguridad de publicación:** `main` y GitHub Pages intactos; no se hizo merge ni despliegue. El usuario solicitará personalmente la revisión final a Claude Code. **Se puede entregar para esa revisión**, no para publicar sin aprobar la revisión.
