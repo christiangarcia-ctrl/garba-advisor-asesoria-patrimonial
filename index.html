@@ -3184,6 +3184,7 @@ function scheduleValidationReveal(){
      $('gaSlideImage').classList.add('ga-slide-image-in');
    });
  }
+ window.GaRelatedSlides=()=>relatedSlideList.slice();
  window.GaOpenResponse=function(slideId){if(!slidesData[slideId])return false;slideList=[slideId];slideIdx=0;renderSlide();$('gaResourcesPanel').classList.add('show');return true};
  $('gaRelatedSlides').onclick=()=>setSlideMode('related');
  $('gaAllSlides').onclick=()=>setSlideMode('all');
