@@ -73,13 +73,17 @@ mobile.type='button';mobile.onclick=()=>{state.mobile=!state.mobile;document.bod
 existing('gaActHero')?.prepend(mobile);
 document.body.classList.toggle('ga-three-mobile',state.mobile);
 if(state.mobile)mobile.textContent='Vista normal';
-const responseIndex=[['¿Es seguro? ¿Quién respalda?',5],['¿Cómo funciona un PPR?',4],['¿Qué pasa si necesito el dinero o dejo de pagar?',8],['¿Cómo funciona el Art. 151?',8],['¿Cómo funciona el Art. 93?',8],['¿Y la volatilidad?',11],['¿Cuánto cuesta?',13],['¿Cómo se abre?',10]];
+const responseIndex=[['¿Es seguro? ¿Quién respalda?',5],['¿Cómo funciona un PPR?',4],['¿Qué pasa si necesito el dinero o dejo de pagar?',8],['¿Cómo funciona el Art. 151?',8,'151'],['¿Cómo funciona el Art. 93?',8,'93'],['¿Y la volatilidad?',11],['¿Cuánto cuesta?',13],['¿Cómo se abre?',10]];
 responseIndex.push(['¿Y si empiezo el próximo año?',0]);
 const resourcePanel=existing('gaResourcesPanel');
 const library=make('section','card');library.id='gaQuestionLibrary';library.innerHTML='<div class="ga-kicker">Biblioteca de respuestas</div><h3>¿Qué te gustaría resolver?</h3>';
-responseIndex.forEach(([label,slide])=>{const btn=make('button','ga-btn',label);btn.type='button';btn.onclick=()=>{if(slide===0){resourcePanel?.classList.remove('show');wait.open=true;wait.scrollIntoView({behavior:'smooth',block:'start'})}else window.GaOpenResponse?.(slide)};library.append(btn,document.createTextNode(' '))});
+const responseButtons=[];
+responseIndex.forEach(([label,slide,fiscal])=>{const btn=make('button','ga-btn',label);btn.type='button';btn.dataset.slide=String(slide);btn.onclick=()=>{if(slide===0){resourcePanel?.classList.remove('show');wait.open=true;wait.scrollIntoView({behavior:'smooth',block:'start'})}else{window.GaOpenResponse?.(slide);if(fiscal){window.GaSupport?.show('fiscal');const host=existing('gaSupportContent');if(host)host.dataset.fiscalFilter=fiscal}else{const host=existing('gaSupportContent');if(host)delete host.dataset.fiscalFilter}}};responseButtons.push(btn);library.append(btn,document.createTextNode(' '))});
+extraCss.textContent+=' #gaSupportContent[data-fiscal-filter="151"] .support-fiscal section:nth-child(2),#gaSupportContent[data-fiscal-filter="93"] .support-fiscal section:nth-child(1){display:none!important}#gaQuestionLibrary button{margin:3px}#gaQuestionLibrary button.ga-relevant{font-weight:900}';
+function prioritizeResponses(){const relevant=new Set(window.GaRelatedSlides?.()||[]);for(const button of responseButtons)button.classList.toggle('ga-relevant',relevant.has(Number(button.dataset.slide)));responseButtons.sort((a,b)=>(Number(relevant.has(Number(b.dataset.slide)))-Number(relevant.has(Number(a.dataset.slide)))));for(const button of responseButtons)library.append(button,document.createTextNode(' '))}
+
 const resourceCard=resourcePanel?.querySelector('.ga-resources-panel-card');if(resourceCard)resourceCard.prepend(library);
-existing('gaOpenResources')?.addEventListener('click',()=>{library.hidden=classic()});
+existing('gaOpenResources')?.addEventListener('click',()=>{library.hidden=classic();if(!classic())prioritizeResponses()});
 const hideClassic=()=>{const isClassic=classic();for(const el of [hero,options,detail,future,wait,thinkButton,mobile])if(el)el.hidden=isClassic; if(isClassic)think.hidden=true;document.body.classList.toggle('ga-three-classic',isClassic)};
 extraCss.textContent+=' .ga-three-classic #gaActHero,.ga-three-classic #gaActOptions,.ga-three-classic #gaActGoal,.ga-three-classic #gaActTechnical,.ga-three-classic #gaActWait,.ga-three-classic #gaThreeMobileToggle{display:none!important}';
 existing('gaFlowToggle')?.addEventListener('click',()=>{hideClassic()});
