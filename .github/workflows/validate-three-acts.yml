@@ -1,0 +1,34 @@
+name: Validacion asesoria 3 actos
+on:
+  push:
+    branches: [asesoria-3-actos]
+  workflow_dispatch:
+jobs:
+  validation:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install browser test dependencies
+        run: |
+          npm install --no-save playwright
+          npx playwright install --with-deps chromium
+      - name: Prepare baseline
+        run: git worktree add /tmp/garba-advisor-baseline origin/main
+      - name: Run regression and captures
+        env:
+          ADVISOR_BASELINE: /tmp/garba-advisor-baseline
+          ADVISOR_TEST_OUTPUT: /tmp/garba-validation
+        run: node tests/presentation.cjs
+      - name: Upload captures
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: garba-advisor-validation
+          path: /tmp/garba-validation/
+          if-no-files-found: ignore
