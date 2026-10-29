@@ -29,15 +29,16 @@ const extraCss=make('style');
 extraCss.textContent='.ga-act-hero{margin:18px 0}.ga-act-hero p{font-size:clamp(22px,3.4vw,48px);line-height:1.25;font-weight:700}.ga-act-hero strong{color:var(--presentation-navy,#001868)}.ga-act-actions{display:flex;flex-wrap:wrap;gap:12px}.ga-act-option{padding:16px;border:1px solid var(--presentation-line,#dce3ee);border-radius:14px;margin:8px 0}.ga-act-option strong{display:block;font-size:24px}.ga-think-panel{padding:18px;margin-top:16px}.ga-think-panel .ga-field{margin:12px 0}.ga-three-mobile .ga-act-hero p{font-size:clamp(60px,5vw,76px)}.ga-three-mobile .projection-graph,.ga-three-mobile .ga-act-technical{display:none}.ga-three-mobile #gaActTechnical{display:none}.ga-three-mobile #gaActOptions .ga-act-option strong{font-size:42px}.ga-three-mobile #gaActHero{padding:24px}.ga-think-panel[hidden]{display:none!important}';
 document.head.append(extraCss);
 let comparing=false;
-function sameEngineProjection(amount){
- const input=existing('pmt'),engine=window.calcAccum;
- if(!input||typeof engine!=='function'||!(amount>0))return null;
- const saved=input.value;
- if(Number(saved)===amount)return existing('fondo65')?.textContent||null;
+function sameEngineProjection(amount,delay=0){
+ const input=existing('pmt'),age=existing('edad'),engine=window.calcAccum;
+ if(!input||!age||typeof engine!=='function'||!(amount>0))return null;
+ const saved=input.value,originalAge=age.value;
+ if(Number(saved)===amount&&!delay)return existing('fondo65')?.textContent||null;
+ if(delay&&Number(originalAge)+delay>=65)return null;
  comparing=true;
  let value=null;
- try{input.value=String(amount);if(engine()!==false)value=existing('fondo65')?.textContent||null}
- finally{input.value=saved;try{engine()}catch(e){console.error('No se pudo restaurar la proyección',e)}comparing=false}
+ try{input.value=String(amount);if(delay)age.value=String(Number(originalAge)+delay);if(engine()!==false)value=existing('fondo65')?.textContent||null}
+ finally{input.value=saved;age.value=originalAge;try{engine()}catch(e){console.error('No se pudo restaurar la proyección',e)}comparing=false}
  return value;
 }
 function refresh(){
@@ -48,6 +49,9 @@ function refresh(){
  if(suggested>amount){const intermediate=Math.round(((amount+suggested)/2)/500)*500;if(intermediate>amount&&intermediate<suggested)candidates.push(intermediate);candidates.push(suggested)}
  const wrap=existing('gaActOptionCards');if(wrap){wrap.replaceChildren();for(const n of [...new Set(candidates)].filter(n=>n>0)){const row=make('div','ga-act-option');const label=make('strong','',money(n)+'/mes');const btn=make('button','ga-btn','Elegir este');btn.type='button';btn.onclick=()=>{if(!existing('pmt'))return;existing('pmt').value=n;existing('pmt').dispatchEvent(new Event('input',{bubbles:true}));existing('pmt').dispatchEvent(new Event('change',{bubbles:true}));if(existing('gaPmt'))existing('gaPmt').value=n;window.calcAccum?.();refresh();persist()};const value=make('div','ga-mini',sameEngineProjection(n)||'Proyección no disponible');row.append(label,value,btn);wrap.append(row)}}
 }
+const wait=make('details','card');wait.id='gaActWait';wait.innerHTML='<summary>¿Y si empiezo el próximo año?</summary><h3>Costo de esperar un año</h3><p id="gaWaitResult">Abre esta sección para consultar el resultado.</p>';
+future.after(wait);
+wait.addEventListener('toggle',()=>{if(!wait.open)return;const now=sameEngineProjection(pmt()),later=sameEngineProjection(pmt(),1);const clean=v=>Number((v||'').replace(/[^\\d.-]/g,''))||0;assign('gaWaitResult',now&&later?'Si empiezas hoy: '+now+' a los 65 · Si empiezas en un año: '+later+' · Diferencia: '+money(clean(now)-clean(later)):'No es posible simular este escenario sin modificar el modelo existente.')});
 const decisions=existing('gaPostCalcValidation');
 const thinkButton=make('button','','');thinkButton.type='button';thinkButton.dataset.postcalc='decision';thinkButton.dataset.value='think';thinkButton.innerHTML='<strong>Necesito pensarlo</strong><span>Identifiquemos qué te falta para tomar una decisión.</span>';
 const buttons=decisions?.querySelector('.ga-close-options');if(buttons)buttons.append(thinkButton);
@@ -56,7 +60,7 @@ const reasons=['El monto','Platicarlo con mi pareja','Compararlo con otra opció
 think.innerHTML='<h3>¿Qué te gustaría pensar?</h3><div class="ga-field"><select id="gaThinkReason"><option value="">Selecciona una razón</option>'+reasons.map(r=>'<option>'+r+'</option>').join('')+'</select></div><div id="gaThinkNext"></div><div class="ga-field"><label>Fecha en que lo decidimos</label><input type="date" id="gaThinkDate"></div><div class="ga-field"><label>Hora</label><input type="time" id="gaThinkTime"></div><label><input type="checkbox" id="gaThinkNoDate"> Acordamos continuar sin fecha definida</label><div><button type="button" class="ga-btn" id="gaThinkConfirm">Guardar siguiente paso</button></div><p id="gaThinkError" role="status"></p>';
 if(decisions)decisions.querySelector('.ga-close-question')?.after(think);
 const reason=existing('gaThinkReason');const date=existing('gaThinkDate');const time=existing('gaThinkTime'),noDate=existing('gaThinkNoDate');
-if(reason){reason.value=state.reason;reason.onchange=()=>{state.reason=reason.value;const guidance={'El monto':'Regresemos a las opciones de aportación.','Platicarlo con mi pareja':'Agendemos una segunda cita con ambos.','Compararlo con otra opción':'Revisemos juntos esa otra propuesta en una segunda cita.','No sé si tendré liquidez':'Revisemos las condiciones y recursos de flexibilidad.','Quiero empezar más adelante':'Revisemos qué cambia al esperar.','Quiero estar seguro de con quién lo hago':'Revisemos las credenciales y el respaldo antes de avanzar.','Otra':'Anotemos qué información falta para decidir.'};state.nextStep=guidance[state.reason]||'';assign('gaThinkNext',state.nextStep);if(state.reason==='Platicarlo con mi pareja'){if(existing('gaOpeningParticipants'))existing('gaOpeningParticipants').value='Prospecto y pareja';}persist()}}
+if(reason){reason.value=state.reason;reason.onchange=()=>{state.reason=reason.value;const guidance={'El monto':'Regresemos a las opciones de aportación.','Platicarlo con mi pareja':'Agendemos una segunda cita con ambos.','Compararlo con otra opción':'Revisemos juntos esa otra propuesta en una segunda cita.','No sé si tendré liquidez':'Revisemos las condiciones y recursos de flexibilidad.','Quiero empezar más adelante':'Revisemos qué cambia al esperar.','Quiero estar seguro de con quién lo hago':'Revisemos las credenciales y el respaldo antes de avanzar.','Otra':'Anotemos qué información falta para decidir.'};state.nextStep=guidance[state.reason]||'';assign('gaThinkNext',state.nextStep);if(state.reason==='Quiero empezar más adelante'){wait.open=true;wait.scrollIntoView({behavior:'smooth',block:'nearest'})}if(state.reason==='Quiero estar seguro de con quién lo hago')existing('gaOpenCredentials')?.click();if(state.reason==='El monto')options.scrollIntoView({behavior:'smooth',block:'start'});if(state.reason==='No sé si tendré liquidez')window.GaOpenResponse?.(8);if(state.reason==='Platicarlo con mi pareja'){if(existing('gaOpeningParticipants'))existing('gaOpeningParticipants').value='Prospecto y pareja';}persist()}}
 if(date){date.value=state.date;date.onchange=()=>{state.date=date.value;persist()}}if(time){time.value=state.time;time.onchange=()=>{state.time=time.value;persist()}}if(noDate){noDate.checked=state.noDate;noDate.onchange=()=>{state.noDate=noDate.checked;persist()}}
 if(reason)reason.dispatchEvent(new Event('change'));
 thinkButton.addEventListener('click',()=>{think.hidden=false;think.scrollIntoView({behavior:'smooth',block:'nearest'});});
@@ -70,13 +74,14 @@ existing('gaActHero')?.prepend(mobile);
 document.body.classList.toggle('ga-three-mobile',state.mobile);
 if(state.mobile)mobile.textContent='Vista normal';
 const responseIndex=[['¿Es seguro? ¿Quién respalda?',5],['¿Cómo funciona un PPR?',4],['¿Qué pasa si necesito el dinero o dejo de pagar?',8],['¿Cómo funciona el Art. 151?',8],['¿Cómo funciona el Art. 93?',8],['¿Y la volatilidad?',11],['¿Cuánto cuesta?',13],['¿Cómo se abre?',10]];
+responseIndex.push(['¿Y si empiezo el próximo año?',0]);
 const resourcePanel=existing('gaResourcesPanel');
 const library=make('section','card');library.id='gaQuestionLibrary';library.innerHTML='<div class="ga-kicker">Biblioteca de respuestas</div><h3>¿Qué te gustaría resolver?</h3>';
-responseIndex.forEach(([label,slide])=>{const btn=make('button','ga-btn',label);btn.type='button';btn.onclick=()=>window.GaOpenResponse?.(slide);library.append(btn,document.createTextNode(' '))});
+responseIndex.forEach(([label,slide])=>{const btn=make('button','ga-btn',label);btn.type='button';btn.onclick=()=>{if(slide===0){resourcePanel?.classList.remove('show');wait.open=true;wait.scrollIntoView({behavior:'smooth',block:'start'})}else window.GaOpenResponse?.(slide)};library.append(btn,document.createTextNode(' '))});
 const resourceCard=resourcePanel?.querySelector('.ga-resources-panel-card');if(resourceCard)resourceCard.prepend(library);
 existing('gaOpenResources')?.addEventListener('click',()=>{library.hidden=classic()});
-const hideClassic=()=>{const isClassic=classic();for(const el of [hero,options,detail,future,thinkButton,mobile])if(el)el.hidden=isClassic; if(isClassic)think.hidden=true;document.body.classList.toggle('ga-three-classic',isClassic)};
-extraCss.textContent+=' .ga-three-classic #gaActHero,.ga-three-classic #gaActOptions,.ga-three-classic #gaActGoal,.ga-three-classic #gaActTechnical,.ga-three-classic #gaThreeMobileToggle{display:none!important}';
+const hideClassic=()=>{const isClassic=classic();for(const el of [hero,options,detail,future,wait,thinkButton,mobile])if(el)el.hidden=isClassic; if(isClassic)think.hidden=true;document.body.classList.toggle('ga-three-classic',isClassic)};
+extraCss.textContent+=' .ga-three-classic #gaActHero,.ga-three-classic #gaActOptions,.ga-three-classic #gaActGoal,.ga-three-classic #gaActTechnical,.ga-three-classic #gaActWait,.ga-three-classic #gaThreeMobileToggle{display:none!important}';
 existing('gaFlowToggle')?.addEventListener('click',()=>{hideClassic()});
 hideClassic();
 const panelButton=make('button','ga-btn','Panel del asesor');panelButton.type='button';panelButton.id='gaAdvisorPanelButton';
