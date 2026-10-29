@@ -261,6 +261,22 @@ async function main(){
     assert(await modern.locator('#gaPreopenView').isVisible());
     assert.equal(await modern.locator('#preOpeningParticipants').inputValue(),'Prospecto y pareja');
     await modern.screenshot({path:path.join(output,'three-acts-second-appointment.png'),fullPage:true});
+
+    const switched=await make();await load(switched,origin,false);
+    await switched.evaluate(()=>document.getElementById('gaName').value='Prospecto ficticio');
+    const popupPromise=switched.waitForEvent('popup');
+    await switched.locator('#gaAdvisorPanelButton').click();
+    const advisorPopup=await popupPromise;await advisorPopup.waitForLoadState();
+    assert(await advisorPopup.locator('#clock').isVisible());
+    assert.equal(await switched.locator('#clock').count(),0,'Advisor-only clock must never be in shared tab');
+    assert.equal(await switched.locator('#suggestion').count(),0,'Advisor coaching must never be in shared tab');
+    await advisorPopup.screenshot({path:path.join(output,'advisor-private-panel.png')});
+    await advisorPopup.locator('#toggle').click();await wait(300);
+    assert.equal(await switched.evaluate(()=>window.GA_FLOW_CLASSIC),true);
+    assert.equal(await switched.evaluate(()=>GaShell.scenes.find(s=>s.dataset.scene==='1').dataset.skip),undefined);
+    assert.equal(await switched.locator('#gaName').inputValue(),'Prospecto ficticio','Classic switch preserves session data');
+    assert.equal(await switched.locator('#gaActHero').isVisible(),false);
+    await advisorPopup.close();await switched.close();
     const profile=await make();await profile.setViewportSize({width:390,height:844});await load(profile,origin+'/asesor/',false);
     assert(await profile.locator('h1').innerText()==='Christian Iván García Barragán');
     assert(await profile.evaluate(()=>document.documentElement.scrollWidth<=window.innerWidth));
