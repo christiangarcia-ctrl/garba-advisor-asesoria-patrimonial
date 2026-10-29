@@ -100,6 +100,12 @@ syncDeck();
 const responseIndex=[['¿Es seguro? ¿Quién respalda?',5],['¿Cómo funciona un PPR?',4],['¿Qué pasa si necesito el dinero o dejo de pagar?',8],['¿Cómo funciona el Art. 151?',8,'151'],['¿Cómo funciona el Art. 93?',8,'93'],['¿Y la volatilidad?',11],['¿Cuánto cuesta?',13],['¿Cómo se abre?',10]];
 responseIndex.push(['¿Y si empiezo el próximo año?',0]);
 const resourcePanel=existing('gaResourcesPanel');
+const resourceAnchor=document.createComment('Original library location');
+if(resourcePanel)resourcePanel.before(resourceAnchor);
+const libraryButton=make('button','ga-btn','📚 Biblioteca de respuestas');libraryButton.type='button';libraryButton.id='gaActLibraryButton';
+libraryButton.style.cssText='position:fixed;bottom:12px;left:153px;z-index:99999;opacity:.75;font-size:11px;padding:8px 11px';
+document.body.append(libraryButton);
+libraryButton.onclick=()=>existing('gaOpenResources')?.click();
 const library=make('section','card');library.id='gaQuestionLibrary';library.innerHTML='<div class="ga-kicker">Biblioteca de respuestas</div><h3>¿Qué te gustaría resolver?</h3>';
 const responseButtons=[];
 responseIndex.forEach(([label,slide,fiscal])=>{const btn=make('button','ga-btn',label);btn.type='button';btn.dataset.slide=String(slide);btn.onclick=()=>{if(slide===0){resourcePanel?.classList.remove('show');wait.open=true;wait.scrollIntoView({behavior:'smooth',block:'start'})}else{window.GaOpenResponse?.(slide);if(fiscal){window.GaSupport?.show('fiscal');const host=existing('gaSupportContent');if(host)host.dataset.fiscalFilter=fiscal}else{const host=existing('gaSupportContent');if(host)delete host.dataset.fiscalFilter}}};responseButtons.push(btn);library.append(btn,document.createTextNode(' '))});
@@ -108,8 +114,8 @@ function prioritizeResponses(){const relevant=new Set(window.GaRelatedSlides?.()
 
 const resourceCard=resourcePanel?.querySelector('.ga-resources-panel-card');if(resourceCard)resourceCard.prepend(library);
 existing('gaOpenResources')?.addEventListener('click',()=>{library.hidden=classic();if(!classic())prioritizeResponses()});
-const hideClassic=()=>{const isClassic=classic();for(const el of [hero,options,detail,future,wait,thinkButton,mobile])if(el)el.hidden=isClassic;thinkButton.style.display=isClassic?'none':'';if(isClassic){think.hidden=true;if(graph&&graphAnchor.parentNode)graphAnchor.parentNode.insertBefore(graph,graphAnchor.nextSibling);if(gap&&gapAnchor.parentNode)gapAnchor.parentNode.insertBefore(gap,gapAnchor.nextSibling)}else{if(graph)future.append(graph);if(gap)detail.append(gap)}document.body.classList.toggle('ga-three-classic',isClassic);syncDeck()};
-extraCss.textContent+=' .ga-three-classic #gaActHero,.ga-three-classic #gaActOptions,.ga-three-classic #gaActGoal,.ga-three-classic #gaActTechnical,.ga-three-classic #gaActWait,.ga-three-classic #gaThreeMobileToggle{display:none!important}';
+const hideClassic=()=>{const isClassic=classic();libraryButton.hidden=isClassic;libraryButton.style.display=isClassic?'none':'';if(isClassic){if(resourcePanel&&resourceAnchor.parentNode)resourceAnchor.parentNode.insertBefore(resourcePanel,resourceAnchor.nextSibling)}else if(resourcePanel)document.body.append(resourcePanel);for(const el of [hero,options,detail,future,wait,thinkButton,mobile])if(el)el.hidden=isClassic;thinkButton.style.display=isClassic?'none':'';if(isClassic){think.hidden=true;if(graph&&graphAnchor.parentNode)graphAnchor.parentNode.insertBefore(graph,graphAnchor.nextSibling);if(gap&&gapAnchor.parentNode)gapAnchor.parentNode.insertBefore(gap,gapAnchor.nextSibling)}else{if(graph)future.append(graph);if(gap)detail.append(gap)}document.body.classList.toggle('ga-three-classic',isClassic);syncDeck()};
+extraCss.textContent+=' .ga-three-classic #gaActHero,.ga-three-classic #gaActOptions,.ga-three-classic #gaActGoal,.ga-three-classic #gaActTechnical,.ga-three-classic #gaActWait,.ga-three-classic #gaActLibraryButton,.ga-three-classic #gaThreeMobileToggle{display:none!important}';
 existing('gaFlowToggle')?.addEventListener('click',()=>{hideClassic()});
 if(existing('gaFlowToggle'))existing('gaFlowToggle').style.display='none';
 hideClassic();
