@@ -3192,6 +3192,36 @@ function scheduleValidationReveal(){
    const box=$('gaThinking');$('gaThinkingTitle').textContent=title;$('gaThinkingStep').textContent=step;box.classList.add('active');
    setTimeout(()=>{box.classList.remove('active');done&&done()},850)
  }
+
+ // Flujo reversible. Conserva el diagnóstico y la sesión; no toca el motor financiero.
+ const gaFlowClassicInitial=new URLSearchParams(location.search).get('flujo')==='clasico';
+ let gaFlowClassic=gaFlowClassicInitial;
+ const gaFlowStepOne=scenes.find(el=>el.dataset.scene==='1');
+ const gaFlowToolbar=document.createElement('span');
+ gaFlowToolbar.className='ga-flow-toolbar';
+ gaFlowToolbar.style.cssText='display:inline-flex;gap:8px;align-items:center;flex-wrap:wrap';
+ const gaFlowToggle=document.createElement('button');
+ gaFlowToggle.type='button';gaFlowToggle.className='ga-btn';
+ gaFlowToggle.id='gaFlowToggle';
+ gaFlowToggle.setAttribute('aria-label','Cambiar recorrido de asesoría');
+ const gaFlowCredentials=document.createElement('button');
+ gaFlowCredentials.type='button';gaFlowCredentials.className='ga-btn';
+ gaFlowCredentials.id='gaFlowCredentials';
+ gaFlowCredentials.textContent='Ver credenciales';
+ gaFlowCredentials.onclick=()=>document.getElementById('gaCredentialsModal')?.classList.add('show');
+ gaFlowToolbar.append(gaFlowToggle,gaFlowCredentials);
+ document.getElementById('gaOpenResources')?.before(gaFlowToolbar);
+ function gaSetClassicFlow(classic){
+   gaFlowClassic=!!classic;
+   if(gaFlowStepOne){if(gaFlowClassic)delete gaFlowStepOne.dataset.skip;else gaFlowStepOne.dataset.skip='1'}
+   gaFlowToggle.textContent=gaFlowClassic?'Recorrido clásico · cambiar a 3 actos':'Flujo 3 actos · cambiar a clásico';
+   gaFlowToggle.setAttribute('aria-pressed',String(gaFlowClassic));
+   window.GA_FLOW_CLASSIC=gaFlowClassic;
+   if(!gaFlowClassic&&scenes[idx]===gaFlowStepOne)showImmediate(idx+1);
+   else showImmediate(idx);
+ }
+ gaFlowToggle.onclick=()=>gaSetClassicFlow(!gaFlowClassic);
+ gaSetClassicFlow(gaFlowClassicInitial);
  function show(i){
    const target=Math.max(0,Math.min(scenes.length-1,i));
    const transition=target===8;
