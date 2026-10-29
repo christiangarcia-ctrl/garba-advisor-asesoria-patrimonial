@@ -23,6 +23,8 @@ const detail=make('details','card');detail.id='gaActGoal';detail.innerHTML='<sum
 const future=make('details','card');future.id='gaActTechnical';future.innerHTML='<summary>Ver gráfica y tablas de detalle</summary>';
 const graph=existing('gaProjectionGraph');const graphAnchor=document.createComment('gaProjectionGraph original');
 if(graph){graph.before(graphAnchor);future.append(graph)}
+const technicalNodes=['toggleTable','details','toggleTableRet','detailsRet'].map(existing).filter(Boolean);
+const technicalAnchors=technicalNodes.map(el=>{const anchor=document.createComment('Original '+el.id);el.before(anchor);future.append(el);return anchor});
 const original=workspace()?.querySelector('.plan-hero');
 if(original){original.before(hero);hero.after(options,detail,future)}
 const extraCss=make('style');
@@ -114,7 +116,7 @@ function prioritizeResponses(){const relevant=new Set(window.GaRelatedSlides?.()
 
 const resourceCard=resourcePanel?.querySelector('.ga-resources-panel-card');if(resourceCard)resourceCard.prepend(library);
 existing('gaOpenResources')?.addEventListener('click',()=>{library.hidden=classic();if(!classic())prioritizeResponses()});
-const hideClassic=()=>{const isClassic=classic();libraryButton.hidden=isClassic;libraryButton.style.display=isClassic?'none':'';if(isClassic){if(resourcePanel&&resourceAnchor.parentNode)resourceAnchor.parentNode.insertBefore(resourcePanel,resourceAnchor.nextSibling)}else if(resourcePanel)document.body.append(resourcePanel);for(const el of [hero,options,detail,future,wait,thinkButton,mobile])if(el)el.hidden=isClassic;thinkButton.style.display=isClassic?'none':'';if(isClassic){think.hidden=true;if(graph&&graphAnchor.parentNode)graphAnchor.parentNode.insertBefore(graph,graphAnchor.nextSibling);if(gap&&gapAnchor.parentNode)gapAnchor.parentNode.insertBefore(gap,gapAnchor.nextSibling)}else{if(graph)future.append(graph);if(gap)detail.append(gap)}document.body.classList.toggle('ga-three-classic',isClassic);syncDeck()};
+const hideClassic=()=>{const isClassic=classic();libraryButton.hidden=isClassic;libraryButton.style.display=isClassic?'none':'';if(isClassic){if(resourcePanel&&resourceAnchor.parentNode)resourceAnchor.parentNode.insertBefore(resourcePanel,resourceAnchor.nextSibling)}else if(resourcePanel)document.body.append(resourcePanel);for(const el of [hero,options,detail,future,wait,thinkButton,mobile])if(el)el.hidden=isClassic;thinkButton.style.display=isClassic?'none':'';if(isClassic){think.hidden=true;if(graph&&graphAnchor.parentNode)graphAnchor.parentNode.insertBefore(graph,graphAnchor.nextSibling);if(gap&&gapAnchor.parentNode)gapAnchor.parentNode.insertBefore(gap,gapAnchor.nextSibling);technicalNodes.forEach((el,i)=>{if(technicalAnchors[i].parentNode)technicalAnchors[i].parentNode.insertBefore(el,technicalAnchors[i].nextSibling)})}else{if(graph)future.append(graph);if(gap)detail.append(gap);technicalNodes.forEach(el=>future.append(el))}document.body.classList.toggle('ga-three-classic',isClassic);syncDeck()};
 extraCss.textContent+=' .ga-three-classic #gaActHero,.ga-three-classic #gaActOptions,.ga-three-classic #gaActGoal,.ga-three-classic #gaActTechnical,.ga-three-classic #gaActWait,.ga-three-classic #gaActLibraryButton,.ga-three-classic #gaThreeMobileToggle{display:none!important}';
 existing('gaFlowToggle')?.addEventListener('click',()=>{hideClassic()});
 if(existing('gaFlowToggle'))existing('gaFlowToggle').style.display='none';
