@@ -94,8 +94,8 @@ function syncDeck(){
 }
 mobile.onclick=()=>{state.mobile=!state.mobile;persist();syncDeck()};
 existing('gaMobileExit').onclick=()=>{state.mobile=false;persist();syncDeck()};
-existing('gaMobilePrev').onclick=()=>{mobilePage=Math.max(0,mobilePage-1);updateDeck();mobileDeck.scrollTo(0,0)};
-existing('gaMobileNext').onclick=()=>{mobilePage=Math.min(3,mobilePage+1);updateDeck();mobileDeck.scrollTo(0,0)};
+existing('gaMobilePrev').onclick=()=>{mobilePage=Math.max(0,mobilePage-1);updateDeck();mobileDeck.scrollTo(0,0);sendPanel()};
+existing('gaMobileNext').onclick=()=>{mobilePage=Math.min(3,mobilePage+1);updateDeck();mobileDeck.scrollTo(0,0);sendPanel()};
 existing('gaMobileCopy').onclick=()=>navigator.clipboard?.writeText(summary());
 new MutationObserver(syncDeck).observe(workspace(),{attributes:true,attributeFilter:['class']});
 syncDeck();
@@ -127,7 +127,7 @@ if(existing('gaFlowToggle'))existing('gaFlowToggle').style.display='none';
 hideClassic();
 const panelButton=make('button','ga-btn','Panel del asesor');panelButton.type='button';panelButton.id='gaAdvisorPanelButton';
 const channel=typeof BroadcastChannel==='function'?new BroadcastChannel('garba-advisor-three-act'):null;
-const panelState=()=>({act:workspace()?.classList.contains('active')?(decisions?.getBoundingClientRect().top<innerHeight/2?3:2):(document.querySelector('.ga-scene.active')?.dataset.scene==='0'?0:1),classic:classic(),priority:document.querySelector('.ga-option.selected')?.textContent?.trim()||'',barrier:existing('gaBarrier')?.value||'',condition:existing('gaConcern')?.value||'',amount:pmt(),fiscal:existing('regimenFiscal')?.value||existing('gaTax')?.value||'',reason:state.reason});
+const panelState=()=>({act:workspace()?.classList.contains('active')?(state.mobile&&!mobileDeck.hidden?(mobilePage===3?3:2):(decisions?.getBoundingClientRect().top<innerHeight/2?3:2)):(document.querySelector('.ga-scene.active')?.dataset.scene==='0'?0:1),classic:classic(),priority:document.querySelector('.ga-option.selected')?.textContent?.trim()||'',barrier:existing('gaBarrier')?.value||'',condition:existing('gaConcern')?.value||'',amount:pmt(),fiscal:existing('regimenFiscal')?.value||existing('gaTax')?.value||'',reason:state.reason});
 let advisorPhase=0,advisorPhaseSince=Date.now(),advisorElapsed={1:0,2:0,3:0};
 try{const old=JSON.parse(sessionStorage.getItem('gaAdvisorPhase')||'null');if(old){advisorPhase=old.act;advisorPhaseSince=old.since;advisorElapsed=old.elapsed||advisorElapsed}}catch(e){}
 const sendPanel=()=>{const d=panelState(),now=Date.now();if(d.act!==advisorPhase){if(advisorPhase>0)advisorElapsed[advisorPhase]=(advisorElapsed[advisorPhase]||0)+Math.max(0,now-advisorPhaseSince);advisorPhase=d.act;advisorPhaseSince=now}d.phaseSince=advisorPhaseSince;d.elapsed={...advisorElapsed};if(advisorPhase>0)d.elapsed[advisorPhase]+=Math.max(0,now-advisorPhaseSince);try{sessionStorage.setItem('gaAdvisorPhase',JSON.stringify({act:advisorPhase,since:advisorPhaseSince,elapsed:advisorElapsed}))}catch(e){}const msg={type:'state',data:d,at:now};channel?.postMessage(msg);try{localStorage.setItem('gaAdvisorPanelSignal',JSON.stringify(msg))}catch(e){}};
