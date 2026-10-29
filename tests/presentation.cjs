@@ -34,7 +34,7 @@ async function main(){
     return page;
   };
   const page=await make();
-  const load=async(p,url)=>{await p.goto(url);await wait(250)};
+  const load=async(p,url,classic=true)=>{await p.goto(url+(classic?'?flujo=clasico':''));await wait(250)};
   const openCalc=async(p)=>{
     await p.evaluate(()=>{
       for(const [id,value] of Object.entries({gaName:'Cliente de prueba',gaAge:'32',gaRetireAge:'65',gaGoal:'25000',gaPmt:'3000',gaTax:'93'}))document.getElementById(id).value=value;
@@ -222,6 +222,50 @@ async function main(){
     await identified.evaluate(()=>document.querySelector('#gaV2Known button.ga-v2-link').click());
     assert(await identified.evaluate(()=>GaShell.scenes.find(s=>s.dataset.scene==='6').dataset.skip==='1'),'Deepening a known diagnosis still keeps reality in the calculator');
     await identified.close();
+
+    // Three-act flow: synthetic client only. Run alongside the existing classic regression suite.
+    const modern=await make();
+    await load(modern,origin,false);
+    assert.equal(await modern.evaluate(()=>window.GA_FLOW_CLASSIC),false);
+    assert.equal(await modern.evaluate(()=>GaShell.scenes.find(s=>s.dataset.scene==='1').dataset.skip),'1');
+    await modern.evaluate(()=>{
+      for(const [id,value] of Object.entries({gaName:'Prospecto de prueba',gaAge:'32',gaRetireAge:'65',gaGoal:'25000',gaPmt:'3000',gaTax:'93',gaWhy:'Construir retiro',gaMeaning:'Familia',gaConcern:'Flexibilidad'}))document.getElementById(id).value=value;
+      GaShell.setConfirmed(true);GaShell.diagnosisChecks.ready='No';
+      GaShell.show(GaShell.scenes.findIndex(s=>s.dataset.scene==='7'));
+    });
+    await modern.screenshot({path:path.join(output,'three-acts-diagnosis.png')});
+    await modern.locator('#gaNext').click();
+    await modern.locator('#resultsView.active').waitFor({timeout:6000});
+    await wait(400);
+    assert.equal(await modern.locator('#pmt').inputValue(),'3000');
+    assert.equal(await modern.locator('#gaActGoal').evaluate(el=>el.open),false);
+    assert.equal(await modern.locator('#gaActTechnical').evaluate(el=>el.open),false);
+    assert(await modern.locator('#gaActOptionCards .ga-act-option').count()>=1);
+    assert.equal(await modern.locator('#gaActFuture').innerText(),await modern.locator('#fondo65').innerText());
+    await modern.screenshot({path:path.join(output,'three-acts-desktop.png'),fullPage:true});
+    await modern.locator('#gaThreeMobileToggle').click();
+    assert(await modern.evaluate(()=>document.body.classList.contains('ga-three-mobile')));
+    await modern.screenshot({path:path.join(output,'three-acts-projected-mobile.png'),fullPage:true});
+    await modern.locator('#gaThreeMobileToggle').click();
+    await modern.locator('[data-postcalc="decision"][data-value="think"]').click();
+    await modern.locator('#gaThinkReason').selectOption({label:'Platicarlo con mi pareja'});
+    await modern.locator('#gaPostCalcContinue').click();
+    assert.equal(await modern.locator('#gaPreopenView').isVisible(),false,'Think cannot continue without an agreed date');
+    await modern.locator('#gaThinkDate').fill('2026-11-05');
+    await modern.locator('#gaThinkTime').fill('18:00');
+    await modern.locator('#gaThinkConfirm').click();
+    assert.equal(await modern.evaluate(()=>GaThreeActs.state.date),'2026-11-05');
+    assert((await modern.evaluate(()=>GaThreeActs.summary())).includes('2026-11-05'));
+    await modern.screenshot({path:path.join(output,'three-acts-think-partner.png'),fullPage:true});
+    await modern.locator('#gaPostCalcContinue').click();
+    assert(await modern.locator('#gaPreopenView').isVisible());
+    assert.equal(await modern.locator('#preOpeningParticipants').inputValue(),'Prospecto y pareja');
+    await modern.screenshot({path:path.join(output,'three-acts-second-appointment.png'),fullPage:true});
+    const profile=await make();await profile.setViewportSize({width:390,height:844});await load(profile,origin+'/asesor/',false);
+    assert(await profile.locator('h1').innerText()==='Christian Iván García Barragán');
+    assert(await profile.evaluate(()=>document.documentElement.scrollWidth<=window.innerWidth));
+    await profile.screenshot({path:path.join(output,'advisor-profile-390.png')});
+    await profile.close();await modern.close();
     assert.deepEqual(errors,[],'No browser runtime errors');
     console.log('PASS: full-width advisory, full-screen resources, keyboard return, live input/results/chart, stale-output protection, fixed controls, result tabs, responsive layouts.');
     console.log('Screenshots:',output);
