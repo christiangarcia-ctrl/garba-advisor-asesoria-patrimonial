@@ -19,10 +19,10 @@ const hero=make('section','card ga-act-hero');
 hero.id='gaActHero';
 hero.innerHTML='<div class="ga-kicker">ACTO 2 · TU NÚMERO</div><h2>Un punto de partida que puedes sostener</h2><p>Con <strong id="gaActPmt">—</strong> al mes → <strong id="gaActFuture">—</strong> a los 65</p><p id="gaActFiscal"></p><div class="ga-act-actions"><button class="ga-btn" id="gaActDecision">Ir a la decisión →</button><button class="ga-btn" id="gaActCopy">Copiar resumen para WhatsApp</button></div>';
 const options=make('section','card');options.id='gaActOptions';options.innerHTML='<div class="ga-kicker">Opciones de arranque</div><h3>Empezar con una cantidad realista</h3><div id="gaActOptionCards"></div><p class="ga-mini">Cada opción se calculará con el motor original al seleccionarla.</p>';
-const detail=make('details','card');detail.id='gaActGoal';detail.innerHTML='<summary>Ver meta completa</summary>';const gap=existing('gaProjectionGap');if(gap)detail.append(gap);
+const detail=make('details','card');detail.id='gaActGoal';detail.innerHTML='<summary>Ver meta completa</summary>';const gap=existing('gaProjectionGap');const gapAnchor=document.createComment('gaProjectionGap original');if(gap){gap.before(gapAnchor);detail.append(gap)}
 const future=make('details','card');future.id='gaActTechnical';future.innerHTML='<summary>Ver gráfica y tablas de detalle</summary>';
-const graph=existing('gaProjectionGraph');
-if(graph)future.append(graph);
+const graph=existing('gaProjectionGraph');const graphAnchor=document.createComment('gaProjectionGraph original');
+if(graph){graph.before(graphAnchor);future.append(graph)}
 const original=workspace()?.querySelector('.plan-hero');
 if(original){original.before(hero);hero.after(options,detail,future)}
 const extraCss=make('style');
@@ -84,7 +84,7 @@ function prioritizeResponses(){const relevant=new Set(window.GaRelatedSlides?.()
 
 const resourceCard=resourcePanel?.querySelector('.ga-resources-panel-card');if(resourceCard)resourceCard.prepend(library);
 existing('gaOpenResources')?.addEventListener('click',()=>{library.hidden=classic();if(!classic())prioritizeResponses()});
-const hideClassic=()=>{const isClassic=classic();for(const el of [hero,options,detail,future,wait,thinkButton,mobile])if(el)el.hidden=isClassic; if(isClassic)think.hidden=true;document.body.classList.toggle('ga-three-classic',isClassic)};
+const hideClassic=()=>{const isClassic=classic();for(const el of [hero,options,detail,future,wait,thinkButton,mobile])if(el)el.hidden=isClassic;thinkButton.style.display=isClassic?'none':'';if(isClassic){think.hidden=true;if(graph&&graphAnchor.parentNode)graphAnchor.parentNode.insertBefore(graph,graphAnchor.nextSibling);if(gap&&gapAnchor.parentNode)gapAnchor.parentNode.insertBefore(gap,gapAnchor.nextSibling)}else{if(graph)future.append(graph);if(gap)detail.append(gap)}document.body.classList.toggle('ga-three-classic',isClassic)};
 extraCss.textContent+=' .ga-three-classic #gaActHero,.ga-three-classic #gaActOptions,.ga-three-classic #gaActGoal,.ga-three-classic #gaActTechnical,.ga-three-classic #gaActWait,.ga-three-classic #gaThreeMobileToggle{display:none!important}';
 existing('gaFlowToggle')?.addEventListener('click',()=>{hideClassic()});
 if(existing('gaFlowToggle'))existing('gaFlowToggle').style.display='none';
