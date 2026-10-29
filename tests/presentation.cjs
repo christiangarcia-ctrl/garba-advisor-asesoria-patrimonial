@@ -303,9 +303,15 @@ async function main(){
       const state=GaThreeActs.state;state.reason='Platicarlo con mi pareja';state.date='2026-11-05';state.time='18:00';state.noDate=false;state.nextStep='Agendemos una segunda cita con ambos.';
       document.getElementById('gaLaterView').style.display='block';
       window.__pdfTexts=[];
-      const proto=window.jspdf.jsPDF.API;
-      const old=proto.text;
-      proto.text=function(...args){window.__pdfTexts.push(String(args[0]));return old.apply(this,args)};
+      const OriginalPdf=window.jspdf.jsPDF;
+      function AuditedPdf(...args){
+        const doc=new OriginalPdf(...args);
+        const oldText=doc.text.bind(doc);
+        doc.text=function(...parts){window.__pdfTexts.push(String(parts[0]));return oldText(...parts)};
+        return doc;
+      }
+      AuditedPdf.API=OriginalPdf.API;
+      window.jspdf.jsPDF=AuditedPdf;
     });
     const pdfDownload=pdfCase.waitForEvent('download');
     await pdfCase.locator('#gaLaterPdf').click();
