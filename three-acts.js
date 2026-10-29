@@ -57,6 +57,12 @@ mobile.type='button';mobile.onclick=()=>{state.mobile=!state.mobile;document.bod
 existing('gaActHero')?.prepend(mobile);
 document.body.classList.toggle('ga-three-mobile',state.mobile);
 if(state.mobile)mobile.textContent='Vista normal';
+const responseIndex=[['¿Es seguro? ¿Quién respalda?',5],['¿Cómo funciona un PPR?',4],['¿Qué pasa si necesito el dinero o dejo de pagar?',8],['¿Cómo funciona el Art. 151?',8],['¿Cómo funciona el Art. 93?',8],['¿Y la volatilidad?',11],['¿Cuánto cuesta?',13],['¿Cómo se abre?',10]];
+const resourcePanel=existing('gaResourcesPanel');
+const library=make('section','card');library.id='gaQuestionLibrary';library.innerHTML='<div class="ga-kicker">Biblioteca de respuestas</div><h3>¿Qué te gustaría resolver?</h3>';
+responseIndex.forEach(([label,slide])=>{const btn=make('button','ga-btn',label);btn.type='button';btn.onclick=()=>window.GaOpenResponse?.(slide);library.append(btn,document.createTextNode(' '))});
+const resourceCard=resourcePanel?.querySelector('.ga-resources-panel-card');if(resourceCard)resourceCard.prepend(library);
+existing('gaOpenResources')?.addEventListener('click',()=>{library.hidden=classic()});
 const hideClassic=()=>{const isClassic=classic();for(const el of [hero,options,detail,future,thinkButton,mobile])if(el)el.hidden=isClassic; if(isClassic)think.hidden=true;document.body.classList.toggle('ga-three-classic',isClassic)};
 extraCss.textContent+=' .ga-three-classic #gaActHero,.ga-three-classic #gaActOptions,.ga-three-classic #gaActGoal,.ga-three-classic #gaActTechnical,.ga-three-classic #gaThreeMobileToggle{display:none!important}';
 existing('gaFlowToggle')?.addEventListener('click',()=>{hideClassic()});
