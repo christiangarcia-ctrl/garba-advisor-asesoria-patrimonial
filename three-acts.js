@@ -83,16 +83,19 @@ existing('gaOpenResources')?.addEventListener('click',()=>{library.hidden=classi
 const hideClassic=()=>{const isClassic=classic();for(const el of [hero,options,detail,future,wait,thinkButton,mobile])if(el)el.hidden=isClassic; if(isClassic)think.hidden=true;document.body.classList.toggle('ga-three-classic',isClassic)};
 extraCss.textContent+=' .ga-three-classic #gaActHero,.ga-three-classic #gaActOptions,.ga-three-classic #gaActGoal,.ga-three-classic #gaActTechnical,.ga-three-classic #gaActWait,.ga-three-classic #gaThreeMobileToggle{display:none!important}';
 existing('gaFlowToggle')?.addEventListener('click',()=>{hideClassic()});
+if(existing('gaFlowToggle'))existing('gaFlowToggle').style.display='none';
 hideClassic();
 const panelButton=make('button','ga-btn','Panel del asesor');panelButton.type='button';panelButton.id='gaAdvisorPanelButton';
 const channel=typeof BroadcastChannel==='function'?new BroadcastChannel('garba-advisor-three-act'):null;
-const panelState=()=>({act:workspace()?.classList.contains('active')?(decisions?.getBoundingClientRect().top<innerHeight/2?3:2):1,priority:document.querySelector('.ga-option.selected')?.textContent?.trim()||'',barrier:existing('gaBarrier')?.value||'',condition:existing('gaConcern')?.value||'',amount:pmt(),fiscal:existing('regimenFiscal')?.value||existing('gaTax')?.value||'',reason:state.reason});
-const sendPanel=()=>{const msg={type:'state',data:panelState(),at:Date.now()};channel?.postMessage(msg);try{localStorage.setItem('gaAdvisorPanelSignal',JSON.stringify(msg))}catch(e){}};
+const panelState=()=>({act:workspace()?.classList.contains('active')?(decisions?.getBoundingClientRect().top<innerHeight/2?3:2):(document.querySelector('.ga-scene.active')?.dataset.scene==='0'?0:1),classic:classic(),priority:document.querySelector('.ga-option.selected')?.textContent?.trim()||'',barrier:existing('gaBarrier')?.value||'',condition:existing('gaConcern')?.value||'',amount:pmt(),fiscal:existing('regimenFiscal')?.value||existing('gaTax')?.value||'',reason:state.reason});
+let advisorPhase=0,advisorPhaseSince=Date.now();
+try{const old=JSON.parse(sessionStorage.getItem('gaAdvisorPhase')||'null');if(old){advisorPhase=old.act;advisorPhaseSince=old.since}}catch(e){}
+const sendPanel=()=>{const d=panelState();if(d.act!==advisorPhase){advisorPhase=d.act;advisorPhaseSince=Date.now();try{sessionStorage.setItem('gaAdvisorPhase',JSON.stringify({act:advisorPhase,since:advisorPhaseSince}))}catch(e){}}d.phaseSince=advisorPhaseSince;const msg={type:'state',data:d,at:Date.now()};channel?.postMessage(msg);try{localStorage.setItem('gaAdvisorPanelSignal',JSON.stringify(msg))}catch(e){}};
 panelButton.onclick=()=>{const w=window.open('advisor-panel.html','GarBaAdvisorPanel','popup=yes,width=360,height=560');if(w)w.focus();sendPanel()};
 existing('gaFlowToggle')?.after(panelButton);
 const signal=new MutationObserver(sendPanel);if(workspace())signal.observe(workspace(),{attributes:true,attributeFilter:['class']});
 for(const key of ['gaBarrier','gaConcern','gaTax','gaPmt','pmt','gaThinkReason'])existing(key)?.addEventListener('change',sendPanel);
-channel?.addEventListener('message',e=>{if(e.data?.type==='ready')sendPanel()});window.addEventListener('scroll',sendPanel,{passive:true});
+channel?.addEventListener('message',e=>{if(e.data?.type==='ready')sendPanel();if(e.data?.type==='flow-toggle'){existing('gaFlowToggle')?.click();sendPanel()}});window.addEventListener('storage',e=>{if(e.key==='gaAdvisorPanelCommand'){try{const command=JSON.parse(e.newValue);if(command?.type==='flow-toggle'){existing('gaFlowToggle')?.click();sendPanel()}}catch(err){}}});window.addEventListener('scroll',sendPanel,{passive:true});const diagnosticScenes=document.querySelectorAll('.ga-scene');for(const scene of diagnosticScenes){new MutationObserver(sendPanel).observe(scene,{attributes:true,attributeFilter:['class']})}
 const obs=new MutationObserver(()=>{if(!view()||comparing)return;const newVal=existing('fondo65')?.textContent;if(newVal!==hero.dataset.last){hero.dataset.last=newVal;refresh()}});
 if(workspace())obs.observe(workspace(),{childList:true,subtree:true,characterData:true});
 refresh();
