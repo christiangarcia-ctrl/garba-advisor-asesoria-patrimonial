@@ -61,3 +61,16 @@ No se ha publicado. La versión en `main` permanece intacta. En la rama de traba
 ## Revisión final externa
 
 El usuario solicitará personalmente la revisión a **Claude Code**. No se invocó Claude ni ningún otro modelo como parte de esta implementación. La revisión debe comenzar ejecutando el test, corrigiendo fallas detectadas y comprobando que no hay diferencia financiera ni visual indebida antes de aprobar un merge.
+
+
+## Validación estática adicional — 28 oct 2026
+
+**Aprobado, con evidencia de comparación directa:** cuatro rutinas financieras de `index.html` son byte por byte iguales en `main` y `asesoria-3-actos`: `calcularPMTRequerido`, `updateSuggestion`, `calcAccum` y `pmtParaFondo65`. Esto prueba que no se alteró el código de esas fórmulas, **no** que los escenarios de interfaz produzcan exactamente los mismos valores al ejecutarse.
+
+**Aprobado:** sintaxis JavaScript de `three-acts.js`, `advisor-panel.html` y `tests/presentation.cjs`.
+
+**Corregido durante revisión:** el índice fiscal de Biblioteca ahora espera a que la lámina termine su renderizado antes de filtrar Art. 151 o Art. 93 (commit `64a3208`).
+
+**Bloqueado:** no se ejecutó Playwright ni se generaron screenshots; el entorno tiene Chromium, pero no el módulo Playwright y no resuelve `github.com` para clonar la rama. La suite deberá ejecutarse en el repositorio local con Playwright ya instalado antes de aprobar la publicación.
+
+**Veredicto:** validación estática parcial. **No aprobado para producción aún.** Aún deben verificarse navegación real, restauración exacta del flujo clásico, vistas de Google Meet, PDF, panel separado y comparación financiera `ADVISOR_BASELINE`.
