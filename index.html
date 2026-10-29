@@ -3495,6 +3495,7 @@ function updateDiagnosisRecommendation(){
    else if(decision==='think'){route='later';box.querySelector('h3').textContent='Dejemos definido qué falta para decidir.';box.querySelector('p').textContent='Registra una razón y el siguiente paso antes de cerrar la asesoría.';button.textContent='Guardar y continuar'}
    else{route='adjust';box.querySelector('h3').textContent='Ajustemos el escenario antes de decidir.';box.querySelector('p').textContent='Volveremos a la proyección para modificar lo necesario.';button.textContent='Regresar a ajustar la proyección'}
  }
+ window.GaUpdatePostCalcRecommendation=updatePostCalcRecommendation;
  $('gaGoToValidation')?.addEventListener('click',()=>{populateCloseReminder();$('gaPostCalcValidation')?.scrollIntoView({behavior:'smooth',block:'start'})});
  $('gaPostCalcContinue').onclick=()=>{
    const decision=postCalcChecks.decision;
