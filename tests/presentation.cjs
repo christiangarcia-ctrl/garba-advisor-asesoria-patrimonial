@@ -246,7 +246,7 @@ async function main(){
     await modern.locator('#gaThreeMobileToggle').click();
     assert(await modern.evaluate(()=>document.body.classList.contains('ga-three-mobile')));
     await modern.screenshot({path:path.join(output,'three-acts-projected-mobile.png'),fullPage:true});
-    await modern.locator('#gaThreeMobileToggle').click();
+    await modern.locator('#gaMobileExit').click();
     await modern.locator('[data-postcalc="decision"][data-value="think"]').click();
     await modern.locator('#gaThinkReason').selectOption({label:'Platicarlo con mi pareja'});
     await modern.locator('#gaPostCalcContinue').click();
