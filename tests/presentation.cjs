@@ -10,9 +10,10 @@ const output=process.env.ADVISOR_TEST_OUTPUT||path.join(require('node:os').tmpdi
 fs.mkdirSync(output,{recursive:true});
 const server=http.createServer((req,res)=>{
   const url=new URL(req.url,'http://localhost');
+  const isBefore=url.pathname.startsWith('/round2-before/');
   const isBaseline=url.pathname.startsWith('/baseline/');
-  const name=(decodeURIComponent(url.pathname.replace(isBaseline?'/baseline/':'/',''))||'index.html').replace(/\/$/,'/index.html');
-  const base=isBaseline?baseline:root;
+  const name=(decodeURIComponent(url.pathname.replace(isBefore?'/round2-before/':isBaseline?'/baseline/':'/',''))||'index.html').replace(/\/$/,'/index.html');
+  const base=isBefore?process.env.ADVISOR_ROUND2_BEFORE:isBaseline?baseline:root;
   if(!base){res.writeHead(404).end();return;}
   const file=path.resolve(base,name);
   if(!file.startsWith(path.resolve(base)+path.sep)){res.writeHead(403).end();return;}
@@ -20,6 +21,11 @@ const server=http.createServer((req,res)=>{
   try{const bytes=fs.readFileSync(file);res.writeHead(200,{'Content-Type':type});res.end(bytes)}catch{if(!res.headersSent)res.writeHead(404);res.end()}
 });
 const wait=ms=>new Promise(resolve=>setTimeout(resolve,ms));
+async function scaledCapture(page,name){
+  const bytes=await page.screenshot();
+  const data=await page.evaluate(async bytes=>{const bitmap=await createImageBitmap(new Blob([Uint8Array.from(atob(bytes),c=>c.charCodeAt(0))],{type:'image/png'}));const c=document.createElement('canvas');c.width=390;c.height=Math.round(bitmap.height*390/bitmap.width);c.getContext('2d').drawImage(bitmap,0,0,c.width,c.height);return c.toDataURL('image/png').split(',')[1]},bytes.toString('base64'));
+  fs.writeFileSync(path.join(output,name),Buffer.from(data,'base64'));
+}
 async function main(){
   await new Promise(resolve=>server.listen(0,'127.0.0.1',resolve));
   const origin=`http://127.0.0.1:${server.address().port}`;
@@ -251,13 +257,44 @@ async function main(){
     assert.equal(await modern.locator('#gaActOptionCards .ga-act-option').count(),optionCount,'Las opciones siguen disponibles después de elegir');
     assert((await modern.locator('#gaActOptionCards .ga-act-option strong').first().innerText()).startsWith('$3,000'),'La primera opción sigue siendo la capacidad del diagnóstico');
     await modern.locator('#gaActOptionCards .ga-act-option button').first().click();await wait(400);
-    await modern.evaluate(()=>{const w=document.getElementById('gaActWait');w.open=true;w.dispatchEvent(new Event('toggle'))});await wait(400);
-    assert(!/Diferencia: \$0$/.test(await modern.locator('#gaWaitResult').innerText()),'La diferencia de esperar un año no puede salir en $0');
-    assert(!(await modern.evaluate(()=>GaThreeActs.summary())).includes('Fecha acordada'),'Sin decisión de pensarlo, el resumen no muestra fecha vacía');
+    assert.equal(await modern.locator('#gaWaitResult').count(),0);
+    assert(!(await modern.locator('body').innerText()).toLowerCase().includes('costo de esperar'));
+    const pathData=await modern.evaluate(()=>({capital:Number(document.querySelector('#gaPathGraph svg').dataset.capital),end:Number(document.querySelector('#gaPathGraph svg').dataset.waveEnd),expected:reportState.fondo65,max:chart.options.scales.y.max,datasets:chart.data.datasets.length}));
+    assert.equal(pathData.capital,pathData.expected);assert.equal(pathData.end,pathData.expected);assert.equal(pathData.max,pathData.expected);assert.equal(pathData.datasets,1);
+    assert.equal(await modern.locator('#gaPathMilestones section').count(),4);
+    for(const age of [25,42]){
+      const points=await modern.evaluate(age=>GaPath.milestones(age,15,new Date(2026,9,30)),age);
+      assert.deepEqual(points.map(p=>p.date),['10/2026','04/2028','10/2041',age===25?'10/2066':'10/2049']);
+      assert.deepEqual(points.map(p=>p.age),[age+' años',(age+1)+' años y 6 meses',(age+15)+' años','65 años']);
+    }
+    for(let i=0;i<5;i++){
+      const b=modern.locator('#gaFlexButtons button').nth(i);await b.click();assert(await modern.locator('#gaFlexDetail').isVisible());assert.equal(await modern.evaluate(()=>GaLayout.getSelected()),'projection');await b.click();assert(!(await modern.locator('#gaFlexDetail').isVisible()));
+    }
+    assert(!(await modern.evaluate(()=>GaThreeActs.summary())).includes('¿Cuándo te busco?'));
+    // Matched screenshots from the mandatory 415b4d4 checkout, never from main.
+    if(process.env.ADVISOR_ROUND2_BEFORE){
+      const before=await make();await load(before,origin+'/round2-before/',false);await openCalc(before);
+      const matching=await modern.evaluate(()=>Object.fromEntries(['nombreOpt','edad','years','metaHoy','pmt','lumpSum','regimenFiscal','ingresoMensualCliente','isrPct','reinvertISR','rate','inflation'].map(id=>{const e=document.getElementById(id);return [id,e.type==='checkbox'?e.checked:e.value]})));await setCase(before,matching);{const norm=v=>{const c=JSON.parse(JSON.stringify(v));if(c.report)delete c.report.isrPct;return c};/* isrPct se deriva del listener de ingreso y no participa en Art. 93; la paridad financiera completa vs main se prueba en los 7 escenarios */assert.deepEqual(norm(await values(before)),norm(await values(modern)),'Before and after captures use the identical financial fixture');}
+      await modern.evaluate(()=>scrollTo(0,0));await before.evaluate(()=>scrollTo(0,0));
+      await before.screenshot({path:path.join(output,'round2-before-projection.png')});
+      await modern.screenshot({path:path.join(output,'round2-after-projection.png')});
+      await before.locator('#gaThreeMobileToggle').click();await before.screenshot({path:path.join(output,'round2-before-mobile.png')});await scaledCapture(before,'round2-before-mobile-shared-390.png');
+      await before.locator('#gaMobileExit').click();
+      for(const p of [before,modern]){await p.locator('[data-postcalc="decision"][data-value="think"]').click();await p.locator('#gaThinkReason').selectOption({label:'Platicarlo con mi pareja'});await p.locator('#gaThinkDate').fill('2026-11-05');await p.locator('#gaThinkTime').fill('18:00');}
+      await before.screenshot({path:path.join(output,'round2-before-followup.png')});await modern.screenshot({path:path.join(output,'round2-after-followup.png')});
+      for(const [p,name] of [[before,'before'],[modern,'after']]){await p.locator('#gaOpenResources').evaluate(el=>el.click());await p.screenshot({path:path.join(output,'round2-'+name+'-library.png')});await p.locator('#gaResourcesClose').click();}
+      for(const [p,name] of [[before,'before'],[modern,'after']]){
+        await p.locator('#gaTab-gap').click();await p.screenshot({path:path.join(output,'round2-'+name+'-gap.png')});await p.locator('#gaTab-projection').click();
+        const popup=p.waitForEvent('popup');await p.locator('#gaAdvisorPanelButton').evaluate(el=>el.click());const privatePage=await popup;await privatePage.waitForLoadState();await privatePage.screenshot({path:path.join(output,'round2-'+name+'-panel.png')});await privatePage.close();
+      }
+      await before.close();await modern.evaluate(()=>{for(const id of ['gaThinkDate','gaThinkTime']){const el=document.getElementById(id);el.value='';el.dispatchEvent(new Event('change'))}document.getElementById('gaThinkPanel').hidden=true;});
+    }
     await modern.screenshot({path:path.join(output,'three-acts-desktop.png'),fullPage:true});
     await modern.locator('#gaThreeMobileToggle').click();
     assert(await modern.evaluate(()=>document.body.classList.contains('ga-three-mobile')));
+    await modern.locator('#gaMobileNext').click();assert(await modern.locator('#gaMobilePath').isVisible());assert.equal(await modern.locator('#gaMobilePath section').count(),4);
     await modern.screenshot({path:path.join(output,'three-acts-projected-mobile.png'),fullPage:true});
+    await scaledCapture(modern,'round2-after-mobile-shared-390.png');
     await modern.locator('#gaMobileExit').click();
     await modern.locator('[data-postcalc="decision"][data-value="think"]').click();
     await modern.locator('#gaThinkReason').selectOption({label:'Platicarlo con mi pareja'});
@@ -265,8 +302,11 @@ async function main(){
     assert.equal(await modern.locator('#gaPreopenView').isVisible(),false,'Think cannot continue without an agreed date');
     await modern.locator('#gaThinkDate').fill('2026-11-05');
     await modern.locator('#gaThinkTime').fill('18:00');
+    await modern.locator('#gaThinkReady').fill('lo platicaste con tu pareja');
     await modern.locator('#gaThinkConfirm').click();
     assert.equal(await modern.evaluate(()=>GaThreeActs.state.date),'2026-11-05');
+    assert.equal(await modern.evaluate(()=>JSON.parse(sessionStorage.getItem('garbaThreeAct')).ready),'lo platicaste con tu pareja');
+    assert((await modern.evaluate(()=>GaThreeActs.summary())).includes('Para entonces ya… lo platicaste con tu pareja'));
     assert((await modern.evaluate(()=>GaThreeActs.summary())).includes('05/11/2026 18:00'),'Fecha del resumen en formato de México');
     await modern.screenshot({path:path.join(output,'three-acts-think-partner.png'),fullPage:true});
     await modern.locator('#gaPostCalcContinue').click();
@@ -289,7 +329,7 @@ async function main(){
       assert.equal(await reasonCase.evaluate(()=>GaThreeActs.state.reason),choice);
       assert((await reasonCase.locator('#gaThinkNext').innerText()).length>10,'A reason must produce an explicit next step');
       if(choice==='El monto')assert(await reasonCase.locator('#gaActOptions').count()===1);
-      if(choice==='Quiero empezar más adelante')assert(await reasonCase.locator('#gaActWait').evaluate(el=>el.open));
+      if(choice==='Quiero empezar más adelante')assert(!(await reasonCase.locator('body').innerText()).toLowerCase().includes('costo de esperar'));
       if(choice==='No sé si tendré liquidez')assert(await reasonCase.locator('#gaResourcesPanel').evaluate(el=>el.classList.contains('show')));
       if(choice==='Quiero estar seguro de con quién lo hago')assert(await reasonCase.locator('#gaCredentialsModal').evaluate(el=>el.classList.contains('open')));
       await reasonCase.evaluate(()=>{
@@ -312,7 +352,7 @@ async function main(){
     // Actual jsPDF production path: download PDF and inspect the text calls used to build it.
     const pdfCase=await make();await load(pdfCase,origin,false);await openCalc(pdfCase);
     await pdfCase.evaluate(()=>{
-      const state=GaThreeActs.state;state.reason='Platicarlo con mi pareja';state.date='2026-11-05';state.time='18:00';state.noDate=false;state.nextStep='Agendemos una segunda cita con ambos.';
+      const state=GaThreeActs.state;state.ready='lo platicaste con tu pareja';state.reason='Platicarlo con mi pareja';state.date='2026-11-05';state.time='18:00';state.noDate=false;state.nextStep='Agendemos una segunda cita con ambos.';
       document.getElementById('gaLaterView').style.display='block';
       window.__pdfTexts=[];
       const OriginalPdf=window.jspdf.jsPDF;
@@ -335,6 +375,7 @@ async function main(){
     const texts=await pdfCase.evaluate(()=>window.__pdfTexts.join(' | '));
     assert(texts.includes('2026-11-05')&&texts.includes('18:00'),'PDF includes proposed appointment date and time');
     assert(texts.includes('Platicarlo con mi pareja'),'PDF includes the decision reason');
+    assert(texts.includes('Para entonces ya')&&texts.includes('lo platicaste con tu pareja')&&texts.includes('Cuándo te busco'),'PDF includes both follow-up fields');
     await pdfCase.close();
     const switched=await make();await load(switched,origin,false);
     await switched.evaluate(()=>document.getElementById('gaName').value='Prospecto ficticio');
@@ -344,6 +385,13 @@ async function main(){
     assert(await advisorPopup.locator('#clock').isVisible());
     assert.equal(await switched.locator('#clock').count(),0,'Advisor-only clock must never be in shared tab');
     assert.equal(await switched.locator('#suggestion').count(),0,'Advisor coaching must never be in shared tab');
+    await advisorPopup.clock.install({time:new Date('2026-10-30T12:00:00')});await advisorPopup.reload();await advisorPopup.waitForLoadState('domcontentloaded');
+    for(const [act,label] of [[1,'Pasa a su número'],[2,'Pregunta: ¿cuándo te gustaría aperturarlo?']]){
+      await advisorPopup.evaluate(act=>{localStorage.setItem('gaAdvisorPanelSignal',JSON.stringify({type:'state',at:Date.now(),data:{act,elapsed:{1:0,2:0,3:0}}}));dispatchEvent(new StorageEvent('storage',{key:'gaAdvisorPanelSignal',newValue:localStorage.getItem('gaAdvisorPanelSignal')}))},act);
+      await advisorPopup.clock.runFor(719000);assert.equal(await advisorPopup.locator('#signal').innerText(),'');await advisorPopup.clock.runFor(2000);assert.equal(await advisorPopup.locator('#signal').innerText(),label);
+    }
+    await advisorPopup.locator('#asked').click();assert(await advisorPopup.locator('#closing').isVisible());assert(await advisorPopup.locator('#opening').isVisible());
+    assert.equal(await switched.locator('#asked,#closing,#opening').count(),0);
     await advisorPopup.screenshot({path:path.join(output,'advisor-private-panel.png')});
     await advisorPopup.locator('#toggle').click();await wait(300);
     assert.equal(await switched.evaluate(()=>window.GA_FLOW_CLASSIC),true);

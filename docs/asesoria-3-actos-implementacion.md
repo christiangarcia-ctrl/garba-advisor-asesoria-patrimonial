@@ -104,3 +104,7 @@ Las 7 comparaciones financieras con `main` fueron idénticas, incluyendo tablas 
 **Archivos:** GitHub Actions adjuntó 35 evidencias, incluidas capturas de pantalla y el PDF sintético de segunda cita en `garba-advisor-validation`. Las pruebas son automatizadas sobre datos ficticios; no sustituyen una revisión de diseño humano con el prospecto en Google Meet. Los archivos se guardaron y su generación se verificó, pero no se realizó una inspección visual manual individual de cada captura en esta sesión.
 
 **Seguridad de publicación:** `main` y GitHub Pages intactos; no se hizo merge ni despliegue. El usuario solicitará personalmente la revisión final a Claude Code. **Se puede entregar para esa revisión**, no para publicar sin aprobar la revisión.
+
+## Ronda 2 — cambios locales sobre 415b4d4
+
+El estado de esta ronda está en [ronda2-reporte.md](ronda2-reporte.md). Sustituye la descripción histórica del bloque D: ya no se muestra la tarjeta de esperar ni se ofrece en Biblioteca o seguimiento. Se añaden «Tu camino», flexibilidad en calculadora, seguimiento y señales privadas. Las validaciones históricas anteriores no cubren estos cambios; requieren la nueva ejecución de Claude indicada en `tests/README.md`.

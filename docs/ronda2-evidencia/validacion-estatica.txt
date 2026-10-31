@@ -1,0 +1,2 @@
+PASS: display scale/endpoints, deterministic nonnegative wave, 4 dated milestones for 2 ages, 5 inline toggles; 4 financial routines byte-identical to main. Financial browser scenarios pending.
+PASS: actual private panel script at 11:59/12:00 for acts 1 and 2, closing signal and opening command (simulated clock/channel).

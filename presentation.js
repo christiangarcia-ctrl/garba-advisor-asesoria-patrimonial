@@ -37,8 +37,9 @@
     if(typeof chart!=='undefined'&&chart){
       chart.data.datasets[0].borderColor='#8bafff';chart.data.datasets[0].backgroundColor='rgba(139,175,255,.14)';
       chart.data.datasets=chart.data.datasets.slice(0,1);
-      if(target>0)chart.data.datasets.push({label:'Capital objetivo a los 65',data:chart.data.labels.map(()=>target),borderColor:'#d2dced',borderDash:[6,6],borderWidth:1.5,pointRadius:0,fill:false});
+      if(target>0&&(window.GA_FLOW_CLASSIC===true||window.GaLayout?.getSelected()==='gap'))chart.data.datasets.push({label:'Capital objetivo a los 65',data:chart.data.labels.map(()=>target),borderColor:'#d2dced',borderDash:[6,6],borderWidth:1.5,pointRadius:0,fill:false});
       chart.options.maintainAspectRatio=false;
+      if(window.GA_FLOW_CLASSIC!==true){chart.options.scales.y.min=0;chart.options.scales.y.max=window.GaLayout?.getSelected()==='gap'?Math.max(projected,target):projected;}else{delete chart.options.scales.y.max;}
       chart.options.scales.x.ticks.color='#c7d2e4';chart.options.scales.y.ticks.color='#c7d2e4';chart.options.scales.y.grid.color='#ffffff18';
       chart.options.plugins.tooltip.callbacks.label=ctx=>`${ctx.dataset.label}: ${money(ctx.parsed.y)}`;
       chart.update('none');
@@ -71,7 +72,7 @@
     disabledBeforePending.clear();
     setStatus('Resultados actualizados al ajustar tus datos.','current');
     byId('gaMobileAmount').textContent=byId('keyFondoPlan').textContent;
-    byId('gaMobileLabel').textContent='Capital proyectado para retiro';
+    byId('gaMobileLabel').textContent='Lo que vas a juntar a los 65';
     presentProjection();
   }
   function numericInputsReady(){
@@ -141,7 +142,7 @@
     }else refresh({force:true});
   }).observe(app,{attributes:true,attributeFilter:['style']});
   byId('gaMobileResults').addEventListener('click',()=>results.scrollIntoView({behavior:'smooth',block:'start'}));
-  window.GaPresentation={refresh,focusInputs,isCurrent:()=>current};
+  window.GaPresentation={refresh,focusInputs,presentProjection,isCurrent:()=>current};
 
   /* Full-page resources: keyboard navigation, focus containment and return to the opening control. */
   const panel=byId('gaResourcesPanel'),close=byId('gaResourcesClose');

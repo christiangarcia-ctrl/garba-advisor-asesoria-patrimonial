@@ -11,8 +11,9 @@
  const toolbar=document.createElement('div');toolbar.className='calculator-toolbar';
  for(const id of ['pmt','years','metaHoy'])toolbar.append($(id).closest('.fg'));
  const more=document.createElement('button');more.id='gaMoreSettings';more.type='button';more.textContent='Más ajustes';more.className='calculator-more';toolbar.append(more);
+ const how=document.createElement('details');how.id='gaHowCalculated';how.innerHTML='<summary>¿Cómo lo calculamos?</summary>';
  const assumptions=document.createElement('p');assumptions.id='gaAssumptionsSummary';assumptions.className='calculator-assumptions-summary';
- capture.append(toolbar,assumptions);
+ capture.append(toolbar,how);how.append(assumptions);
  const dialog=document.createElement('dialog');dialog.id='gaCalculatorSettings';dialog.className='calculator-settings';
  dialog.setAttribute('aria-labelledby','gaSettingsTitle');dialog.innerHTML='<header><h2 id="gaSettingsTitle">Ajustes de tu escenario</h2><button type="button" id="gaCloseSettings" aria-label="Cerrar ajustes">×</button></header>';
  dialog.append($('lumpSum').closest('.fg'),app.querySelector('.calculator-assumptions'),app.querySelector('.calculator-about'));
@@ -46,7 +47,7 @@
  $('gaGoToValidation').addEventListener('click',()=>select('detail'),true);
  tabs.addEventListener('keydown',event=>{if(!['ArrowLeft','ArrowRight','Home','End'].includes(event.key))return;event.preventDefault();const keys=Object.keys(labels),index=keys.indexOf(selected);select(event.key==='Home'?keys[0]:event.key==='End'?keys.at(-1):keys[(index+(event.key==='ArrowRight'?1:2))%3]);tabs.querySelector('[aria-selected="true"]').focus()});
  let selected='projection';
- function select(key){selected=key;for(const [name,pane] of Object.entries(panes)){pane.hidden=name!==key;const button=$('gaTab-'+name);button.setAttribute('aria-selected',String(name===key));button.tabIndex=name===key?0:-1;}results.scrollTop=0;requestAnimationFrame(()=>{if(typeof chart!=='undefined'&&chart)chart.resize()})}
+ function select(key){selected=key;for(const [name,pane] of Object.entries(panes)){pane.hidden=name!==key;const button=$('gaTab-'+name);button.setAttribute('aria-selected',String(name===key));button.tabIndex=name===key?0:-1;}results.scrollTop=0;requestAnimationFrame(()=>{if(typeof chart!=='undefined'&&chart)chart.resize()});if(window.GaPresentation?.isCurrent())window.GaPresentation.presentProjection()}
  function identity(){
   const name=($('nombreOpt').value||$('gaName').value||'').trim().split(/\s+/)[0];
   heading.textContent=name?`${name}, así podemos construir tu retiro a partir de hoy.`:'Así podemos construir tu retiro a partir de hoy.';
@@ -60,7 +61,7 @@
   const finish=Math.round(reportState.edadFinPlan);
   const points=[{age:60,label:'A los 60',amount:reportState.fondo60,note:reportState.edad>60?'Este hito es anterior a tu edad actual.':'Capital proyectado a los 60 años.'},{age:finish,label:'Fin de aportaciones',amount:reportState.fondoPlan,note:'Capital al terminar el periodo simulado de aportación.'},{age:65,label:'A los 65',amount:reportState.fondo65,note:'Capital proyectado para tu retiro.'}].sort((a,b)=>a.age-b.age);
   milestones.replaceChildren(...points.map(point=>{const card=document.createElement('section');const label=document.createElement('span');label.textContent=point.label;const amount=document.createElement('strong');amount.textContent=point.amount==null?'—':money(point.amount);const age=document.createElement('b');age.textContent=point.age+' años';const note=document.createElement('small');note.textContent=point.note;card.append(label,amount,age,note);return card}));
-  income.innerHTML='<span>Ingreso mensual estimado desde los 65</span><strong></strong><small>Durante 20 años · en pesos futuros · referencia ilustrativa</small>';
+  income.innerHTML='<span></span><strong></strong><small></small>';income.querySelector('span').textContent=window.GA_FLOW_CLASSIC?'Ingreso mensual estimado desde los 65':'Lo que recibes cada mes desde los 65';income.querySelector('small').textContent=window.GA_FLOW_CLASSIC?'Durante 20 años · en pesos futuros · referencia ilustrativa':'Durante 20 años. Es una estimación. El dinero de '+(new Date().getFullYear()+65-Number($('edad').value))+' no vale lo mismo que el de hoy.';
   income.querySelector('strong').textContent=$('pmtReal').textContent+'/mes';
   coverageNode.textContent=target>0?`Con esta aportación cubres aproximadamente el ${Math.round(coverage)}% de tu capital objetivo. Proyección sujeta a los supuestos del escenario.`:'Define tu ingreso deseado para comparar este escenario con tu meta.';
  }
