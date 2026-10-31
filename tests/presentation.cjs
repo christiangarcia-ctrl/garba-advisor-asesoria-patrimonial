@@ -26,6 +26,32 @@ async function scaledCapture(page,name){
   const data=await page.evaluate(async bytes=>{const bitmap=await createImageBitmap(new Blob([Uint8Array.from(atob(bytes),c=>c.charCodeAt(0))],{type:'image/png'}));const c=document.createElement('canvas');c.width=390;c.height=Math.round(bitmap.height*390/bitmap.width);c.getContext('2d').drawImage(bitmap,0,0,c.width,c.height);return c.toDataURL('image/png').split(',')[1]},bytes.toString('base64'));
   fs.writeFileSync(path.join(output,name),Buffer.from(data,'base64'));
 }
+async function round3Checks(page,setCase,output){
+ const snap=async name=>page.screenshot({path:path.join(output,'ronda3-'+name+'.png')});
+ await page.evaluate(()=>GaLayout.select('projection'));
+ for(const reg of ['151','93','ninguno']){
+  await setCase(page,{regimenFiscal:reg,edad:32,years:25,pmt:3000,ingresoMensualCliente:45000,reinvertISR:true});
+  assert.equal(await page.locator('#gaPathsteps [data-s]').count(),reg==='ninguno'?5:6);assert.equal(await page.locator('#reinvertISR').isVisible(),reg==='151');
+  const d=await page.evaluate(()=>({shown:document.getElementById('gaPathhNum').textContent,expected:'$'+Math.round(reportState.fondo65*(.07/12)/(1-Math.pow(1+.07/12,-240))).toLocaleString('es-MX')}));assert.equal(d.shown,d.expected);
+  await page.evaluate(()=>GaPath.go(0));if(reg==='151')await snap('151-inicial');
+  for(let step=1;step<=6&&reg!=='ninguno';step++){await page.evaluate(n=>GaPath.go(n),step);if(reg==='151'||step>=5)await snap(reg+'-paso-'+step);}
+ }
+ await setCase(page,{regimenFiscal:'151',years:25,pmt:3000,reinvertISR:true});
+ await page.evaluate(()=>GaPath.go(0));await page.keyboard.press('ArrowRight');assert.equal(await page.evaluate(()=>GaPath.getStep()),1);await page.keyboard.press('ArrowLeft');assert.equal(await page.evaluate(()=>GaPath.getStep()),0);
+ await page.locator('[data-s="1"]').click();await page.locator('[data-s="1"]').click();assert.equal(await page.evaluate(()=>GaPath.getStep()),0);
+ await page.evaluate(()=>GaPath.go(4));for(const chip of await page.locator('#gaPath [data-chip]').all()){await chip.click();assert(await chip.getAttribute('class').then(s=>s.includes('on')))}
+ assert.deepEqual(await page.locator('#years option').evaluateAll(xs=>xs.map(x=>+x.value)),[10,15,20,25]);
+ await page.evaluate(()=>{document.getElementById('years').value=30});assert.equal(await page.locator('#years').inputValue(),'25');
+ for(const [years,pmt,bad] of [[10,2500,true],[15,2500,false],[20,1500,true]]){await setCase(page,{years,pmt});assert.equal(await page.locator('#pmt').getAttribute('aria-invalid'),String(bad));if(bad)await snap('rojo-'+years)}
+ await setCase(page,{years:25,pmt:3000,regimenFiscal:'151',reinvertISR:true});const before=await page.evaluate(()=>reportState.fondo65);
+ await setCase(page,{reinvertISR:false});await page.evaluate(()=>GaPath.go(5));assert(await page.evaluate(()=>reportState.devolucionFiscalPrimerAnoVista>0));assert((await page.evaluate(()=>reportState.fondo65))<before);await snap('sin-reinvertir');
+ await page.locator('#gaPathiIng').fill('60000');await page.locator('#gaPathiIng').dispatchEvent('change');assert.equal(await page.locator('#ingresoMensualCliente').inputValue(),'60000');
+ await page.evaluate(()=>{document.getElementById('ingresoMensualCliente').value=70000;document.getElementById('ingresoMensualCliente').dispatchEvent(new Event('input',{bubbles:true}));GaPresentation.refresh({force:true})});assert.equal(await page.locator('#gaPathiIng').inputValue(),'70000');
+ await page.evaluate(()=>scrollTo(0,0));await page.evaluate(()=>{document.getElementById('resultsView').scrollTop=0});
+ // Tu camino (narración, cifra, gráfica y pasos) se ve completo sin desplazarse; la pregunta de cierre queda debajo.
+ assert(await page.evaluate(()=>document.documentElement.scrollHeight<=900&&document.getElementById('gaPath').getBoundingClientRect().bottom<=Math.min(900,document.getElementById('resultsView').getBoundingClientRect().bottom)+1),'Tu camino cabe completo en 1440×900');
+ await page.setViewportSize({width:390,height:844});for(const n of [0,3,5]){await page.evaluate(n=>GaPath.go(n),n);await snap('celular-paso-'+n)}await page.setViewportSize({width:1440,height:900});
+}
 async function main(){
   await new Promise(resolve=>server.listen(0,'127.0.0.1',resolve));
   const origin=`http://127.0.0.1:${server.address().port}`;
@@ -49,8 +75,8 @@ async function main(){
     await p.locator('#resultsView.active').waitFor();await wait(200);
   };
   const values=async(p)=>p.evaluate(()=>({
-    report:{...reportState},table:document.getElementById('tbody').innerText,retirement:document.getElementById('tbodyRet').innerText,
-    results:['keyFondoPlan','fondo65','etapaFondo60','pmtReal','pmtDesde60','compPlan','taxFirstAmount','isrImpacto65'].map(id=>document.getElementById(id)?.textContent)
+    report:Object.fromEntries(Object.entries(reportState).filter(([k])=>!['ingreso65','devolucionFiscalPrimerAnoVista'].includes(k))),table:document.getElementById('tbody').innerText,retirement:document.getElementById('tbodyRet').innerText,
+    results:['keyFondoPlan','fondo65','etapaFondo60','pmtReal','pmtDesde60','compPlan','taxFirstAmount','isrImpacto65'].map(id=>{const e=document.getElementById(id);/* la tarjeta ISR oculta conserva texto de un escenario 151 anterior (comportamiento de main): solo se compara si está visible */const card=e?.closest('#isrInsightCard');return card&&getComputedStyle(card).display==='none'?'(oculta)':e?.textContent})
   }));
   const setCase=async(p,data)=>{
     await p.evaluate(data=>{
@@ -252,6 +278,9 @@ async function main(){
     assert(await modern.locator('#gaActOptionCards .ga-act-option').count()>=1);
     assert.equal(await modern.locator('#gaActFuture').innerText(),await modern.locator('#fondo65').innerText());
     // Elegir una opción más alta no borra lo que el prospecto dijo poder pagar.
+    // Ronda 3: las opciones de arranque viven en la pestaña de la meta y la brecha.
+    assert.equal(await modern.locator('#gaPane-gap #gaActOptions').count(),1,'Opciones de arranque en Tu meta y la brecha');
+    await modern.locator('#gaTab-gap').click();await wait(200);
     const optionCount=await modern.locator('#gaActOptionCards .ga-act-option').count();
     await modern.locator('#gaActOptionCards .ga-act-option button').nth(optionCount-1).click();await wait(400);
     assert.equal(await modern.locator('#gaActOptionCards .ga-act-option').count(),optionCount,'Las opciones siguen disponibles después de elegir');
@@ -259,22 +288,15 @@ async function main(){
     await modern.locator('#gaActOptionCards .ga-act-option button').first().click();await wait(400);
     assert.equal(await modern.locator('#gaWaitResult').count(),0);
     assert(!(await modern.locator('body').innerText()).toLowerCase().includes('costo de esperar'));
-    const pathData=await modern.evaluate(()=>({capital:Number(document.querySelector('#gaPathGraph svg').dataset.capital),end:Number(document.querySelector('#gaPathGraph svg').dataset.waveEnd),expected:reportState.fondo65,max:chart.options.scales.y.max,datasets:chart.data.datasets.length}));
-    assert.equal(pathData.capital,pathData.expected);assert.equal(pathData.end,pathData.expected);assert.equal(pathData.max,pathData.expected);assert.equal(pathData.datasets,1);
-    assert.equal(await modern.locator('#gaPathMilestones section').count(),4);
-    for(const age of [25,42]){
-      const points=await modern.evaluate(age=>GaPath.milestones(age,15,new Date(2026,9,30)),age);
-      assert.deepEqual(points.map(p=>p.date),['10/2026','04/2028','10/2041',age===25?'10/2066':'10/2049']);
-      assert.deepEqual(points.map(p=>p.age),[age+' años',(age+1)+' años y 6 meses',(age+15)+' años','65 años']);
-    }
-    for(let i=0;i<5;i++){
-      const b=modern.locator('#gaFlexButtons button').nth(i);await b.click();assert(await modern.locator('#gaFlexDetail').isVisible());assert.equal(await modern.evaluate(()=>GaLayout.getSelected()),'projection');await b.click();assert(!(await modern.locator('#gaFlexDetail').isVisible()));
-    }
+    const pathData=await modern.evaluate(()=>({capital:Number(document.querySelector('#gaPathsvg').dataset.capital),end:Number(document.querySelector('#gaPathsvg').dataset.waveEnd),expected:reportState.fondo65,max:chart.options.scales.y.max,datasets:chart.data.datasets.length}));
+    // Ronda 3: la gráfica original (con la línea de la meta) vive en Tu meta y la brecha con su escala original; Tu camino se escala al capital.
+    assert.equal(pathData.capital,pathData.expected);assert.equal(pathData.end,pathData.expected);
+    await round3Checks(modern,setCase,output);
     assert(!(await modern.evaluate(()=>GaThreeActs.summary())).includes('¿Cuándo te busco?'));
     // Matched screenshots from the mandatory 415b4d4 checkout, never from main.
     if(process.env.ADVISOR_ROUND2_BEFORE){
       const before=await make();await load(before,origin+'/round2-before/',false);await openCalc(before);
-      const matching=await modern.evaluate(()=>Object.fromEntries(['nombreOpt','edad','years','metaHoy','pmt','lumpSum','regimenFiscal','ingresoMensualCliente','isrPct','reinvertISR','rate','inflation'].map(id=>{const e=document.getElementById(id);return [id,e.type==='checkbox'?e.checked:e.value]})));await setCase(before,matching);{const norm=v=>{const c=JSON.parse(JSON.stringify(v));if(c.report)delete c.report.isrPct;return c};/* isrPct se deriva del listener de ingreso y no participa en Art. 93; la paridad financiera completa vs main se prueba en los 7 escenarios */assert.deepEqual(norm(await values(before)),norm(await values(modern)),'Before and after captures use the identical financial fixture');}
+      const matching=await modern.evaluate(()=>Object.fromEntries(['nombreOpt','edad','years','metaHoy','pmt','lumpSum','regimenFiscal','ingresoMensualCliente','isrPct','reinvertISR','rate','inflation'].map(id=>{const e=document.getElementById(id);return [id,e.type==='checkbox'?e.checked:e.value]})));await setCase(before,matching);{const norm=v=>{const c=JSON.parse(JSON.stringify(v));if(c.report){for(const k of ['isrPct','ingreso65','ingreso60','devolucionFiscalPrimerAnoVista'])delete c.report[k]}return c};/* Ronda 3: ingreso65/ingreso60/devolucionFiscalPrimerAnoVista son guardados nuevos de solo lectura (antes no existían en reportState); *//* isrPct se deriva del listener de ingreso y no participa en Art. 93; la paridad financiera completa vs main se prueba en los 7 escenarios */assert.deepEqual(norm(await values(before)),norm(await values(modern)),'Before and after captures use the identical financial fixture');}
       await modern.evaluate(()=>scrollTo(0,0));await before.evaluate(()=>scrollTo(0,0));
       await before.screenshot({path:path.join(output,'round2-before-projection.png')});
       await modern.screenshot({path:path.join(output,'round2-after-projection.png')});

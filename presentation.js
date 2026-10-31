@@ -3,6 +3,12 @@
   'use strict';
   const byId=id=>document.getElementById(id);
   const app=byId('legacyApp'),capture=byId('captureView'),results=byId('resultsView');
+  const allowedYears=[10,15,20,25],yearsInput=byId('years');
+  const yearsDescriptor=Object.getOwnPropertyDescriptor(HTMLSelectElement.prototype,'value');
+  Object.defineProperty(yearsInput,'value',{get(){return yearsDescriptor.get.call(this)},set(v){if(window.GA_FLOW_CLASSIC!==true&&Number.isFinite(Number(v))){const original=Number(v);v=allowedYears.reduce((a,b)=>Math.abs(b-original)<Math.abs(a-original)?b:a);if(v!==original){this.dataset.adjustment=`Plazo ajustado de ${original} a ${v} años`;byId('gaYearsAdjustment')?.remove();const notice=document.createElement('small');notice.id='gaYearsAdjustment';notice.setAttribute('role','status');notice.textContent=this.dataset.adjustment;this.after(notice)}}yearsDescriptor.set.call(this,String(v))}});
+  // El aviso de plazo ajustado desaparece en cuanto Christian toca el selector.
+  for(const ev of ['pointerdown','keydown'])yearsInput.addEventListener(ev,()=>byId('gaYearsAdjustment')?.remove());
+  if(window.GA_FLOW_CLASSIC!==true){const saved=yearsInput.value;for(const option of [...yearsInput.options])if(!allowedYears.includes(Number(option.value)))option.remove();yearsInput.value=saved;}
   const fieldIds=['nombreOpt','edad','years','metaHoy','pmt','lumpSum','regimenFiscal','ingresoMensualCliente','reinvertISR','rate','inflation'];
   const status=byId('gaLiveStatus');
   const chartCard=byId('chartCanvas').closest('.card');

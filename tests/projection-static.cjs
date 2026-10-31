@@ -1,43 +1,18 @@
-/* Browser-free checks for display geometry. Does not replace the Playwright financial suite. */
-const assert=require('node:assert/strict');
-const fs=require('node:fs');
-const vm=require('node:vm');
-const cp=require('node:child_process');
-const path=require('node:path');
-const root=path.resolve(__dirname,'..');
-const nodes=new Map();
-class Element{
- constructor(){this.children=[];this.dataset={};this.attrs={};this.hidden=false;this.firstChild={};this.lastChild={};this.lastElementChild=this.lastChild;}
- set innerHTML(s){this.html=s;for(const m of s.matchAll(/id="([^"]+)"/g))nodes.set(m[1],new Element());}
- get innerHTML(){return this.html||'';}
- append(...els){this.children.push(...els)}
- before(){} after(){}
- replaceChildren(...els){this.children=els}
- setAttribute(k,v){this.attrs[k]=v}
- getAttribute(k){return this.attrs[k]}
- querySelectorAll(){return this.children}
+/* Deterministic browser-free geometry and financial source checks. */
+const assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm'),cp=require('node:child_process'),path=require('node:path');
+const root=path.resolve(__dirname,'..'),source=fs.readFileSync(path.join(root,'projection-path.js'),'utf8');
+const curve=source.slice(source.indexOf('function curve('),source.indexOf('// ===== geometría'));
+const context={TOTAL:396,END:300,document:{getElementById:()=>({value:'0'})},chart:{data:{datasets:[{data:Array.from({length:33},(_,i)=>(i+1)*100000)}]}}};
+vm.createContext(context);vm.runInContext(curve+';this.result=curve({fondoPlan:2500000,fondo65:3300000});this.w=wave(result)',context);
+assert.equal(context.result[300],2500000);assert.equal(context.result[396],3300000);assert.equal(context.w[0],0);assert.equal(context.w.at(-1),3300000);assert(context.w.every(v=>v>=0));
+vm.runInContext('this.w2=wave(result)',context);assert.deepEqual(context.w,context.w2);
+const current=fs.readFileSync(path.join(root,'index.html'),'utf8'),baseline=cp.execFileSync('git',['show','main:index.html'],{cwd:root,encoding:'utf8',maxBuffer:5e6});
+const clean=s=>s.replace(/^  reportState.devolucionFiscalPrimerAnoVista=.*\n/gm,'').replace(/^  reportState.ingreso65=ingreso65;reportState.ingreso60=ingreso60;\n/gm,'');
+for(const name of ['calcularPMTRequerido','updateSuggestion','calcAccum','pmtParaFondo65','calcRet','actualizarReporteBase']){
+ const section=s=>{const start=s.indexOf('function '+name+'(');assert(start>=0,name);const tail=s.slice(start),end=tail.slice(1).search(/\nfunction /);return clean(end<0?tail:tail.slice(0,end+1))};
+ assert.equal(section(current),section(baseline),name+' financial source unchanged');
 }
-for(const id of ['gaPane-projection','gaPane-gap','gaProjectionGraph','pmt'])nodes.set(id,new Element());nodes.get('pmt').value='3000';
-const report={planYears:15,fondoPlan:900000,fondo65:2400000,ingresoMensual:18000};
-const context={document:{getElementById:id=>nodes.get(id),createElement:()=>new Element(),createComment:()=>new Element(),addEventListener(){}},window:{},reportState:report,chart:{data:{datasets:[{data:[10000,25000,100000,500000,1200000,2400000]}]}},Number,Math,Date};
-nodes.set('edad',{value:'32'});
-vm.runInNewContext(fs.readFileSync(path.join(root,'projection-path.js'),'utf8'),context);
-context.window.GaPath.render();
-const svg=nodes.get('gaPathGraph').innerHTML;
-assert(svg.includes('data-capital="2400000"'));assert(svg.includes('data-wave-end="2400000"'));
-const paths=[...svg.matchAll(/<path d="([ML\d., -]+)" fill="none"/g)];assert.equal(paths.length,2);
-for(const p of paths){assert(p[1].startsWith('M24.00,390.00'));assert(p[1].endsWith('L1170.00,130.00'));for(const pair of p[1].matchAll(/[ML]([\d.]+),(-?[\d.]+)/g))assert(Number(pair[2])<=390,'No negative illustrative balance');}
-context.window.GaPath.render();assert.equal(nodes.get('gaPathGraph').innerHTML,svg,'Deterministic wave');
-for(const age of [25,42]){const points=context.window.GaPath.milestones(age,15,new Date(2026,9,30));assert.equal(points.length,4);assert.equal(points[0].date,'10/2026');assert.equal(points[1].date,'04/2028');assert.equal(points[1].age,(age+1)+' años y 6 meses');assert.equal(points[2].date,'10/2041');assert.equal(points[3].date,age===25?'10/2066':'10/2049');assert.equal(points[3].age,'65 años');}
-const buttons=nodes.get('gaFlexButtons').children;assert.equal(buttons.length,5);
-for(const b of buttons){b.onclick();assert.equal(nodes.get('gaFlexDetail').hidden,false);assert.equal(b.getAttribute('aria-expanded'),'true');b.onclick();assert.equal(nodes.get('gaFlexDetail').hidden,true);}
-const current=fs.readFileSync(path.join(root,'index.html'),'utf8');
-const baseline=cp.execFileSync('git',['show','main:index.html'],{cwd:root,encoding:'utf8',maxBuffer:5e6});
-for(const name of ['calcularPMTRequerido','updateSuggestion','calcAccum','pmtParaFondo65']){
- const section=s=>{const start=s.indexOf('function '+name+'(');assert(start>=0,name);const tail=s.slice(start);const end=tail.slice(1).search(/\nfunction /);return end<0?tail:tail.slice(0,end+1)};
- assert.equal(section(current),section(baseline),name+' unchanged versus main');
-}
-console.log('PASS: display scale/endpoints, deterministic nonnegative wave, 4 dated milestones for 2 ages, 5 inline toggles; 4 financial routines byte-identical to main. Financial browser scenarios pending.');
+console.log('PASS: annual endpoints, deterministic nonnegative wave, six financial functions unchanged except authorized reportState saves.');
 // Private panel: execute its actual inline script with a simulated clock/channel.
 {
  const html=fs.readFileSync(path.join(root,'advisor-panel.html'),'utf8');

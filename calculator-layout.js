@@ -9,7 +9,7 @@
  heading.before(intro);intro.append(heading,subtitle);
  for(const id of ['nombreOpt','edad']){const input=$(id);input.readOnly=true;input.closest('.fg').hidden=true;}
  const toolbar=document.createElement('div');toolbar.className='calculator-toolbar';
- for(const id of ['pmt','years','metaHoy'])toolbar.append($(id).closest('.fg'));
+ for(const id of (window.GA_FLOW_CLASSIC?['pmt','years','metaHoy']:['pmt','years','regimenFiscal','reinvertISR']))toolbar.append($(id).closest(id==='reinvertISR'?'.check-label':'.fg'));
  const more=document.createElement('button');more.id='gaMoreSettings';more.type='button';more.textContent='Más ajustes';more.className='calculator-more';toolbar.append(more);
  const how=document.createElement('details');how.id='gaHowCalculated';how.innerHTML='<summary>¿Cómo lo calculamos?</summary>';
  const assumptions=document.createElement('p');assumptions.id='gaAssumptionsSummary';assumptions.className='calculator-assumptions-summary';
@@ -32,7 +32,7 @@
  results.before(tabs);
  const hero=results.querySelector('.plan-hero'),gap=$('gaProjectionGap'),timeline=app.querySelector('.calculator-timeline');
  const gapHeading=document.createElement('h2');gapHeading.textContent='Lo que deseas y lo que construye tu aportación';
- panes.gap.append(gapHeading,gap);
+ if(!window.GA_FLOW_CLASSIC)panes.gap.append($('metaHoy').closest('.fg'));panes.gap.append(gapHeading,gap);
  panes.projection.append(hero,timeline);
  const indicators=hero.querySelector('.plan-strip');indicators.remove();
  const milestones=document.createElement('div');milestones.id='gaProjectionMilestones';milestones.className='calculator-milestones';hero.append(milestones);
@@ -62,8 +62,19 @@
   const points=[{age:60,label:'A los 60',amount:reportState.fondo60,note:reportState.edad>60?'Este hito es anterior a tu edad actual.':'Capital proyectado a los 60 años.'},{age:finish,label:'Fin de aportaciones',amount:reportState.fondoPlan,note:'Capital al terminar el periodo simulado de aportación.'},{age:65,label:'A los 65',amount:reportState.fondo65,note:'Capital proyectado para tu retiro.'}].sort((a,b)=>a.age-b.age);
   milestones.replaceChildren(...points.map(point=>{const card=document.createElement('section');const label=document.createElement('span');label.textContent=point.label;const amount=document.createElement('strong');amount.textContent=point.amount==null?'—':money(point.amount);const age=document.createElement('b');age.textContent=point.age+' años';const note=document.createElement('small');note.textContent=point.note;card.append(label,amount,age,note);return card}));
   income.innerHTML='<span></span><strong></strong><small></small>';income.querySelector('span').textContent=window.GA_FLOW_CLASSIC?'Ingreso mensual estimado desde los 65':'Lo que recibes cada mes desde los 65';income.querySelector('small').textContent=window.GA_FLOW_CLASSIC?'Durante 20 años · en pesos futuros · referencia ilustrativa':'Durante 20 años. Es una estimación. El dinero de '+(new Date().getFullYear()+65-Number($('edad').value))+' no vale lo mismo que el de hoy.';
-  income.querySelector('strong').textContent=$('pmtReal').textContent+'/mes';
+  income.querySelector('strong').textContent=money(reportState.ingreso65)+'/mes';
   coverageNode.textContent=target>0?`Con esta aportación cubres aproximadamente el ${Math.round(coverage)}% de tu capital objetivo. Proyección sujeta a los supuestos del escenario.`:'Define tu ingreso deseado para comparar este escenario con tu meta.';
+ }
+ if(!window.GA_FLOW_CLASSIC){
+ const pmtWrap=$('pmt').closest('.fg');pmtWrap.classList.add('ga-pmt-control');
+ pmtWrap.querySelector('label').textContent='$';pmtWrap.append(document.createTextNode(' al mes'));
+ const warning=document.createElement('small');warning.id='gaPmtWarning';pmtWrap.append(warning);
+ $('years').closest('.fg').querySelector('label').textContent='Aportas';
+ $('regimenFiscal').closest('.fg').querySelector('label').textContent='Régimen';
+ $('reinvertISR').closest('label').querySelector('span').textContent='Reinvertir devolución';
+ function controls(){const y=Number($('years').value),bad=Number($('pmt').value)<(y<=14?3000:2000);pmtWrap.classList.toggle('bad',bad);$('pmt').setAttribute('aria-invalid',String(bad));warning.hidden=!bad;warning.textContent=y<=14?'Mínimo $3,000 al mes con 10 a 14 años':'Mínimo $2,000 al mes con 15 a 25 años';$('reinvertISR').closest('label').hidden=$('regimenFiscal').value!=='151';}
+ for(const id of ['pmt','years','regimenFiscal'])$(id).addEventListener('input',controls);
+ document.addEventListener('ga:projection-updated',controls);controls();
  }
  window.GaLayout={update,identity,select,getSelected:()=>selected};select('projection');identity();
  if(window.GaPresentation?.isCurrent())GaPresentation.refresh({force:true});

@@ -1,0 +1,334 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Maqueta · Tu camino</title>
+<link rel="stylesheet" href="../../fonts.css">
+<style>
+:root{--navy:#001868;--blue:#0830E8;--soft:#EFF6FF;--ink:#0b1420;--text:#1c2a3a;--muted:#64748b;--border:#dbe4f0;--bg:#F0F3F8;--card:#fff;--success:#0f8a5f;--success-soft:#e8f7f1}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{background:var(--bg);font-family:Montserrat,system-ui,sans-serif;color:var(--text)}
+button{font-family:inherit;cursor:pointer}
+
+/* barra superior (como la herramienta) */
+.top{height:64px;background:#fff;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:18px;padding:0 28px}
+.top img{height:34px}
+.top .ttl{font-weight:700;color:var(--navy);font-size:15px;padding-left:18px;border-left:1px solid var(--border)}
+.pills{display:flex;gap:8px;margin-left:auto}
+.pill{background:var(--soft);color:var(--navy);font-weight:600;font-size:13px;padding:7px 12px;border-radius:999px;border:1px solid #d6e4ff}
+.ctl{display:flex;align-items:center;gap:6px;background:var(--soft);border:1.5px solid #d6e4ff;border-radius:999px;padding:4px 6px 4px 14px;color:var(--navy);font-weight:600;font-size:13px;transition:all .2s}
+.ctl input,.ctl select{border:0;background:#fff;border-radius:999px;font:700 14px Montserrat,sans-serif;color:var(--navy);padding:6px 10px;outline:none}
+.ctl input{width:92px;text-align:right}
+.ctl.bad{background:#fdecec;border-color:#d93025;color:#b3261e}
+.ctl.bad input{color:#b3261e;box-shadow:inset 0 0 0 1.5px #d93025}
+.warn{position:absolute;top:58px;left:0;white-space:nowrap;background:#b3261e;color:#fff;font-size:12px;font-weight:700;padding:5px 10px;border-radius:8px;display:none}
+.ctl.bad .warn{display:block}
+.ctlw{position:relative}
+.ingl{display:inline-flex;align-items:center;gap:6px;margin-top:8px;font-size:14px;font-weight:600;color:var(--navy);background:var(--success-soft);border-radius:999px;padding:4px 6px 4px 14px}
+.ingl input{width:96px;border:0;border-radius:999px;padding:5px 10px;font:700 14px Montserrat,sans-serif;color:var(--navy);text-align:right}
+.ctl.chk{padding:4px 14px 4px 10px;cursor:pointer}.ctl.chk input{width:18px;height:18px;accent-color:var(--navy);padding:0}
+.mock{display:flex;gap:4px;margin-left:14px;padding:3px;border-radius:10px;background:#fff7e0;border:1px dashed #d9a400}
+.mock span{font-size:11px;color:#8a6500;font-weight:700;align-self:center;padding:0 6px}
+.mock button{border:0;background:transparent;font-weight:700;font-size:12px;padding:6px 10px;border-radius:7px;color:#8a6500}
+.mock button.on{background:#8a6500;color:#fff}
+
+.wrap{max-width:1360px;margin:0 auto;padding:22px 28px 18px}
+
+/* fila narración + cifra */
+.head{display:grid;grid-template-columns:1fr 330px;gap:22px;align-items:stretch}
+.story{background:#fff;border:1px solid var(--border);border-radius:20px;padding:20px 26px;height:186px;overflow:hidden;display:flex;flex-direction:column;justify-content:center}
+.kicker{font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--blue);margin-bottom:6px}
+.story h1{font-size:34px;line-height:1.12;font-weight:800;color:var(--navy);letter-spacing:-.01em}
+.story h1 em{font-style:normal;color:var(--blue)}
+.story h1 em.g{color:var(--success)}
+.story p{margin-top:8px;font-size:17px;line-height:1.45;color:var(--text);max-width:880px}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.chip{border:1.5px solid #c8d7f5;background:#fff;color:var(--navy);font-weight:700;font-size:14px;padding:8px 14px;border-radius:999px;display:flex;gap:7px;align-items:center}
+.chip i{font-style:normal;color:var(--blue)}
+.chip.on{background:var(--navy);border-color:var(--navy);color:#fff}
+.chip.on i{color:#9fb6ff}
+.fine{font-size:12px;color:var(--muted);margin-top:8px}
+.rev{background:#fff7e0;color:#8a6500;font-size:10.5px;font-weight:700;padding:1px 6px;border-radius:5px;margin-left:6px;vertical-align:middle}
+
+.hero{background:linear-gradient(150deg,var(--navy) 0%,#0a2a9a 100%);color:#fff;border-radius:20px;padding:22px 24px;display:flex;flex-direction:column;justify-content:center}
+.hero small{font-size:14px;font-weight:600;opacity:.85}
+.hero b{display:block;font-size:50px;font-weight:800;letter-spacing:-.02em;line-height:1.05;margin:4px 0 2px}
+.hero span{font-size:14px;opacity:.85}
+.hero .sub2{margin-top:10px;padding-top:10px;border-top:1px solid rgba(255,255,255,.18);font-size:14px}
+.hero .sub2 strong{font-weight:800}
+
+/* gráfica */
+.chart{background:#fff;border:1px solid var(--border);border-radius:20px;margin-top:16px;padding:10px 14px 4px;position:relative}
+svg{display:block;width:100%;height:auto}
+.legend{position:absolute;right:22px;top:14px;display:flex;gap:16px;font-size:12.5px;font-weight:600;color:var(--muted)}
+.legend i{display:inline-block;width:22px;height:0;border-top:3px solid var(--navy);vertical-align:middle;margin-right:6px}
+.legend i.d{border-top:2.5px dashed #7d93d6}
+.disc{font-size:11px;color:var(--muted);padding:0 10px 8px}
+
+/* pasos */
+.steps{display:grid;grid-template-columns:44px repeat(6,1fr) 44px;gap:10px;margin-top:14px;align-items:stretch}
+.nav{border:1px solid var(--border);background:#fff;border-radius:14px;font-size:20px;color:var(--navy);font-weight:700}
+.nav:disabled{opacity:.35;cursor:default}
+.step{border:1.5px solid var(--border);background:#fff;border-radius:14px;padding:10px 12px;text-align:left;display:flex;gap:10px;align-items:center;transition:all .2s}
+.step .n{flex:0 0 28px;height:28px;border-radius:50%;background:var(--soft);color:var(--blue);font-weight:800;font-size:14px;display:grid;place-items:center}
+.step b{display:block;font-size:14px;color:var(--navy);font-weight:800;line-height:1.15}
+.step small{display:block;font-size:11.5px;color:var(--muted);margin-top:2px}
+.step.on{background:var(--navy);border-color:var(--navy)}
+.step.on .n{background:#fff;color:var(--navy)}
+.step.on b{color:#fff}.step.on small{color:#b9c6f0}
+.step.done .n{background:var(--blue);color:#fff}
+
+/* svg */
+.axis text{font-size:13px;fill:var(--muted);font-weight:600}
+.axis line{stroke:#e3e9f3}
+.callout rect{fill:#fff;stroke:var(--navy);stroke-width:1.5}
+.callout text{font-weight:700;fill:var(--navy);font-size:15px}
+.callout text.s{font-weight:600;fill:var(--muted);font-size:12.5px}
+.fade{transition:opacity .35s}
+
+@media (max-width:760px){
+ .top{padding:0 16px;height:56px}.top img{height:26px}.top .ttl,.pills{display:none}.mock{margin-left:auto}
+ .wrap{padding:12px 16px}
+ .head{grid-template-columns:1fr;gap:10px}
+ .hero{order:-1;padding:14px 18px}.hero b{font-size:36px}.hero .sub2{display:none}
+ .story{padding:16px 18px;min-height:0;height:auto}.story h1{font-size:23px}.story p{font-size:15px}
+ .chip{font-size:13px;padding:7px 11px}
+ .chart{padding:6px 4px 2px;margin-top:10px}.legend{display:none}
+ .steps{grid-template-columns:repeat(3,1fr);gap:7px}.nav{display:none}
+ .step{padding:8px;gap:7px}.step .n{flex-basis:22px;height:22px;font-size:12px}.step b{font-size:12.5px}.step small{display:none}
+}
+</style>
+</head>
+<body>
+<div class="top">
+  <img src="../../img/logo-garba.png" alt="GarBa">
+  <div class="ttl">Tu proyección patrimonial</div>
+  <div class="pills">
+    <div class="ctlw"><label class="ctl" id="cPmt">$<input id="iPmt" type="number" step="500" value="3000"> al mes<span class="warn" id="wPmt"></span></label></div>
+    <label class="ctl">Aportas <select id="iYrs"></select></label>
+    <label class="ctl">Régimen <select id="iReg"><option value="151">Art. 151</option><option value="93">Art. 93</option></select></label>
+    <label class="ctl chk" id="cReinv"><input id="iReinv" type="checkbox" checked> Reinvertir devolución</label>
+  </div>
+  <div class="mock"><span>MAQUETA</span></div>
+</div>
+
+<div class="wrap">
+  <div class="head">
+    <div class="story" id="story"></div>
+    <div class="hero">
+      <small>A los 65 recibes</small>
+      <b id="hNum">$86,074</b>
+      <span>al mes · estimado</span>
+      <div class="sub2">Lo que juntas a los 65: <strong id="hFund">$11.1 millones</strong></div>
+    </div>
+  </div>
+
+  <div class="chart">
+    <div class="legend" id="legend"></div>
+    <svg id="svg" viewBox="0 0 1300 440" aria-label="Tu camino"></svg>
+    <div class="disc">Gráfica ilustrativa, sin escala de rendimiento ni garantía de crecimiento. Las inversiones pueden apreciarse o depreciarse.</div>
+  </div>
+
+  <div class="steps" id="steps"></div>
+</div>
+
+<script>
+// ===== Datos: salen tal cual de la herramienta (edad 32, $3,000/mes, 25 años, ingreso $45,000 en 151) =====
+const AGE=32, START=new Date(2026,9,1); let PMT=3000, YEARS=25;
+let DATA={'151':null,'93':null};
+const calcMensual=f=>{const i=.07/12,n=240;return f*(i/(1-Math.pow(1+i,-n)))}; // misma fórmula que la herramienta
+const money=v=>'$'+Math.round(v).toLocaleString('es-MX');
+const mill=v=>'$'+(v/1e6).toLocaleString('es-MX',{maximumFractionDigits:1})+' millones';
+const MESES=['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
+const dateAt=m=>{const d=new Date(START);d.setMonth(d.getMonth()+m);return MESES[d.getMonth()]+' '+d.getFullYear()};
+const TOTAL=(65-AGE)*12, M60=(60-AGE)*12; let END=YEARS*12;
+
+let reg='151', step=0, chip=null, REINV=true, ING=45000;
+
+// ===== curva (solo para la maqueta: une los valores reales de la herramienta) =====
+function curve(d){
+  // fase 1: aportando, tasa mensual que llega a fondoPlan; fase 2: crece hasta fondo65
+  let lo=0,hi=.03; for(let k=0;k<60;k++){const r=(lo+hi)/2;const fv=PMT*((Math.pow(1+r,END)-1)/r);fv<d.fondoPlan?lo=r:hi=r}
+  const r1=(lo+hi)/2, g=Math.pow(d.fondo65/d.fondoPlan,1/(TOTAL-END));
+  const pts=[];for(let m=0;m<=TOTAL;m++)pts.push(m<=END?PMT*((Math.pow(1+r1,m)-1)/r1):d.fondoPlan*Math.pow(g,m-END));
+  return pts;
+}
+// onda irregular determinista: empieza en 0 y termina exacto en el valor final
+function wave(pts){
+  return pts.map((v,m)=>{const t=m/TOTAL;const env=Math.sin(Math.PI*t)**.8;
+    const n=.55*Math.sin(m/11+.4)+.32*Math.sin(m/4.7+1.3)+.22*Math.sin(m/27+2.1)+.12*Math.sin(m/2.3);
+    const c=Math.round(END*.62),dd=m>c-14&&m<c+16?-.13*Math.sin(Math.PI*(m-(c-14))/30):0; // una caída clara a media vida
+    return Math.max(0,v*(1+.13*env*n+dd));});
+}
+
+// ===== geometría =====
+const NARROW=window.innerWidth<760, F=NARROW?1.9:1;
+const W=NARROW?640:1300,H=NARROW?470:440,PL=NARROW?92:70,PR=NARROW?20:40,PT=NARROW?70:48,PB=NARROW?96:62;
+const X=m=>PL+(W-PL-PR)*m/TOTAL;
+let Y;
+const path=a=>a.map((v,m)=>(m?'L':'M')+X(m).toFixed(1)+' '+Y(v).toFixed(1)).join('');
+
+function stepsFor(){
+  const d=DATA[reg];
+  const s=[
+   {k:'Empiezas',sm:dateAt(0)+' · '+AGE+' años',range:[0,6],
+    t:'Hoy empiezas con <em>'+money(PMT)+'</em> al mes.',p:'Es lo único que decides hoy. Lo demás lo hace el tiempo.'},
+   {k:'Tu base',sm:'Mes 1 al 18',range:[0,18],
+    t:'Los primeros <em>18 meses</em> armas tu base.',p:'Tu constancia puede ser reconocida con un bono, sujeto a las condiciones del plan. En '+dateAt(18)+' ya se abren tus opciones.'},
+   {k:'Sube y baja',sm:'Toda la inversión',range:[0,TOTAL],wave:true,
+    t:'Tu dinero está invertido: <em>sube y baja</em>.',p:'Cuando baja, tu misma aportación compra más. Lo que cuenta es el camino completo, no un mes.'},
+   {k:'Tú decides',sm:'Desde el mes 19',range:[18,END],chips:true,
+    t:'Después del mes 18, <em>tú decides</em>.',p:'Toca una opción:'},
+  ];
+  if(reg==='151') s.push({k:'Te devuelven',sm:'Cada año, al declarar',range:[0,END],refund:true,
+    t:'Cada año te <em class="g">devuelven impuestos</em>.',
+    p:REINV?'Unos <b>'+money(d.dev1)+'</b> el primer año. Como los vuelves a meter al plan, <b>'+mill(d.impacto65)+'</b> de lo que juntas a los 65 vienen de ahí.'
+            :'Unos <b>'+money(d.dev1)+'</b> el primer año, para ti. Si los metes al plan, tu retiro crece todavía más.',
+    ing:true,
+    fine:'Deducción sujeta a límites y requisitos fiscales; depende de tu situación como contribuyente.'});
+  else s.push({k:'Desde los 60',sm:dateAt(M60)+' · 60 años',range:[M60-4,M60+4],at60:true,
+    t:'Desde los 60 ya puedes <em>empezar a recibir</em>.',
+    p:'Unos <b>'+money(calcMensual(d.fondo60))+'</b> al mes. Puede salir libre de impuestos si llevas 5 años en el plan.',
+    fine:'El beneficio depende de la modalidad, los requisitos aplicables y la legislación vigente.'});
+  s.push({k:'Tu retiro',sm:dateAt(TOTAL)+' · 65 años',range:[END,TOTAL],end:true,
+    t:'A los 65 recibes <em>'+money(calcMensual(d.fondo65))+'</em> al mes.',
+    p:'Dejas de aportar a los '+(AGE+YEARS)+' y tu dinero sigue creciendo hasta los 65: juntas <b>'+mill(d.fondo65)+'</b>.',
+    fine:'Es una estimación. El dinero de '+(START.getFullYear()+65-AGE)+' no vale lo mismo que el de hoy.'});
+  return s;
+}
+
+const CHIPS=[
+ ['Ⅱ','Pausar','¿Un mal año? Puedes pausar hasta 12 meses.'],
+ ['+','Aportar más','¿Te sobró dinero? Lo puedes meter cuando quieras.'],
+ ['↑','Subir tu aportación','¿Ganas más? Aumentas lo que aportas.'],
+ ['↓','Sacar una parte','Puedes hacer retiros parciales. Aplican condiciones.'],
+ ['⌂','Pedir prestado','Hasta 50% de tu saldo comprometido en alternativas conservadoras, sujeto a aprobación de Allianz y a las condiciones del contrato.'],
+];
+
+function render(){
+  const d=DATA[reg], S=stepsFor(), cur=step?S[step-1]:null;
+  document.getElementById('hNum').textContent=money(calcMensual(d.fondo65));
+  document.getElementById('hFund').textContent=mill(d.fondo65);
+
+  // narración
+  const st=document.getElementById('story');
+  if(!cur){st.innerHTML='<div class="kicker">Tu camino</div><h1>Así crece tu retiro, paso a paso.</h1><p>Toca el primer paso o usa las flechas para ver cómo funciona tu plan.</p>';}
+  else{
+    let p=cur.p;
+    if(cur.chips){const c=chip!=null?CHIPS[chip]:null;
+      p=c?c[2]+(chip===3?' <span style="color:var(--muted)">'+(reg==='151'?'Para que salga libre de impuestos, retira desde los 65 (hasta 15 UMAs al año).':'Para que salga libre de impuestos, retira desde los 60 y con 5 años en el plan.')+'</span>':''):cur.p;}
+    st.innerHTML='<div class="kicker">Paso '+step+' de '+S.length+'</div><h1>'+cur.t+'</h1><p>'+p+'</p>'+
+      (cur.chips?'<div class="chips">'+CHIPS.map((c,i)=>'<button class="chip'+(chip===i?' on':'')+'" data-chip="'+i+'"><i>'+c[0]+'</i>'+c[1]+'</button>').join('')+'</div>':'')+
+      (cur.ing?'<label class="ingl">Con un ingreso de $<input id="iIng" type="number" step="1000" value="'+ING+'"> al mes</label>':'')+
+      (cur.fine?'<div class="fine">'+cur.fine+'</div>':'');
+    const ii=st.querySelector('#iIng');if(ii){ii.addEventListener('keydown',e=>e.stopPropagation());ii.addEventListener('change',()=>{ING=Math.max(0,+ii.value||0);recalc()})}
+    st.querySelectorAll('[data-chip]').forEach(b=>b.onclick=()=>{const i=+b.dataset.chip;chip=chip===i?null:i;render()});
+  }
+
+  // pasos
+  const sp=document.getElementById('steps');
+  sp.innerHTML='<button class="nav" id="prev" aria-label="Anterior">‹</button>'+
+    S.map((s,i)=>'<button class="step'+(step===i+1?' on':step>i+1?' done':'')+'" data-s="'+(i+1)+'"><span class="n">'+(i+1)+'</span><span><b>'+s.k+'</b><small>'+s.sm+'</small></span></button>').join('')+
+    '<button class="nav" id="next" aria-label="Siguiente">›</button>';
+  sp.querySelectorAll('[data-s]').forEach(b=>b.onclick=()=>go(step===+b.dataset.s?0:+b.dataset.s));
+  document.getElementById('prev').disabled=step===0;document.getElementById('next').disabled=step===S.length;
+  document.getElementById('prev').onclick=()=>go(step-1);document.getElementById('next').onclick=()=>go(step+1);
+
+  document.getElementById('legend').innerHTML=cur&&cur.wave?'<span><i class="d"></i>Lo que estimamos</span><span><i></i>Cómo se mueve de verdad</span>':'';
+  drawChart(d,cur);
+}
+
+function drawChart(d,cur){
+  const pts=curve(d), wv=wave(pts);
+  const max=Math.max(...wv,...pts)*1.12; Y=v=>PT+(H-PT-PB)*(1-v/max);
+  const base=Y(0), sx=[];
+  // eje y edades
+  const ages=(NARROW?[AGE,45,65]:[AGE,40,45,50,AGE+YEARS,60,65]).filter((a,i,arr)=>arr.indexOf(a)===i&&(a===AGE+YEARS||a===AGE||a===65||Math.abs(a-(AGE+YEARS))>2));
+  let g='<defs><linearGradient id="ar" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0830E8" stop-opacity=".28"/><stop offset="1" stop-color="#0830E8" stop-opacity=".02"/></linearGradient>'+
+        '<clipPath id="hl"><rect x="'+(cur?X(cur.range[0]):0)+'" y="0" width="'+(cur?X(cur.range[1])-X(cur.range[0]):W)+'" height="'+H+'"/></clipPath></defs>';
+  g+='<g class="axis">';
+  const stepT=max>8e6?2.5e6:max>4e6?1e6:5e5;for(let v=stepT;v<max*.97;v+=stepT){g+='<line x1="'+PL+'" x2="'+(W-PR)+'" y1="'+Y(v)+'" y2="'+Y(v)+'"/><text x="'+(PL-10)+'" y="'+(Y(v)+4)+'" text-anchor="end" style="font-size:'+(13*F)+'px">$'+(v/1e6).toLocaleString('es-MX')+' M</text>'}
+  g+='<line x1="'+PL+'" x2="'+(W-PR)+'" y1="'+base+'" y2="'+base+'" style="stroke:#b8c4d8"/>';
+  ages.forEach(a=>{const x=X((a-AGE)*12);g+='<text x="'+x+'" y="'+(base+20*F)+'" text-anchor="'+(a===AGE?'start':a===65?'end':'middle')+'" style="font-size:'+(13*F)+'px">'+a+' años</text>'});
+  g+='</g>';
+  // franjas de fase bajo el eje
+  const ph=[[0,18,'Tu base'],[18,END,NARROW?'Tú decides':'Tú decides · sigues aportando'],[END,TOTAL,NARROW?'Crece':'Sigue creciendo']];
+  ph.forEach(([a,b,l],i)=>{const on=cur&&cur.range[0]<b&&cur.range[1]>a&&!cur.wave;const x1=X(a)+1,x2=X(b)-1;
+    g+='<rect x="'+x1+'" y="'+(base+(NARROW?44:32))+'" width="'+(x2-x1)+'" height="6" rx="3" fill="'+(on?'#0830E8':'#d6e0f2')+'"/>';
+    if(i>0)g+='<text x="'+((x1+x2)/2)+'" y="'+(base+(NARROW?44:32)+22*F)+'" text-anchor="middle" style="font-size:'+(12.5*F)+'px;font-weight:700;fill:'+(on?'#0830E8':'#8a99b3')+'">'+l+'</text>';});
+  if(!NARROW)g+='<text x="'+X(0)+'" y="'+(base+54)+'" style="font-size:12.5px;font-weight:700;fill:'+(cur&&cur.range[0]<18&&!cur.wave?'#0830E8':'#8a99b3')+'">Tu base</text>';
+
+  const area=a=>path(a)+'L'+X(TOTAL)+' '+base+'L'+X(0)+' '+base+'Z';
+  const dim=cur&&!cur.wave?' opacity=".22"':'';
+  // banda de 18 meses
+  if(cur&&cur.range[1]===18) g+='<rect x="'+X(0)+'" y="'+(PT+10)+'" width="'+(X(18)-X(0))+'" height="'+(base-PT-10)+'" fill="#0830E8" opacity=".10"/>';
+  if(cur&&cur.wave){
+    g+='<path d="'+area(wv)+'" fill="url(#ar)"/>';
+    g+='<path d="'+path(pts)+'" fill="none" stroke="#7d93d6" stroke-width="2.5" stroke-dasharray="7 6"/>';
+    g+='<path d="'+path(wv)+'" fill="none" stroke="#001868" stroke-width="3.5" stroke-linejoin="round"/>';
+    // valle más claro en la parte media
+    let best=-1,bv=0;for(let m=Math.round(END*.5);m<END-20;m++){const r=wv[m]/pts[m];if(best<0||r<bv){bv=r;best=m}}
+    const vx=X(best),vy=Y(wv[best]);
+    g+='<circle cx="'+vx+'" cy="'+vy+'" r="7" fill="#0f8a5f" stroke="#fff" stroke-width="3"/>';
+    g+='<line x1="'+vx+'" x2="'+vx+'" y1="'+(vy-12)+'" y2="'+(vy-62*F*.7)+'" stroke="#0f8a5f" stroke-width="1.5"/>';
+    g+=callout(vx,vy-62*F*.7,NARROW?'Aquí baja: compras más':'Aquí baja: tu aportación compra más',NARROW?'misma aportación':'la misma cantidad, más unidades','center','#0f8a5f');
+  }else{
+    g+='<g'+dim+'><path d="'+area(pts)+'" fill="url(#ar)"/><path d="'+path(pts)+'" fill="none" stroke="#001868" stroke-width="3.5"/></g>';
+    if(cur) g+='<g clip-path="url(#hl)"><path d="'+area(pts)+'" fill="url(#ar)"/><path d="'+path(pts)+'" fill="none" stroke="#0830E8" stroke-width="5"/></g>';
+  }
+  if(!cur||cur.end){const ex=X(TOTAL),ey=Y(pts[TOTAL]);g+='<circle cx="'+ex+'" cy="'+ey+'" r="8" fill="#0830E8" stroke="#fff" stroke-width="3"/>';
+    g+=callout(ex,ey-16,money(calcMensual(d.fondo65))+' al mes','desde los 65','left');}
+  if(cur&&cur.range[1]===6){const sx0=X(0),sy=Y(0);g+='<circle cx="'+sx0+'" cy="'+sy+'" r="8" fill="#0830E8" stroke="#fff" stroke-width="3"/>';g+=callout(sx0+14,sy-18,'Hoy: '+money(PMT)+' al mes',dateAt(0),'right');}
+  if(cur&&cur.range[1]===18){const x=X(18),y=Y(pts[18]);g+='<circle cx="'+x+'" cy="'+y+'" r="7" fill="#0830E8" stroke="#fff" stroke-width="3"/>';g+=callout(x+14,y-20,'Mes 18: tu base está lista',dateAt(18)+' · se abren tus opciones','right');}
+  if(cur&&cur.chips){const x=X(18),y=Y(pts[18]);g+='<circle cx="'+x+'" cy="'+y+'" r="7" fill="#0830E8" stroke="#fff" stroke-width="3"/>';
+    const xe=X(END),ye=Y(pts[END]);g+='<circle cx="'+xe+'" cy="'+ye+'" r="7" fill="#0830E8" stroke="#fff" stroke-width="3"/>'+callout(xe-14,ye-18,'Terminas de aportar',dateAt(END)+' · llevas '+mill(d.fondoPlan),'left');}
+  if(cur&&cur.refund){for(let y=1;y<=YEARS;y++){const m=y*12-6;g+='<circle cx="'+X(m)+'" cy="'+Y(pts[m])+'" r="5.5" fill="#0f8a5f" stroke="#fff" stroke-width="2"/>'}
+    const m=30;g+=callout(X(m)+8,Y(pts[m])-(NARROW?90:22),'+'+money(d.dev1)+' de vuelta',NARROW?'el primer año':'el primer año · cada punto es un año','right','#0f8a5f');}
+  if(cur&&cur.at60){const x=X(M60),y=Y(pts[M60]);g+='<line x1="'+x+'" x2="'+x+'" y1="'+y+'" y2="'+base+'" stroke="#0830E8" stroke-dasharray="4 4"/><circle cx="'+x+'" cy="'+y+'" r="8" fill="#0830E8" stroke="#fff" stroke-width="3"/>';
+    g+=callout(x-14,y-18,money(calcMensual(d.fondo60))+' al mes','desde los 60 · Art. 93','left');}
+  const sv=document.getElementById('svg');sv.setAttribute('viewBox','0 0 '+W+' '+H);sv.innerHTML=g;
+}
+
+function callout(x,y,t,s,side,color){
+  const C=NARROW?1.5:1;const w=(Math.max(t.length*8.6,s.length*6.9)+26)*C,h=50*C;
+  let rx=side==='left'?x-w:side==='right'?x:x-w/2, ry=side==='below'?y:y-h;
+  rx=Math.max(PL,Math.min(W-PR-w,rx));ry=Math.max(4,ry);
+  const c=color||'#001868';
+  return '<g class="callout"><rect x="'+rx+'" y="'+ry+'" width="'+w+'" height="'+h+'" rx="10" style="stroke:'+c+'"/><text x="'+(rx+13*C)+'" y="'+(ry+21*C)+'" style="fill:'+c+';font-size:'+(15*C)+'px">'+t+'</text><text class="s" x="'+(rx+13*C)+'" y="'+(ry+39*C)+'" style="font-size:'+(12.5*C)+'px">'+s+'</text></g>';
+}
+
+function go(n){const L=stepsFor().length;step=Math.max(0,Math.min(L,n));chip=null;render()}
+document.addEventListener('keydown',e=>{if(/INPUT|SELECT/.test(e.target.tagName))return;if(e.key==='ArrowRight')go(step+1);if(e.key==='ArrowLeft')go(step-1)});
+const q=new URLSearchParams(location.search);if(q.get('reg'))reg=q.get('reg');if(q.get('step'))step=+q.get('step');if(q.get('chip'))chip=+q.get('chip');
+// ===== Cálculo real: la maqueta le pide los números a la herramienta (mismas fórmulas, sin copiarlas) =====
+const minPmt=y=>y<=14?3000:2000; // Allianz: 10–14 años $3,000; 15–25 años $2,000
+const yrsSel=document.getElementById('iYrs');for(const y of [10,15,20,25])yrsSel.innerHTML+='<option value="'+y+'"'+(y===25?' selected':'')+'>'+y+' años</option>';
+document.getElementById('iReg').value=reg;
+const frame=document.createElement('iframe');frame.style.cssText='position:absolute;width:1px;height:1px;opacity:0;pointer-events:none;left:-9999px';
+frame.src='../../index.html?flujo=clasico';document.body.appendChild(frame);
+function toolCalc(r,reinv){
+  const w=frame.contentWindow,doc=w.document;
+  const set=(id,v)=>{const e=doc.getElementById(id);if(!e)return;if(e.tagName==='SELECT'&&![...e.options].some(o=>o.value==String(v))){const o=doc.createElement('option');o.value=v;o.textContent=v;e.appendChild(o)}e.disabled=false;e.value=v;e.dispatchEvent(new w.Event('input',{bubbles:true}));e.dispatchEvent(new w.Event('change',{bubbles:true}))};
+  set('edad',AGE);set('years',String(YEARS));set('pmt',PMT);set('regimenFiscal',r);if(r==='151')set('ingresoMensualCliente',ING);
+  const ck=doc.getElementById('reinvertISR');if(ck){ck.checked=reinv;ck.dispatchEvent(new w.Event('change',{bubbles:true}))}
+  w.calcAccum();const s=w.eval('reportState');
+  return {fondoPlan:s.fondoPlan,fondo65:s.fondo65,fondo60:s.fondo60,dev1:s.devolucionFiscalPrimerAno,impacto65:s.impactoISR65};
+}
+function recalc(){
+  PMT=Math.max(0,+document.getElementById('iPmt').value||0);YEARS=+yrsSel.value;END=YEARS*12;reg=document.getElementById('iReg').value;
+  const bad=PMT<minPmt(YEARS);document.getElementById('cPmt').classList.toggle('bad',bad);
+  document.getElementById('wPmt').textContent='Mínimo '+money(minPmt(YEARS))+' al mes con '+(YEARS<=14?'10 a 14':'15 a 25')+' años';
+  REINV=document.getElementById('iReinv').checked;document.getElementById('cReinv').style.display=reg==='151'?'':'none';
+  // la herramienta solo reporta la devolución cuando se reinvierte: se toma de ese cálculo y el fondo del escenario elegido
+  const con=toolCalc('151',true);DATA['151']=REINV?con:Object.assign(toolCalc('151',false),{dev1:con.dev1,impacto65:0});
+  DATA['93']=toolCalc('93',false);
+  step=Math.min(step,stepsFor().length);render();
+}
+['iPmt','iYrs','iReg','iReinv'].forEach(id=>document.getElementById(id).addEventListener('input',recalc));
+document.getElementById('iReg').addEventListener('change',recalc);document.getElementById('iReinv').addEventListener('change',recalc);
+document.getElementById('iPmt').addEventListener('keydown',e=>e.stopPropagation());
+frame.onload=()=>setTimeout(recalc,300);
+</script>
+</body>
+</html>
