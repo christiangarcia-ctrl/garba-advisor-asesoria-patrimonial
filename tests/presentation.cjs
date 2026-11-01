@@ -75,7 +75,7 @@ async function main(){
     await p.locator('#resultsView.active').waitFor();await wait(200);
   };
   const values=async(p)=>p.evaluate(()=>({
-    report:Object.fromEntries(Object.entries(reportState).filter(([k])=>!['ingreso65','devolucionFiscalPrimerAnoVista'].includes(k))),table:document.getElementById('tbody').innerText,retirement:document.getElementById('tbodyRet').innerText,
+    report:Object.fromEntries(Object.entries(reportState).filter(([k])=>!['ingreso65','devolucionFiscalPrimerAnoVista','metaNom65'].includes(k))),table:document.getElementById('tbody').innerText,retirement:document.getElementById('tbodyRet').innerText,
     results:['keyFondoPlan','fondo65','etapaFondo60','pmtReal','pmtDesde60','compPlan','taxFirstAmount','isrImpacto65'].map(id=>{const e=document.getElementById(id);/* la tarjeta ISR oculta conserva texto de un escenario 151 anterior (comportamiento de main): solo se compara si está visible */const card=e?.closest('#isrInsightCard');return card&&getComputedStyle(card).display==='none'?'(oculta)':e?.textContent})
   }));
   const setCase=async(p,data)=>{
@@ -255,177 +255,12 @@ async function main(){
     assert(await identified.evaluate(()=>GaShell.scenes.find(s=>s.dataset.scene==='6').dataset.skip==='1'),'Deepening a known diagnosis still keeps reality in the calculator');
     await identified.close();
 
-    // Three-act flow: synthetic client only. Run alongside the existing classic regression suite.
-    const modern=await make();
-    await load(modern,origin,false);
-    assert.equal(await modern.evaluate(()=>window.GA_FLOW_CLASSIC),false);
-    assert.equal(await modern.evaluate(()=>GaShell.scenes.find(s=>s.dataset.scene==='1').dataset.skip),'1');
-    await modern.evaluate(()=>{
-      for(const [id,value] of Object.entries({gaName:'Prospecto de prueba',gaAge:'32',gaRetireAge:'65',gaGoal:'25000',gaPmt:'3000',gaTax:'93',gaWhy:'Construir retiro',gaMeaning:'Familia',gaConcern:'Flexibilidad'}))document.getElementById(id).value=value;
-      GaShell.setConfirmed(true);GaShell.diagnosisChecks.ready='No';
-      GaShell.show(GaShell.scenes.findIndex(s=>s.dataset.scene==='7'));
-    });
-    await modern.screenshot({path:path.join(output,'three-acts-diagnosis.png')});
-    await modern.locator('#gaNext').click();
-    await modern.locator('#resultsView.active').waitFor({timeout:6000});
-    await wait(400);
-    assert.equal(await modern.locator('#pmt').inputValue(),'3000');
-    // Auditoría 2026-10-29: meta/brecha y detalle se quedan en sus pestañas (antes quedaban vacías).
-    assert.equal(await modern.locator('#gaActGoal').count(),0);assert.equal(await modern.locator('#gaActTechnical').count(),0);
-    assert(await modern.locator('#gaPane-gap #gaProjectionGap').count()===1,'La brecha sigue en su pestaña');
-    assert(await modern.locator('#gaPane-detail .plan-hero').count()===1,'El resumen original pasa a Detalle, sin duplicar la cifra en Tu proyección');
-    assert.equal(await modern.evaluate(()=>[...document.querySelectorAll('#gaAdvisorPanelButton,#gaActLibraryButton')].filter(b=>getComputedStyle(b).position==='fixed').length),0,'Sin botones flotantes sobre la pestaña compartida');
-    assert(await modern.locator('#gaActOptionCards .ga-act-option').count()>=1);
-    assert.equal(await modern.locator('#gaActFuture').innerText(),await modern.locator('#fondo65').innerText());
-    // Elegir una opción más alta no borra lo que el prospecto dijo poder pagar.
-    // Ronda 3: las opciones de arranque viven en la pestaña de la meta y la brecha.
-    assert.equal(await modern.locator('#gaPane-gap #gaActOptions').count(),1,'Opciones de arranque en Tu meta y la brecha');
-    await modern.locator('#gaTab-gap').click();await wait(200);
-    const optionCount=await modern.locator('#gaActOptionCards .ga-act-option').count();
-    await modern.locator('#gaActOptionCards .ga-act-option button').nth(optionCount-1).click();await wait(400);
-    assert.equal(await modern.locator('#gaActOptionCards .ga-act-option').count(),optionCount,'Las opciones siguen disponibles después de elegir');
-    assert((await modern.locator('#gaActOptionCards .ga-act-option strong').first().innerText()).startsWith('$3,000'),'La primera opción sigue siendo la capacidad del diagnóstico');
-    await modern.locator('#gaActOptionCards .ga-act-option button').first().click();await wait(400);
-    assert.equal(await modern.locator('#gaWaitResult').count(),0);
-    assert(!(await modern.locator('body').innerText()).toLowerCase().includes('costo de esperar'));
-    const pathData=await modern.evaluate(()=>({capital:Number(document.querySelector('#gaPathsvg').dataset.capital),end:Number(document.querySelector('#gaPathsvg').dataset.waveEnd),expected:reportState.fondo65,max:chart.options.scales.y.max,datasets:chart.data.datasets.length}));
-    // Ronda 3: la gráfica original (con la línea de la meta) vive en Tu meta y la brecha con su escala original; Tu camino se escala al capital.
-    assert.equal(pathData.capital,pathData.expected);assert.equal(pathData.end,pathData.expected);
-    await round3Checks(modern,setCase,output);
-    assert(!(await modern.evaluate(()=>GaThreeActs.summary())).includes('¿Cuándo te busco?'));
-    // Matched screenshots from the mandatory 415b4d4 checkout, never from main.
-    if(process.env.ADVISOR_ROUND2_BEFORE){
-      const before=await make();await load(before,origin+'/round2-before/',false);await openCalc(before);
-      const matching=await modern.evaluate(()=>Object.fromEntries(['nombreOpt','edad','years','metaHoy','pmt','lumpSum','regimenFiscal','ingresoMensualCliente','isrPct','reinvertISR','rate','inflation'].map(id=>{const e=document.getElementById(id);return [id,e.type==='checkbox'?e.checked:e.value]})));await setCase(before,matching);{const norm=v=>{const c=JSON.parse(JSON.stringify(v));if(c.report){for(const k of ['isrPct','ingreso65','ingreso60','devolucionFiscalPrimerAnoVista'])delete c.report[k]}return c};/* Ronda 3: ingreso65/ingreso60/devolucionFiscalPrimerAnoVista son guardados nuevos de solo lectura (antes no existían en reportState); *//* isrPct se deriva del listener de ingreso y no participa en Art. 93; la paridad financiera completa vs main se prueba en los 7 escenarios */assert.deepEqual(norm(await values(before)),norm(await values(modern)),'Before and after captures use the identical financial fixture');}
-      await modern.evaluate(()=>scrollTo(0,0));await before.evaluate(()=>scrollTo(0,0));
-      await before.screenshot({path:path.join(output,'round2-before-projection.png')});
-      await modern.screenshot({path:path.join(output,'round2-after-projection.png')});
-      await before.locator('#gaThreeMobileToggle').click();await before.screenshot({path:path.join(output,'round2-before-mobile.png')});await scaledCapture(before,'round2-before-mobile-shared-390.png');
-      await before.locator('#gaMobileExit').click();
-      for(const p of [before,modern]){await p.locator('[data-postcalc="decision"][data-value="think"]').click();await p.locator('#gaThinkReason').selectOption({label:'Platicarlo con mi pareja'});await p.locator('#gaThinkDate').fill('2026-11-05');await p.locator('#gaThinkTime').fill('18:00');}
-      await before.screenshot({path:path.join(output,'round2-before-followup.png')});await modern.screenshot({path:path.join(output,'round2-after-followup.png')});
-      for(const [p,name] of [[before,'before'],[modern,'after']]){await p.locator('#gaOpenResources').evaluate(el=>el.click());await p.screenshot({path:path.join(output,'round2-'+name+'-library.png')});await p.locator('#gaResourcesClose').click();}
-      for(const [p,name] of [[before,'before'],[modern,'after']]){
-        await p.locator('#gaTab-gap').click();await p.screenshot({path:path.join(output,'round2-'+name+'-gap.png')});await p.locator('#gaTab-projection').click();
-        const popup=p.waitForEvent('popup');await p.locator('#gaAdvisorPanelButton').evaluate(el=>el.click());const privatePage=await popup;await privatePage.waitForLoadState();await privatePage.screenshot({path:path.join(output,'round2-'+name+'-panel.png')});await privatePage.close();
-      }
-      await before.close();await modern.evaluate(()=>{for(const id of ['gaThinkDate','gaThinkTime']){const el=document.getElementById(id);el.value='';el.dispatchEvent(new Event('change'))}document.getElementById('gaThinkPanel').hidden=true;});
-    }
-    await modern.screenshot({path:path.join(output,'three-acts-desktop.png'),fullPage:true});
-    await modern.locator('#gaThreeMobileToggle').click();
-    assert(await modern.evaluate(()=>document.body.classList.contains('ga-three-mobile')));
-    await modern.locator('#gaMobileNext').click();assert(await modern.locator('#gaMobilePath').isVisible());assert.equal(await modern.locator('#gaMobilePath section').count(),4);
-    await modern.screenshot({path:path.join(output,'three-acts-projected-mobile.png'),fullPage:true});
-    await scaledCapture(modern,'round2-after-mobile-shared-390.png');
-    await modern.locator('#gaMobileExit').click();
-    await modern.locator('[data-postcalc="decision"][data-value="think"]').click();
-    await modern.locator('#gaThinkReason').selectOption({label:'Platicarlo con mi pareja'});
-    await modern.locator('#gaPostCalcContinue').click();
-    assert.equal(await modern.locator('#gaPreopenView').isVisible(),false,'Think cannot continue without an agreed date');
-    await modern.locator('#gaThinkDate').fill('2026-11-05');
-    await modern.locator('#gaThinkTime').fill('18:00');
-    await modern.locator('#gaThinkReady').fill('lo platicaste con tu pareja');
-    await modern.locator('#gaThinkConfirm').click();
-    assert.equal(await modern.evaluate(()=>GaThreeActs.state.date),'2026-11-05');
-    assert.equal(await modern.evaluate(()=>JSON.parse(sessionStorage.getItem('garbaThreeAct')).ready),'lo platicaste con tu pareja');
-    assert((await modern.evaluate(()=>GaThreeActs.summary())).includes('Para entonces ya… lo platicaste con tu pareja'));
-    assert((await modern.evaluate(()=>GaThreeActs.summary())).includes('05/11/2026 18:00'),'Fecha del resumen en formato de México');
-    await modern.screenshot({path:path.join(output,'three-acts-think-partner.png'),fullPage:true});
-    await modern.locator('#gaPostCalcContinue').click();
-    assert(await modern.locator('#gaPreopenView').isVisible());
-    assert.equal(await modern.locator('#preOpeningParticipants').inputValue(),'Prospecto y pareja');
-    await modern.screenshot({path:path.join(output,'three-acts-second-appointment.png'),fullPage:true});
-
-
-    // Every objection must retain its own next step and preserve an explicit scheduling decision.
-    const allReasons=['El monto','Platicarlo con mi pareja','Compararlo con otra opción','No sé si tendré liquidez','Quiero empezar más adelante','Quiero estar seguro de con quién lo hago','Otra'];
-    const reasonCase=await make();await load(reasonCase,origin,false);await openCalc(reasonCase);
-    for(const [n,choice] of allReasons.entries()){
-      await reasonCase.evaluate(choice=>{
-        document.getElementById('gaResourcesPanel').classList.remove('show');
-        document.getElementById('gaCredentialsModal').classList.remove('open');
-        document.querySelector('[data-postcalc="decision"][data-value="think"]').click();
-        const el=document.getElementById('gaThinkReason');el.value=choice;el.dispatchEvent(new Event('change',{bubbles:true}));
-        if(choice==='Otra'){const other=document.getElementById('gaThinkOther');other.value='Necesito revisar una condición';other.dispatchEvent(new Event('input',{bubbles:true}))}
-      },choice);
-      assert.equal(await reasonCase.evaluate(()=>GaThreeActs.state.reason),choice);
-      assert((await reasonCase.locator('#gaThinkNext').innerText()).length>10,'A reason must produce an explicit next step');
-      if(choice==='El monto')assert(await reasonCase.locator('#gaActOptions').count()===1);
-      if(choice==='Quiero empezar más adelante')assert(!(await reasonCase.locator('body').innerText()).toLowerCase().includes('costo de esperar'));
-      if(choice==='No sé si tendré liquidez')assert(await reasonCase.locator('#gaResourcesPanel').evaluate(el=>el.classList.contains('show')));
-      if(choice==='Quiero estar seguro de con quién lo hago')assert(await reasonCase.locator('#gaCredentialsModal').evaluate(el=>el.classList.contains('open')));
-      await reasonCase.evaluate(()=>{
-        const date=document.getElementById('gaThinkDate');date.value='2026-11-05';date.dispatchEvent(new Event('change',{bubbles:true}));
-        const time=document.getElementById('gaThinkTime');time.value='18:00';time.dispatchEvent(new Event('change',{bubbles:true}));
-        document.getElementById('gaThinkConfirm').click();
-      });
-      assert.equal(await reasonCase.locator('#gaThinkError').innerText(),'Siguiente paso guardado en esta sesión.');
-      assert((await reasonCase.evaluate(()=>GaThreeActs.summary())).includes('05/11/2026 18:00'));
-      if(n===0||n===6)await reasonCase.screenshot({path:path.join(output,'think-reason-'+n+'.png'),fullPage:true});
-    }
-    await reasonCase.evaluate(()=>{
-      const el=document.getElementById('gaThinkNoDate');el.checked=true;el.dispatchEvent(new Event('change',{bubbles:true}));
-      document.getElementById('gaThinkDate').value='';document.getElementById('gaThinkTime').value='';
-      document.getElementById('gaThinkConfirm').click();
-    });
-    assert((await reasonCase.evaluate(()=>GaThreeActs.summary())).includes('Sin fecha acordada'));
-    await reasonCase.close();
-
-    // Actual jsPDF production path: download PDF and inspect the text calls used to build it.
-    const pdfCase=await make();await load(pdfCase,origin,false);await openCalc(pdfCase);
-    await pdfCase.evaluate(()=>{
-      const state=GaThreeActs.state;state.ready='lo platicaste con tu pareja';state.reason='Platicarlo con mi pareja';state.date='2026-11-05';state.time='18:00';state.noDate=false;state.nextStep='Agendemos una segunda cita con ambos.';
-      document.getElementById('gaLaterView').style.display='block';
-      window.__pdfTexts=[];
-      const OriginalPdf=window.jspdf.jsPDF;
-      function AuditedPdf(...args){
-        const doc=new OriginalPdf(...args);
-        const oldText=doc.text.bind(doc);
-        doc.text=function(...parts){window.__pdfTexts.push(String(parts[0]));return oldText(...parts)};
-        return doc;
-      }
-      AuditedPdf.API=OriginalPdf.API;
-      window.jspdf.jsPDF=AuditedPdf;
-    });
-    const pdfDownload=pdfCase.waitForEvent('download');
-    await pdfCase.locator('#gaLaterPdf').click();
-    const pdfFile=await pdfDownload;
-    const pdfPath=path.join(output,'garba-segunda-cita-validacion.pdf');
-    await pdfFile.saveAs(pdfPath);
-    assert(fs.statSync(pdfPath).size>1000,'Real second-meeting PDF was generated');
-    assert.equal(fs.readFileSync(pdfPath).subarray(0,4).toString(),'%PDF','Downloaded document has PDF header');
-    const texts=await pdfCase.evaluate(()=>window.__pdfTexts.join(' | '));
-    assert(texts.includes('2026-11-05')&&texts.includes('18:00'),'PDF includes proposed appointment date and time');
-    assert(texts.includes('Platicarlo con mi pareja'),'PDF includes the decision reason');
-    assert(texts.includes('Para entonces ya')&&texts.includes('lo platicaste con tu pareja')&&texts.includes('Cuándo te busco'),'PDF includes both follow-up fields');
-    await pdfCase.close();
-    const switched=await make();await load(switched,origin,false);
-    await switched.evaluate(()=>document.getElementById('gaName').value='Prospecto ficticio');
-    const popupPromise=switched.waitForEvent('popup');
-    await switched.locator('#gaAdvisorPanelButton').click();
-    const advisorPopup=await popupPromise;await advisorPopup.waitForLoadState();
-    assert(await advisorPopup.locator('#clock').isVisible());
-    assert.equal(await switched.locator('#clock').count(),0,'Advisor-only clock must never be in shared tab');
-    assert.equal(await switched.locator('#suggestion').count(),0,'Advisor coaching must never be in shared tab');
-    await advisorPopup.clock.install({time:new Date('2026-10-30T12:00:00')});await advisorPopup.reload();await advisorPopup.waitForLoadState('domcontentloaded');
-    for(const [act,label] of [[1,'Pasa a su número'],[2,'Pregunta: ¿cuándo te gustaría aperturarlo?']]){
-      await advisorPopup.evaluate(act=>{localStorage.setItem('gaAdvisorPanelSignal',JSON.stringify({type:'state',at:Date.now(),data:{act,elapsed:{1:0,2:0,3:0}}}));dispatchEvent(new StorageEvent('storage',{key:'gaAdvisorPanelSignal',newValue:localStorage.getItem('gaAdvisorPanelSignal')}))},act);
-      await advisorPopup.clock.runFor(719000);assert.equal(await advisorPopup.locator('#signal').innerText(),'');await advisorPopup.clock.runFor(2000);assert.equal(await advisorPopup.locator('#signal').innerText(),label);
-    }
-    await advisorPopup.locator('#asked').click();assert(await advisorPopup.locator('#closing').isVisible());assert(await advisorPopup.locator('#opening').isVisible());
-    assert.equal(await switched.locator('#asked,#closing,#opening').count(),0);
-    await advisorPopup.screenshot({path:path.join(output,'advisor-private-panel.png')});
-    await advisorPopup.locator('#toggle').click();await wait(300);
-    assert.equal(await switched.evaluate(()=>window.GA_FLOW_CLASSIC),true);
-    assert.equal(await switched.evaluate(()=>GaShell.scenes.find(s=>s.dataset.scene==='1').dataset.skip),undefined);
-    assert.equal(await switched.locator('#gaName').inputValue(),'Prospecto ficticio','Classic switch preserves session data');
-    assert.equal(await switched.locator('#gaActHero').isVisible(),false);
-    await advisorPopup.close();await switched.close();
+    await require('./lienzo-checks.cjs')({make,load,origin,output,wait});
     const profile=await make();await profile.setViewportSize({width:390,height:844});await load(profile,origin+'/asesor/',false);
     assert(await profile.locator('h1').innerText()==='Christian Iván García Barragán');
     assert(await profile.evaluate(()=>document.documentElement.scrollWidth<=window.innerWidth));
     await profile.screenshot({path:path.join(output,'advisor-profile-390.png')});
-    await profile.close();await modern.close();
+    await profile.close();
     assert.deepEqual(errors,[],'No browser runtime errors');
     console.log('PASS: full-width advisory, full-screen resources, keyboard return, live input/results/chart, stale-output protection, fixed controls, result tabs, responsive layouts.');
     console.log('Screenshots:',output);

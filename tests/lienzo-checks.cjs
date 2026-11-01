@@ -1,0 +1,56 @@
+/* Synthetic fixtures only. Shared by presentation.cjs and the screenshot entrypoint. */
+const assert=require('node:assert/strict');
+const path=require('node:path');
+module.exports=async function round4({make,load,origin,output,wait}){
+ const p=await make();await p.setViewportSize({width:1440,height:780});await load(p,origin,false);
+ const shot=async name=>{await wait(100);await p.screenshot({path:path.join(output,'ronda4-'+name+'.png')});assert(await p.evaluate(()=>document.documentElement.scrollHeight<=innerHeight&&document.documentElement.scrollWidth<=innerWidth),'No page scrolling at 1440×780: '+name)};
+ const act=async n=>p.locator('#gaLienzo [data-a="'+n+'"]').click();
+ const num=async v=>{await p.locator('#qn').fill(String(v));await p.locator('#qok').click()};
+ const choose=async n=>{await p.locator('#gaLienzo [data-o]').nth(n).click();await wait(350)};
+ await shot('bienvenida');await p.locator('#start').click();await num(36);await shot('pregunta');
+ for(const i of [0,1,0,0,0])await choose(i);
+ await num(30000);assert(await p.locator('#hero').evaluate(e=>e.classList.contains('empty')));
+ await num(3500);await wait(400);
+ assert.equal(await p.evaluate(()=>GaLienzo.question),'resumen');
+ assert(!(await p.locator('#hero').innerText()).includes('Tu cifra aparece aquí'));
+ assert(await p.locator('#svg path').count()>0,'Contribution draws the graph');
+ const signal=await p.evaluate(()=>JSON.parse(localStorage.getItem('gaAdvisorPanelSignal')).data);
+ assert(signal.priority&&signal.condition&&signal.barrier,'Original answers reach private panel');
+ assert.equal(signal.act,1);
+ await shot('resumen-sin-pdp');
+ await p.locator('#toNum').click();await wait(1100);assert.equal(await p.evaluate(()=>GaLienzo.act),2);
+ await shot('acto2-paso0');
+ await p.locator('#cReg').selectOption('151');
+ for(let n=1;n<=6;n++){await p.locator('#next').click();assert.equal(await p.evaluate(()=>GaLienzo.step),n);if(n===3||n===5)await shot('acto2-paso'+n+'-151')}
+ for(let n=5;n>=0;n--){await p.locator('#prev').click();assert.equal(await p.evaluate(()=>GaLienzo.step),n)}
+ await p.locator('#cPmt').fill('1000');await p.locator('#cPmt').dispatchEvent('change');assert(await p.locator('.ctl.bad').count()===1);
+ await p.locator('#cPmt').fill('3500');await p.locator('#cPmt').dispatchEvent('change');
+ await p.locator('#cReinv').uncheck();assert.equal(await p.locator('#reinvertISR').isChecked(),false);
+ await p.locator('#cReinv').check();assert.equal(await p.locator('#reinvertISR').isChecked(),true);
+ await p.locator('#cReg').selectOption('93');assert.equal(await p.locator('#cReinv').count(),0);
+ await p.evaluate(()=>GaLienzo.goStep(5));await shot('acto2-paso5-93');
+ await p.locator('#duda').click();await p.locator('[data-dq="0"]').click();assert(await p.locator('#responseBody #gaSupportContent').isVisible());await shot('duda');
+ await p.locator('#back').click();assert.equal(await p.evaluate(()=>GaLienzo.step),5);assert.equal(await p.evaluate(()=>GaLienzo.act),2);
+ await p.locator('#toDec').click();assert.equal(await p.evaluate(()=>GaLienzo.act),3);
+ await p.locator('[data-dec="pensar"]').click();assert.equal(await p.evaluate(()=>GaShell.postCalcChecks.decision),'think');
+ await p.locator('#gaThinkReason').selectOption({label:'Platicarlo con mi pareja'});await p.locator('#gaThinkNoDate').check();await p.locator('#gaThinkReady').fill('lo platicaste con tu pareja');await p.locator('#gaThinkConfirm').click();
+ assert((await p.evaluate(()=>GaThreeActs.summary())).includes('Sin fecha acordada'));await shot('acto3-pensarlo');
+ await p.locator('#gaLienzo .link[data-dec]').click();await p.locator('[data-dec="agendar"]').click();assert.equal(await p.evaluate(()=>GaShell.postCalcChecks.decision),'schedule');
+ await p.locator('#gaOpeningDate').fill('2026-11-05');await p.locator('#gaOpeningTime').fill('18:00');
+ assert.equal(await p.locator('#gaOpeningDate').count(),1,'The original input is moved, not cloned');
+ await p.locator('#gaLienzo .link[data-dec]').click();await p.locator('[data-dec="hoy"]').click();assert.equal(await p.evaluate(()=>GaShell.postCalcChecks.decision),'today');
+ await p.locator('#decisionFields > .go').click();assert(await p.locator('#gaPreopenView').isVisible(),'Today opens original preopening');
+ await p.close();
+ const identified=await make();await identified.setViewportSize({width:1440,height:780});await load(identified,origin,false);
+ await identified.evaluate(()=>{window.garbaIdentified=true;window.__gaKnown={nom:'Laura',edad:36,edadR:65,des:30000,ahorro:3500,reg:'NOM',dolor:['Sé que mi AFORE probablemente no será suficiente.'],meta:['Mantener mi nivel de vida cuando deje de trabajar.'],porque:['No quiero depender económicamente de mis hijos o familiares.'],condicion:['Mantener flexibilidad y acceso al dinero cuando sea necesario'],freno:['Me preocupaba comprometerme con algo poco flexible']};window.GarbaAccess={call:async()=>({revision:1})};GaV2.boot()});await wait(400);
+ assert.equal(await identified.evaluate(()=>GaLienzo.question),'resumen');assert((await identified.locator('#side').innerText()).includes('ya me contaste'));assert(!(await identified.locator('#hero').innerText()).includes('Tu cifra aparece aquí'));
+ await identified.screenshot({path:path.join(output,'ronda4-resumen-pdp.png')});
+ await identified.setViewportSize({width:390,height:844});await identified.screenshot({path:path.join(output,'ronda4-celular-390.png')});assert(await identified.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));
+ await identified.setViewportSize({width:1440,height:780});await identified.evaluate(()=>document.getElementById('gaFlowToggle').click());assert.equal(await identified.evaluate(()=>GA_FLOW_CLASSIC),true);assert.equal(await identified.locator('#gaLienzo').isVisible(),false);assert.equal(await identified.locator('#gaAge').inputValue(),'36');
+ await identified.close();
+ const resumed=await make();await load(resumed,origin,false);
+ await resumed.evaluate(()=>{for(const [id,v] of Object.entries({gaAge:36,gaGoal:30000,gaPmt:3500,gaTax:'93'}))document.getElementById(id).value=v;GaLienzo.suspend();GaShell.proceedOpenProposal()});await wait(1100);
+ assert.equal(await resumed.evaluate(()=>GaLienzo.act),2,'Existing resume-to-calculator path returns to Act 2');assert(await resumed.locator('#gaLienzo').isVisible());await resumed.close();
+ const classic=await make();await load(classic,origin);assert.equal(await classic.evaluate(()=>GA_FLOW_CLASSIC),true);assert.equal(await classic.locator('#gaLienzo').isVisible(),false);assert.equal(await classic.evaluate(()=>GaShell.scenes.find(s=>s.dataset.scene==='1').dataset.skip),undefined);await classic.close();
+ console.log('Ronda 4: lienzo flow, original inputs, decisions, support, panel and screenshots verified.');
+};

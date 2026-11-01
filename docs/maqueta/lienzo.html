@@ -1,0 +1,442 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Maqueta · Tu plan en vivo</title>
+<link rel="stylesheet" href="../../fonts.css">
+<style>
+:root{--navy:#001868;--blue:#0830E8;--soft:#EFF6FF;--text:#1c2a3a;--muted:#64748b;--border:#dbe4f0;--bg:#F0F3F8;--success:#0f8a5f;--success-soft:#e8f7f1;--bad:#b3261e}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;background:var(--bg);font-family:Montserrat,system-ui,sans-serif;color:var(--text);overflow:hidden}
+button{font-family:inherit;cursor:pointer}
+input,select{font-family:inherit}
+
+/* barra superior */
+.top{height:58px;background:#fff;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:16px;padding:0 24px}
+.top img{height:30px}
+.who{border-left:1px solid var(--border);padding-left:16px;line-height:1.15}
+.who b{display:block;font-size:15px;color:var(--navy)}
+.who span{font-size:12px;color:var(--muted);font-weight:600}
+.acts{display:flex;gap:6px;margin-left:auto}
+.act{display:flex;align-items:center;gap:8px;border:0;background:transparent;padding:8px 14px;border-radius:999px;font-weight:700;font-size:14px;color:#8a99b3}
+.act i{font-style:normal;width:24px;height:24px;border-radius:50%;display:grid;place-items:center;background:#e7edf7;font-size:12px}
+.act.on{background:var(--navy);color:#fff}.act.on i{background:#fff;color:var(--navy)}
+.act.done{color:var(--navy)}.act.done i{background:var(--blue);color:#fff}
+.duda{border:1.5px solid #c8d7f5;background:#fff;color:var(--navy);font-weight:700;font-size:14px;padding:8px 14px;border-radius:999px;margin-left:6px}
+.duda.on{background:var(--soft)}
+.mock{display:flex;gap:2px;padding:3px;border-radius:10px;background:#fff7e0;border:1px dashed #d9a400;margin-left:8px}
+.mock span{font-size:10.5px;color:#8a6500;font-weight:800;align-self:center;padding:0 6px}
+.mock button{border:0;background:transparent;font-weight:700;font-size:11.5px;padding:5px 8px;border-radius:7px;color:#8a6500}
+.mock button.on{background:#8a6500;color:#fff}
+
+/* escenario */
+.stage{height:calc(100% - 58px);display:grid;grid-template-columns:460px 1fr;gap:18px;padding:16px 22px 14px}
+.side{background:#fff;border:1px solid var(--border);border-radius:22px;padding:24px 26px;display:flex;flex-direction:column;min-height:0;overflow:auto}
+.canvas{display:grid;grid-template-rows:auto 1fr auto;gap:12px;min-height:0}
+
+.kicker{font-size:12px;font-weight:800;letter-spacing:.09em;text-transform:uppercase;color:var(--blue);margin-bottom:8px}
+.side h2{font-size:31px;line-height:1.13;font-weight:800;color:var(--navy);letter-spacing:-.01em}
+.side h2 em{font-style:normal;color:var(--blue)}.side h2 em.g{color:var(--success)}
+.side p.lead{font-size:17px;line-height:1.45;margin-top:10px}
+.side .fine{font-size:12px;color:var(--muted);margin-top:10px;line-height:1.4}
+.grow{flex:1}
+
+/* historia (respuestas ya dadas) */
+.hist{display:flex;flex-direction:column;gap:5px;margin-bottom:16px}
+.hist button{display:flex;justify-content:space-between;gap:10px;text-align:left;border:0;background:var(--soft);border-radius:10px;padding:7px 11px;font-size:13px;color:var(--muted);font-weight:600}
+.hist button b{color:var(--navy);font-weight:700;text-align:right}
+.hist button:hover{outline:1.5px solid #c8d7f5}
+
+.opts{display:flex;flex-direction:column;gap:8px;margin-top:16px}
+.opt{border:1.5px solid #c8d7f5;background:#fff;color:var(--navy);font-weight:700;font-size:17px;padding:13px 16px;border-radius:14px;text-align:left;transition:all .15s}
+.opt small{display:block;font-weight:500;font-size:13px;color:var(--muted);margin-top:2px}
+.opt:hover{border-color:var(--blue)}
+.opt.on{background:var(--navy);border-color:var(--navy);color:#fff}.opt.on small{color:#b9c6f0}
+.big{display:flex;align-items:center;gap:10px;margin-top:18px;border:2px solid #c8d7f5;border-radius:16px;padding:10px 16px;font-size:30px;font-weight:800;color:var(--navy)}
+.big input{border:0;outline:none;font:800 34px Montserrat,sans-serif;color:var(--navy);width:100%;min-width:0}
+.big span{font-size:16px;font-weight:600;color:var(--muted);white-space:nowrap}
+.go{margin-top:16px;border:0;background:var(--navy);color:#fff;font-weight:800;font-size:17px;padding:14px 20px;border-radius:14px;align-self:flex-start}
+.go:disabled{opacity:.35;cursor:default}
+.link{border:0;background:transparent;color:var(--blue);font-weight:700;font-size:14px;padding:8px 0;align-self:flex-start}
+.me{display:flex;gap:12px;align-items:center;margin-top:18px;padding:12px;border-radius:14px;background:var(--soft)}
+.me img{width:52px;height:52px;border-radius:50%;object-fit:cover}
+.me b{display:block;color:var(--navy);font-size:15px}.me span{font-size:12.5px;color:var(--muted);font-weight:600}
+.path3{display:flex;flex-direction:column;gap:10px;margin-top:18px}
+.path3 div{display:flex;gap:12px;align-items:center;font-size:17px;font-weight:700;color:var(--navy)}
+.path3 i{font-style:normal;flex:0 0 30px;height:30px;border-radius:50%;background:var(--soft);color:var(--blue);display:grid;place-items:center;font-size:14px;font-weight:800}
+
+/* controles del acto 2 */
+.ctls{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:14px;padding-top:14px;border-top:1px solid var(--border)}
+.ctl{display:flex;flex-direction:column;gap:3px;font-size:11.5px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
+.ctl input,.ctl select{width:100%;min-width:0;border:1.5px solid #c8d7f5;border-radius:10px;padding:8px 10px;font:700 16px Montserrat,sans-serif;color:var(--navy);background:#fff;text-transform:none;letter-spacing:0}
+.ctl.bad input{border-color:#d93025;color:var(--bad);background:#fdecec}
+.ctl .w{display:none;color:var(--bad);text-transform:none;letter-spacing:0;font-size:11.5px}
+.ctl.bad .w{display:block}
+.chk{display:flex;align-items:center;gap:8px;font-size:14px;font-weight:700;color:var(--navy);grid-column:1/-1}
+.chk input{width:18px;height:18px;accent-color:var(--navy)}
+.chips{display:flex;flex-wrap:wrap;gap:7px;margin-top:12px}
+.chip{border:1.5px solid #c8d7f5;background:#fff;color:var(--navy);font-weight:700;font-size:14px;padding:8px 13px;border-radius:999px}
+.chip.on{background:var(--navy);border-color:var(--navy);color:#fff}
+.ingl{display:inline-flex;align-items:center;gap:6px;margin-top:12px;font-size:14px;font-weight:600;color:var(--navy);background:var(--success-soft);border-radius:999px;padding:4px 6px 4px 14px;align-self:flex-start}
+.ingl input{width:100px;border:0;border-radius:999px;padding:6px 10px;font:700 14px Montserrat,sans-serif;color:var(--navy);text-align:right}
+
+/* decisión */
+.dec{display:flex;flex-direction:column;gap:10px;margin-top:16px}
+.dec .opt{font-size:19px;padding:15px 18px}
+.mini{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
+.mini label{display:flex;flex-direction:column;gap:3px;font-size:12px;font-weight:700;color:var(--muted)}
+.mini input{border:1.5px solid #c8d7f5;border-radius:10px;padding:8px 10px;font:600 15px Montserrat,sans-serif;color:var(--navy)}
+.mini .full{grid-column:1/-1}
+
+/* lienzo derecho */
+.headrow{display:grid;grid-template-columns:1fr 340px;gap:14px}
+.why{background:#fff;border:1px solid var(--border);border-radius:20px;padding:16px 22px;display:flex;flex-direction:column;justify-content:center;min-height:118px}
+.why q{font-size:27px;line-height:1.2;font-weight:800;color:var(--navy);quotes:"“" "”"}
+.why .ghost{font-size:20px;font-weight:700;color:#a7b4cb}
+.hero{background:linear-gradient(150deg,var(--navy) 0%,#0a2a9a 100%);color:#fff;border-radius:20px;padding:16px 22px;display:flex;flex-direction:column;justify-content:center;min-height:118px;transition:all .3s}
+.hero small{font-size:13.5px;font-weight:600;opacity:.85}
+.hero b{display:block;font-size:46px;font-weight:800;letter-spacing:-.02em;line-height:1.05;margin:3px 0 1px}
+.hero span{font-size:13.5px;opacity:.85}
+.hero .sub2{margin-top:8px;padding-top:8px;border-top:1px solid rgba(255,255,255,.18);font-size:13.5px}
+.hero.empty{background:#fff;color:#a7b4cb;border:1.5px dashed #c8d7f5}
+.hero.empty b{font-size:22px}
+.chart{background:#fff;border:1px solid var(--border);border-radius:20px;padding:8px 12px 2px;position:relative;min-height:0;display:flex;flex-direction:column}
+.chart svg{flex:1;min-height:0;width:100%;display:block}
+.legend{position:absolute;right:22px;top:12px;display:flex;gap:16px;font-size:12.5px;font-weight:600;color:var(--muted)}
+.legend i{display:inline-block;width:22px;border-top:3px solid var(--navy);vertical-align:middle;margin-right:6px}
+.legend i.d{border-top:2.5px dashed #7d93d6}
+.disc{font-size:10.5px;color:var(--muted);padding:0 8px 6px}
+.steps{display:grid;grid-template-columns:40px repeat(var(--n),1fr) 40px;gap:8px}
+.nav{border:1px solid var(--border);background:#fff;border-radius:12px;font-size:20px;color:var(--navy);font-weight:700}
+.nav:disabled{opacity:.35;cursor:default}
+.step{border:1.5px solid var(--border);background:#fff;border-radius:12px;padding:8px 10px;text-align:left;display:flex;gap:8px;align-items:center}
+.step .n{flex:0 0 26px;height:26px;border-radius:50%;background:var(--soft);color:var(--blue);font-weight:800;font-size:13px;display:grid;place-items:center}
+.step b{display:block;font-size:13.5px;color:var(--navy);font-weight:800;line-height:1.15}
+.step small{display:block;font-size:11px;color:var(--muted);margin-top:1px}
+.step.on{background:var(--navy);border-color:var(--navy)}.step.on .n{background:#fff;color:var(--navy)}.step.on b{color:#fff}.step.on small{color:#b9c6f0}
+.step.done .n{background:var(--blue);color:#fff}
+
+.axis text{font-size:13px;fill:var(--muted);font-weight:600}
+.axis line{stroke:#e3e9f3}
+.callout rect{fill:#fff;stroke-width:1.5}
+.callout text{font-weight:700;font-size:15px}
+.callout text.s{font-weight:600;fill:var(--muted);font-size:12.5px}
+@keyframes draw{from{stroke-dashoffset:var(--len)}to{stroke-dashoffset:0}}
+@keyframes fadein{from{opacity:0}to{opacity:1}}
+.drawing{stroke-dasharray:var(--len);animation:draw 1.6s ease-out both}
+.areain{animation:fadein 1.2s .6s both}
+.side>*{animation:fadein .25s both}
+</style>
+</head>
+<body>
+<div class="top">
+  <img src="../../img/logo-garba.png" alt="GarBa">
+  <div class="who"><b id="tName">Tu plan de retiro</b><span>Asesoría con Christian García · Distribuidor autorizado Allianz</span></div>
+  <div class="acts" id="acts"></div>
+  <button class="duda" id="duda">¿Tienes una duda?</button>
+  <div class="mock"><span>MAQUETA</span><button id="mPdp" class="on">Con Punto de Partida</button><button id="mNo">Sin</button></div>
+</div>
+<main class="stage">
+  <aside class="side" id="side"></aside>
+  <section class="canvas">
+    <div class="headrow">
+      <div class="why" id="why"></div>
+      <div class="hero" id="hero"></div>
+    </div>
+    <div class="chart"><div class="legend" id="legend"></div><svg id="svg" aria-label="Tu retiro"></svg>
+      <div class="disc">Gráfica ilustrativa, sin escala de rendimiento ni garantía de crecimiento. Las inversiones pueden apreciarse o depreciarse.</div></div>
+    <div class="steps" id="steps"></div>
+  </section>
+</main>
+<script>
+// ===================== estado =====================
+const money=v=>'$'+Math.round(v).toLocaleString('es-MX');
+const mill=v=>v<1e6?money(v):'$'+(v/1e6).toLocaleString('es-MX',{maximumFractionDigits:1})+' millones';
+const calcMensual=f=>{const i=.07/12;return f*(i/(1-Math.pow(1+i,-240)))}; // misma fórmula que la herramienta
+const MESES=['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
+const START=new Date(2026,10,1);
+const dateAt=m=>{const d=new Date(START);d.setMonth(d.getMonth()+m);return MESES[d.getMonth()]+' '+d.getFullYear()};
+const minPmt=y=>y<=14?3000:2000;
+
+// Prospecto de ejemplo (ficticio) tal como llega de Punto de Partida
+const PDP={nombre:'Laura',edad:36,dolor:'Mi AFORE podría no alcanzar',meta:'Mantener mi nivel de vida',porque:'No depender de mis hijos',condicion:'Flexibilidad y acceso',freno:'Temor a comprometerme',metaHoy:30000,pmt:3500,years:20,reg:'151',ing:45000};
+let S; // respuestas
+function reset(pdp){
+  S=pdp?Object.assign({pdp:true},PDP):{pdp:false,nombre:'',edad:null,dolor:null,meta:null,porque:null,condicion:null,freno:null,metaHoy:null,pmt:null,years:25,reg:'151',ing:45000};
+  S.reinv=true;S.act=1;S.q=pdp?'resumen':'hola';S.step=0;S.chip=null;S.dec=null;S.duda=false;S.drawnOnce=false;S.reason=null;
+  if(!pdp)S.years=25;
+  recalc();
+}
+
+// ===================== preguntas del acto 1 (mismas opciones que hoy) =====================
+const Q=[
+ {k:'edad',label:'Edad',t:'Para empezar, <em>¿cuántos años tienes?</em>',num:true,unit:'años',ph:'36'},
+ {k:'dolor',label:'Te preocupa',t:'¿Qué te gustaría <em>resolver</em>?',opts:[['Mi AFORE podría no alcanzar','Quiero una fuente adicional de ingreso.'],['No tengo una ruta formal de retiro','Trabajo por mi cuenta o he cotizado irregular.'],['No quiero trabajar por obligación','Que trabajar sea una elección.'],['Proteger a mi familia','Contemplar a quienes dependen de mí.']]},
+ {k:'meta',label:'Quieres',t:'¿Qué te gustaría <em>conseguir</em>?',opts:[['Tener ingresos adicionales'],['Mantener mi nivel de vida'],['Trabajar por elección'],['Proteger a mi familia']]},
+ {k:'porque',label:'Por qué ahora',t:'¿Por qué es importante <em>empezar ahora</em>?',opts:[['No depender de mis hijos'],['Aprovechar el tiempo'],['Hoy tengo capacidad'],['Dejar de improvisar']]},
+ {k:'condicion',label:'No puede faltar',t:'¿Qué tiene que respetar tu plan para que <em>sí te funcione</em>?',opts:[['Flexibilidad y acceso'],['Seguridad y respaldo'],['Beneficio fiscal'],['Rendimiento y riesgo']]},
+ {k:'freno',label:'Te había frenado',t:'¿Qué te había <em>frenado</em> hasta hoy?',opts:[['Temor a comprometerme'],['Prioricé otros gastos'],['No encontraba una propuesta adecuada'],['Estuve a punto de contratar uno']]},
+ {k:'metaHoy',label:'Te gustaría recibir',t:'¿Cuánto te gustaría <em>recibir al mes</em> en tu retiro?',num:true,unit:'al mes, en pesos de hoy',ph:'30000',money:true},
+ {k:'pmt',label:'Puedes apartar',t:'¿Cuánto puedes <em>apartar cada mes</em> sin apretarte?',num:true,unit:'al mes',ph:'3000',money:true,fine:'Sin forzar tu presupuesto: primero un escenario que sí puedas sostener.'},
+];
+const fmtAns=(q,v)=>v==null||v===''?'':q.k==='edad'?v+' años':q.money?money(v):v;
+
+// ===================== cálculo real (la herramienta en un iframe, mismas fórmulas) =====================
+const frame=document.createElement('iframe');frame.style.cssText='position:absolute;width:1px;height:1px;opacity:0;pointer-events:none;left:-9999px';
+frame.src='../../index.html?flujo=clasico';document.body.appendChild(frame);
+let READY=false,D=null;
+function tool(reg,reinv){
+  const w=frame.contentWindow,doc=w.document;
+  const set=(id,v)=>{const e=doc.getElementById(id);if(!e)return;if(e.tagName==='SELECT'&&![...e.options].some(o=>o.value==String(v))){const o=doc.createElement('option');o.value=v;o.textContent=v;e.appendChild(o)}e.disabled=false;e.value=v;e.dispatchEvent(new w.Event('input',{bubbles:true}));e.dispatchEvent(new w.Event('change',{bubbles:true}))};
+  set('edad',S.edad);set('years',String(S.years));set('pmt',S.pmt);set('regimenFiscal',reg);if(reg==='151')set('ingresoMensualCliente',S.ing);
+  if(S.metaHoy)set('metaHoy',S.metaHoy);
+  const ck=doc.getElementById('reinvertISR');if(ck){ck.checked=reinv;ck.dispatchEvent(new w.Event('change',{bubbles:true}))}
+  w.calcAccum();try{w.updateSuggestion&&w.updateSuggestion()}catch(e){}
+  const s=w.eval('reportState');
+  return {fondoPlan:s.fondoPlan,fondo65:s.fondo65,fondo60:s.fondo60,dev1:s.devolucionFiscalPrimerAnoVista??s.devolucionFiscalPrimerAno,impacto65:s.impactoISR65,sug:s.pmtSugerido,infl:s.infl||4};
+}
+function maxYears(){return [10,15,20,25].filter(y=>!S.edad||S.edad+y<=65)}
+function recalc(){
+  if(S.edad){const ok=maxYears();if(!ok.includes(+S.years))S.years=ok[ok.length-1]||10}
+  if(READY&&S.edad&&S.pmt){
+    const r=S.reg==='93'?tool('93',false):tool('151',S.reinv);
+    if(S.reg==='151'&&!S.reinv)r.impacto65=0;
+    D=r;
+  }else D=null;
+  render();
+}
+
+// ===================== render =====================
+const $=id=>document.getElementById(id);
+function render(){renderTop();renderSide();renderCanvas()}
+
+function renderTop(){
+  $('tName').textContent=S.nombre?'El plan de retiro de '+S.nombre:'Tu plan de retiro';
+  const A=[['Tu porqué'],['Tu número'],['Tu decisión']];
+  $('acts').innerHTML=A.map((a,i)=>'<button class="act'+(S.act===i+1?' on':S.act>i+1?' done':'')+'" data-a="'+(i+1)+'"><i>'+(S.act>i+1?'✓':i+1)+'</i>'+a[0]+'</button>').join('');
+  $('acts').querySelectorAll('[data-a]').forEach(b=>b.onclick=()=>goAct(+b.dataset.a));
+  $('duda').classList.toggle('on',S.duda);
+}
+function goAct(a){
+  if(a>1&&!(S.edad&&S.pmt)){ // atajo: sin datos todavía, se piden ahí mismo
+    S.act=1;S.q=!S.edad?0:7;S.duda=false;render();return}
+  S.act=a;S.duda=false;S.step=0;S.chip=null;render();
+}
+
+// ---------- columna izquierda ----------
+function hist(){
+  const items=Q.filter(q=>S[q.k]!=null&&S[q.k]!=='');
+  if(!items.length)return'';
+  return '<div class="hist">'+items.map(q=>'<button data-edit="'+Q.indexOf(q)+'"><span>'+q.label+'</span><b>'+fmtAns(q,S[q.k])+'</b></button>').join('')+'</div>';
+}
+function renderSide(){
+  const sd=$('side');let h='';
+  if(S.duda){h=dudaHTML()}
+  else if(S.act===1){
+    if(S.q==='hola'){
+      h='<div class="kicker">Bienvenida</div><h2>Hoy vamos a <em>dibujar tu retiro</em>, juntos.</h2>'+
+        '<div class="path3"><div><i>1</i>Entendemos qué quieres resolver</div><div><i>2</i>Vemos tu número</div><div><i>3</i>Decides el siguiente paso</div></div>'+
+        '<p class="lead">Cada respuesta va construyendo tu gráfica, ahí a la derecha.</p>'+
+        '<div class="me"><img src="../../img/foto-credencial-christian.jpg" alt=""><div><b>Christian García</b><span>Asesor autorizado CNSF · Cédula G384982<br>Distribuidor autorizado Allianz</span></div></div>'+
+        '<div class="grow"></div><button class="go" id="start">Empecemos →</button>';
+    }else if(S.q==='resumen'){
+      h='<div class="kicker">'+(S.pdp?'Punto de partida':'Esto es lo que entendí')+'</div><h2>'+(S.pdp?(S.nombre?S.nombre+', esto ':'Esto ')+'es lo que <em>ya me contaste</em>.':'Esto es lo que <em>entendí de ti</em>.')+'</h2>'+
+        '<p class="lead" style="margin-bottom:14px">'+(S.pdp?'Con eso ya dibujamos tu retiro. ¿Sigue siendo así?':'¿Te representa?')+'</p>'+hist()+
+        '<div class="grow"></div><button class="go" id="toNum">Sí, así es · ver mi número →</button><button class="link" id="fix">Quiero ajustar algo</button>';
+    }else{
+      const q=Q[S.q],n=Q.length;
+      h='<div class="kicker">Tu porqué · '+(S.q+1)+' de '+n+'</div>'+hist()+'<h2>'+q.t+'</h2>';
+      if(q.opts)h+='<div class="opts">'+q.opts.map(o=>'<button class="opt'+(S[q.k]===o[0]?' on':'')+'" data-o="'+o[0]+'">'+o[0]+(o[1]?'<small>'+o[1]+'</small>':'')+'</button>').join('')+'</div>';
+      if(q.num)h+='<label class="big">'+(q.money?'$':'')+'<input id="qn" type="number" inputmode="numeric" placeholder="'+q.ph+'" value="'+(S[q.k]??'')+'"><span>'+q.unit+'</span></label>'+(q.fine?'<p class="fine">'+q.fine+'</p>':'')+'<button class="go" id="qok">Listo →</button>';
+      h+='<div class="grow"></div><button class="link" id="skip">Ir directo a tu número →</button>';
+    }
+  }else if(S.act===2){h=numSide()}
+  else h=decSide();
+  sd.innerHTML=h;wireSide();
+}
+function wireSide(){
+  const sd=$('side');
+  sd.querySelectorAll('[data-edit]').forEach(b=>b.onclick=()=>{S.act=1;S.q=+b.dataset.edit;render()});
+  if($('start'))$('start').onclick=()=>{S.q=0;render()};
+  if($('toNum'))$('toNum').onclick=()=>goAct(2);
+  if($('fix'))$('fix').onclick=()=>{S.q=1;render()};
+  if($('skip'))$('skip').onclick=()=>goAct(2);
+  sd.querySelectorAll('[data-o]').forEach(b=>b.onclick=()=>{const q=Q[S.q];S[q.k]=b.dataset.o;render();setTimeout(nextQ,280)});
+  const qn=$('qn');if(qn){qn.focus();const ok=()=>{const v=+qn.value;if(!v)return;const q=Q[S.q];S[q.k]=v;nextQ(true)};
+    $('qok').onclick=ok;qn.onkeydown=e=>{e.stopPropagation();if(e.key==='Enter')ok()}}
+  // acto 2
+  sd.querySelectorAll('[data-chip]').forEach(b=>b.onclick=()=>{const i=+b.dataset.chip;S.chip=S.chip===i?null:i;render()});
+  const bind=(id,k,num)=>{const e=$(id);if(!e)return;e.onkeydown=ev=>ev.stopPropagation();e.onchange=()=>{S[k]=num?+e.value:e.value;recalc()}};
+  bind('cPmt','pmt',1);bind('cYrs','years',1);bind('cReg','reg');bind('iIng','ing',1);bind('cMeta','metaHoy',1);
+  if($('cReinv'))$('cReinv').onchange=e=>{S.reinv=e.target.checked;recalc()};
+  if($('toDec'))$('toDec').onclick=()=>goAct(3);
+  // acto 3
+  sd.querySelectorAll('[data-dec]').forEach(b=>b.onclick=()=>{S.dec=S.dec===b.dataset.dec?null:b.dataset.dec;render()});
+  sd.querySelectorAll('[data-r]').forEach(b=>b.onclick=()=>{S.reason=b.dataset.r;render()});
+  if($('back'))$('back').onclick=()=>{S.duda=false;render()};
+  sd.querySelectorAll('[data-dq]').forEach(b=>b.onclick=()=>{S.dq=+b.dataset.dq;render()});
+}
+function nextQ(){
+  const i=typeof S.q==='number'?S.q:0;
+  const nx=Q.findIndex((q,j)=>j>i&&(S[q.k]==null||S[q.k]===''));
+  S.q=nx<0?'resumen':nx;recalc();
+}
+
+// ---------- acto 2: tu número ----------
+const CHIPS=[['Ⅱ','Pausar','¿Un mal año? Puedes pausar hasta 12 meses.'],['+','Aportar más','¿Te sobró dinero? Lo puedes meter cuando quieras.'],['↑','Subir tu aportación','¿Ganas más? Aumentas lo que aportas.'],['↓','Sacar una parte','Puedes hacer retiros parciales. Aplican condiciones.'],['⌂','Pedir prestado','Hasta 50% de tu saldo comprometido en alternativas conservadoras, sujeto a aprobación de Allianz y a las condiciones del contrato.']];
+function stepsFor(){
+  if(!D)return[];
+  const END=S.years*12,TOTAL=(65-S.edad)*12,M60=(60-S.edad)*12;
+  const s=[
+   {k:'Empiezas',sm:dateAt(0)+' · '+S.edad+' años',range:[0,6],t:'Hoy empiezas con <em>'+money(S.pmt)+'</em> al mes.',p:'Es lo único que decides hoy. Lo demás lo hace el tiempo.'},
+   {k:'Tu base',sm:'Mes 1 al 18',range:[0,18],t:'Los primeros <em>18 meses</em> armas tu base.',p:'Tu constancia puede ser reconocida con un bono, sujeto a las condiciones del plan. En '+dateAt(18)+' ya se abren tus opciones.'},
+   {k:'Sube y baja',sm:'Toda la inversión',range:[0,TOTAL],wave:true,t:'Tu dinero está invertido: <em>sube y baja</em>.',p:'Cuando baja, tu misma aportación compra más. Lo que cuenta es el camino completo, no un mes.'},
+   {k:'Tú decides',sm:'Desde el mes 19',range:[18,END],chips:true,t:'Después del mes 18, <em>tú decides</em>.',p:'Toca una opción:'},
+  ];
+  if(S.reg==='151')s.push({k:'Te devuelven',sm:'Cada año, al declarar',range:[0,END],refund:true,t:'Cada año te <em class="g">devuelven impuestos</em>.',
+    p:S.reinv?'Unos <b>'+money(D.dev1)+'</b> el primer año. Como los vuelves a meter al plan, <b>'+mill(D.impacto65)+'</b> de lo que juntas a los 65 vienen de ahí.':'Unos <b>'+money(D.dev1)+'</b> el primer año, para ti. Si los metes al plan, tu retiro crece todavía más.',
+    ing:true,fine:'Deducción sujeta a límites y requisitos fiscales; depende de tu situación como contribuyente.'});
+  else if(S.reg==='93')s.push({k:'Desde los 60',sm:dateAt(M60)+' · 60 años',range:[M60-4,M60+4],at60:true,t:'Desde los 60 ya puedes <em>empezar a recibir</em>.',
+    p:'Unos <b>'+money(calcMensual(D.fondo60))+'</b> al mes. Puede salir libre de impuestos si llevas 5 años en el plan.',fine:'El beneficio depende de la modalidad, los requisitos aplicables y la legislación vigente.'});
+  s.push({k:'Tu retiro',sm:dateAt(TOTAL)+' · 65 años',range:[END,TOTAL],end:true,t:'A los 65 recibes <em>'+money(calcMensual(D.fondo65))+'</em> al mes.',
+    p:'Dejas de aportar a los '+(S.edad+S.years)+' y tu dinero sigue creciendo hasta los 65: juntas <b>'+mill(D.fondo65)+'</b>.',fine:'Es una estimación. El dinero de '+(START.getFullYear()+65-S.edad)+' no vale lo mismo que el de hoy.'});
+  return s;
+}
+function numSide(){
+  const St=stepsFor(),cur=S.step?St[S.step-1]:null;let h;
+  if(!cur)h='<div class="kicker">Tu número</div><h2>Así se construye <em>tu retiro</em>, paso a paso.</h2><p class="lead">Toca el primer paso abajo o usa las flechas.</p>';
+  else{let p=cur.p;
+    if(cur.chips&&S.chip!=null){const c=CHIPS[S.chip];p=c[2]+(S.chip===3?' <span style="color:var(--muted)">'+(S.reg==='151'?'Para que salga libre de impuestos, retira desde los 65 (hasta 15 UMAs al año).':'Para que salga libre de impuestos, retira desde los 60 y con 5 años en el plan.')+'</span>':'')}
+    h='<div class="kicker">Paso '+S.step+' de '+St.length+'</div><h2>'+cur.t+'</h2><p class="lead">'+p+'</p>'+
+      (cur.chips?'<div class="chips">'+CHIPS.map((c,i)=>'<button class="chip'+(S.chip===i?' on':'')+'" data-chip="'+i+'">'+c[0]+' '+c[1]+'</button>').join('')+'</div>':'')+
+      (cur.ing?'<label class="ingl">Con un ingreso de $<input id="iIng" type="number" step="1000" value="'+S.ing+'"> al mes</label>':'')+
+      (cur.fine?'<p class="fine">'+cur.fine+'</p>':'');}
+  const bad=S.pmt<minPmt(S.years);
+  h+='<div class="grow"></div><div class="ctls">'+
+    '<label class="ctl'+(bad?' bad':'')+'">Aportas al mes<input id="cPmt" type="number" step="500" value="'+S.pmt+'"><span class="w">Mínimo '+money(minPmt(S.years))+' con '+(S.years<=14?'10 a 14':'15 a 25')+' años</span></label>'+
+    '<label class="ctl">Durante<select id="cYrs">'+maxYears().map(y=>'<option value="'+y+'"'+(y==S.years?' selected':'')+'>'+y+' años</option>').join('')+'</select></label>'+
+    '<label class="ctl">Régimen<select id="cReg"><option value="151"'+(S.reg==='151'?' selected':'')+'>Art. 151</option><option value="93"'+(S.reg==='93'?' selected':'')+'>Art. 93</option><option value="sin"'+(S.reg==='sin'?' selected':'')+'>Sin beneficio fiscal</option></select></label>'+
+    '<label class="ctl">Meta al mes (hoy)<input id="cMeta" type="number" step="1000" value="'+(S.metaHoy||'')+'"></label>'+
+    (S.reg==='151'?'<label class="chk"><input id="cReinv" type="checkbox"'+(S.reinv?' checked':'')+'>Reinvertir la devolución</label>':'')+
+    '</div><button class="go" id="toDec" style="margin-top:12px">Siguiente: tu decisión →</button>';
+  return h;
+}
+
+// ---------- acto 3: tu decisión ----------
+function decSide(){
+  let h='<div class="kicker">Tu decisión</div><h2>'+(S.nombre?S.nombre+', ¿cómo':'¿Cómo')+' quieres <em>seguir</em>?</h2><p class="lead">Con '+money(S.pmt)+' al mes, a los 65 recibirías '+(D?money(calcMensual(D.fondo65)):'—')+' al mes.</p><div class="dec">';
+  const O=[['hoy','Iniciar hoy','Abrimos tu plan juntos, ahora.'],['agendar','Agendar la apertura','Elegimos el día para abrirlo.'],['pensar','Necesito pensarlo','Acordamos cuándo te busco.']];
+  for(const [k,t,s] of O){if(S.dec&&S.dec!==k)continue;h+='<button class="opt'+(S.dec===k?' on':'')+'" data-dec="'+k+'">'+t+'<small>'+s+'</small></button>';
+    if(S.dec===k&&k==='agendar')h+='<div class="mini"><label>Día<input type="date"></label><label>Hora<input type="time"></label></div>';
+    if(S.dec===k&&k==='pensar'){h+='<div class="chips">'+['El monto','Platicarlo con mi pareja','Compararlo con otra opción','No sé si tendré liquidez','Quiero empezar más adelante','Quiero estar seguro de con quién lo hago'].map(r=>'<button class="chip'+(S.reason===r?' on':'')+'" data-r="'+r+'">'+r+'</button>').join('')+'</div>'+
+      '<div class="mini"><label>¿Cuándo te busco?<input type="date"></label><label>Hora<input type="time"></label><label class="full">Para entonces ya…<input placeholder="lo platicaste con tu pareja"></label></div>'}}
+  if(S.dec)h+='<button class="link" data-dec="'+S.dec+'">← Ver las otras opciones</button>';
+  return h+'</div>';
+}
+
+// ---------- dudas (biblioteca) ----------
+const DUDAS=['¿Qué pasa si necesito el dinero o dejo de pagar?','¿Es seguro? ¿Quién respalda?','¿Cómo funciona un PPR?','¿Cómo funciona el Art. 151?','¿Cómo funciona el Art. 93?','¿Y la volatilidad?','¿Cómo se abre?'];
+function dudaHTML(){
+  if(S.dq!=null)return '<div class="kicker">Tu duda</div><h2>'+DUDAS[S.dq]+'</h2><p class="lead" style="color:var(--muted)">[Aquí se abre la respuesta que ya tiene tu Biblioteca, sin salir de esta pantalla. Tu gráfica sigue a la derecha.]</p><div class="grow"></div><button class="link" data-dq="-1" id="dqb">← Otras dudas</button><button class="go" id="back">Volver a donde íbamos</button>';
+  return '<div class="kicker">¿Tienes una duda?</div><h2>Resolvámosla <em>aquí mismo</em>.</h2><div class="opts">'+DUDAS.map((d,i)=>'<button class="opt" data-dq="'+i+'">'+d+'</button>').join('')+'</div><div class="grow"></div><button class="go" id="back">Volver a donde íbamos</button>';
+}
+
+// ---------- lienzo derecho ----------
+const WHY={'No depender de mis hijos':'para no depender de mis hijos','Aprovechar el tiempo':'aprovechando el tiempo','Hoy tengo capacidad':'porque hoy tengo capacidad','Dejar de improvisar':'para dejar de improvisar'};
+function renderCanvas(){
+  // tu porqué
+  const w=$('why');
+  if(S.meta||S.porque){const a=S.meta||'',b=S.porque?WHY[S.porque]||S.porque.toLowerCase():'';
+    w.innerHTML='<div class="kicker">Tu porqué</div><q>'+(a&&b?a+', '+b:a||b.charAt(0).toUpperCase()+b.slice(1))+'.</q>'}
+  else if(S.dolor)w.innerHTML='<div class="kicker">Lo que quieres resolver</div><q>'+S.dolor+'.</q>';
+  else w.innerHTML='<div class="kicker">Tu porqué</div><div class="ghost">Aquí va lo que te mueve a hacer esto.</div>';
+  // cifra
+  const he=$('hero');
+  if(D){he.className='hero';
+    const yr=START.getFullYear()+65-S.edad,metaFut=S.metaHoy?S.metaHoy*Math.pow(1+D.infl/100,65-S.edad):0;
+    const sug=S.metaHoy&&D.sug>S.pmt+1?'<div class="sub2">Tu meta de '+money(S.metaHoy)+' de hoy serán unos <strong>'+money(Math.round(metaFut/1000)*1000)+'</strong> en '+yr+'. Para llegar: <strong>'+money(Math.ceil(D.sug/100)*100)+'</strong> al mes.</div>':S.metaHoy&&D.sug>0?'<div class="sub2">Llegas a tu meta de '+money(S.metaHoy)+' de hoy ✓</div>':'<div class="sub2">Lo que juntas a los 65: <strong>'+mill(D.fondo65)+'</strong></div>';
+    he.innerHTML='<small>A los 65 recibes</small><b>'+money(calcMensual(D.fondo65))+'</b><span>al mes · estimado · juntas '+mill(D.fondo65)+'</span>'+sug}
+  else{he.className='hero empty';he.innerHTML='<small>A los 65 recibes</small><b>'+(S.metaHoy?'Tu meta: '+money(S.metaHoy)+' al mes':'Tu cifra aparece aquí')+'</b><span>'+(S.edad?'en cuanto sepamos cuánto puedes apartar':'')+'</span>'}
+  // pasos (solo en el acto 2)
+  const sp=$('steps'),St=S.act===2&&!S.duda?stepsFor():[];
+  sp.style.display=St.length?'':'none';sp.style.setProperty('--n',St.length);
+  if(St.length){sp.innerHTML='<button class="nav" id="prev">‹</button>'+St.map((s,i)=>'<button class="step'+(S.step===i+1?' on':S.step>i+1?' done':'')+'" data-s="'+(i+1)+'"><span class="n">'+(i+1)+'</span><span><b>'+s.k+'</b><small>'+s.sm+'</small></span></button>').join('')+'<button class="nav" id="next">›</button>';
+    sp.querySelectorAll('[data-s]').forEach(b=>b.onclick=()=>goStep(S.step===+b.dataset.s?0:+b.dataset.s));
+    $('prev').disabled=S.step===0;$('next').disabled=S.step===St.length;$('prev').onclick=()=>goStep(S.step-1);$('next').onclick=()=>goStep(S.step+1)}
+  requestAnimationFrame(drawChart);
+}
+function goStep(n){const L=stepsFor().length;S.step=Math.max(0,Math.min(L,n));S.chip=null;render()}
+document.addEventListener('keydown',e=>{if(/INPUT|SELECT/.test(e.target.tagName)||S.act!==2||S.duda)return;if(e.key==='ArrowRight')goStep(S.step+1);if(e.key==='ArrowLeft')goStep(S.step-1)});
+
+// ===================== gráfica =====================
+let W,H,PL=74,PR=36,PT=44,PB=64,TOTAL,END,X,Y;
+function curve(){let lo=0,hi=.03;for(let k=0;k<60;k++){const r=(lo+hi)/2;const fv=S.pmt*((Math.pow(1+r,END)-1)/r);fv<D.fondoPlan?lo=r:hi=r}
+  const r1=(lo+hi)/2,g=END<TOTAL?Math.pow(D.fondo65/D.fondoPlan,1/(TOTAL-END)):1;const p=[];for(let m=0;m<=TOTAL;m++)p.push(m<=END?S.pmt*((Math.pow(1+r1,m)-1)/r1):D.fondoPlan*Math.pow(g,m-END));return p}
+function wave(pts){return pts.map((v,m)=>{const t=m/TOTAL,env=Math.sin(Math.PI*t)**.8,n=.55*Math.sin(m/11+.4)+.32*Math.sin(m/4.7+1.3)+.22*Math.sin(m/27+2.1)+.12*Math.sin(m/2.3);
+  const c=Math.round(END*.62),dd=m>c-14&&m<c+16?-.13*Math.sin(Math.PI*(m-(c-14))/30):0;return m===TOTAL?v:Math.max(0,v*(1+.13*env*n+dd))})}
+function callout(x,y,t,s,side,color){const w=Math.max(t.length*8.6,s.length*6.9)+26,h=50;let rx=side==='left'?x-w:side==='right'?x:x-w/2,ry=y-h;rx=Math.max(PL,Math.min(W-PR-w,rx));ry=Math.max(4,ry);const c=color||'#001868';
+  return '<g class="callout"><rect x="'+rx+'" y="'+ry+'" width="'+w+'" height="'+h+'" rx="10" style="stroke:'+c+'"/><text x="'+(rx+13)+'" y="'+(ry+21)+'" style="fill:'+c+'">'+t+'</text><text class="s" x="'+(rx+13)+'" y="'+(ry+39)+'">'+s+'</text></g>'}
+function drawChart(){
+  const sv=$('svg'),box=sv.getBoundingClientRect();W=Math.max(300,Math.round(box.width));H=Math.max(200,Math.round(box.height));sv.setAttribute('viewBox','0 0 '+W+' '+H);
+  const age=S.edad||null;TOTAL=age?(65-age)*12:360;END=Math.min(S.years*12,TOTAL);X=m=>PL+(W-PL-PR)*m/TOTAL;
+  const base=H-PB;let g='';$('legend').innerHTML='';
+  if(!D){ // lienzo en blanco: solo el eje
+    Y=v=>base;g+='<g class="axis"><line x1="'+PL+'" x2="'+(W-PR)+'" y1="'+base+'" y2="'+base+'" style="stroke:#b8c4d8"/>';
+    if(age){g+='<text x="'+X(0)+'" y="'+(base+22)+'">Hoy · '+age+' años</text><text x="'+X(TOTAL)+'" y="'+(base+22)+'" text-anchor="end">65 años</text>';
+      g+='<text x="'+((PL+W-PR)/2)+'" y="'+(base+22)+'" text-anchor="middle" style="font-weight:800;fill:#0830E8">'+(65-age)+' años para construir tu retiro</text>';
+      g+='<circle cx="'+X(0)+'" cy="'+base+'" r="8" fill="#0830E8" stroke="#fff" stroke-width="3"/><circle cx="'+X(TOTAL)+'" cy="'+base+'" r="8" fill="#fff" stroke="#0830E8" stroke-width="3"/>'}
+    g+='</g><text x="'+((PL+W-PR)/2)+'" y="'+(PT+(base-PT)/2)+'" text-anchor="middle" style="font-size:22px;font-weight:700;fill:#c3cde0">'+(age?'Aquí vamos a dibujar tu retiro':'Empecemos por tu edad')+'</text>';
+    sv.innerHTML=g;return}
+  const St=S.act===2&&!S.duda?stepsFor():[],cur=S.step?St[S.step-1]:null;
+  const pts=curve(),wv=wave(pts),max=Math.max(...wv,...pts)*1.15;Y=v=>PT+(base-PT)*(1-v/max);
+  const path=a=>a.map((v,m)=>(m?'L':'M')+X(m).toFixed(1)+' '+Y(v).toFixed(1)).join('');
+  g+='<defs><linearGradient id="ar" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0830E8" stop-opacity=".28"/><stop offset="1" stop-color="#0830E8" stop-opacity=".02"/></linearGradient>'+
+     '<clipPath id="hl"><rect x="'+(cur?X(cur.range[0]):0)+'" y="0" width="'+(cur?X(cur.range[1])-X(cur.range[0]):W)+'" height="'+H+'"/></clipPath></defs><g class="axis">';
+  const stepT=max>8e6?2.5e6:max>4e6?1e6:max>1.5e6?5e5:2.5e5;for(let v=stepT;v<max*.97;v+=stepT)g+='<line x1="'+PL+'" x2="'+(W-PR)+'" y1="'+Y(v)+'" y2="'+Y(v)+'"/><text x="'+(PL-10)+'" y="'+(Y(v)+4)+'" text-anchor="end">$'+(v/1e6).toLocaleString('es-MX')+' M</text>';
+  g+='<line x1="'+PL+'" x2="'+(W-PR)+'" y1="'+base+'" y2="'+base+'" style="stroke:#b8c4d8"/>';
+  const ages=[age,age+S.years,60,65].filter((a,i,arr)=>arr.indexOf(a)===i&&a<=65&&(i<2||Math.abs(a-(age+S.years))>2));
+  ages.forEach(a=>g+='<text x="'+X((a-age)*12)+'" y="'+(base+20)+'" text-anchor="'+(a===age?'start':a===65?'end':'middle')+'">'+(a===age?'Hoy · ':'')+a+' años</text>');
+  g+='</g>';
+  // franja de fases bajo el eje
+  [[0,18,'Tu base'],[18,END,'Tú decides · sigues aportando'],[END,TOTAL,'Sigue creciendo']].forEach(([a,b,l],i)=>{if(b<=a)return;const on=cur&&cur.range[0]<b&&cur.range[1]>a&&!cur.wave;const x1=X(a)+1,x2=X(b)-1;
+    g+='<rect x="'+x1+'" y="'+(base+32)+'" width="'+(x2-x1)+'" height="6" rx="3" fill="'+(on?'#0830E8':'#d6e0f2')+'"/><text x="'+(i?(x1+x2)/2:x1)+'" y="'+(base+54)+'" text-anchor="'+(i?'middle':'start')+'" style="font-size:12.5px;font-weight:700;fill:'+(on?'#0830E8':'#8a99b3')+'">'+l+'</text>'});
+  const area=a=>path(a)+'L'+X(TOTAL)+' '+base+'L'+X(0)+' '+base+'Z';
+  const anim=!S.drawnOnce;S.drawnOnce=true;
+  if(cur&&cur.range[1]===18)g+='<rect x="'+X(0)+'" y="'+PT+'" width="'+(X(18)-X(0))+'" height="'+(base-PT)+'" fill="#0830E8" opacity=".10"/>';
+  if(cur&&cur.wave){$('legend').innerHTML='<span><i class="d"></i>Lo que estimamos</span><span><i></i>Cómo se mueve de verdad</span>';
+    g+='<path d="'+area(wv)+'" fill="url(#ar)"/><path d="'+path(pts)+'" fill="none" stroke="#7d93d6" stroke-width="2.5" stroke-dasharray="7 6"/><path d="'+path(wv)+'" fill="none" stroke="#001868" stroke-width="3.5" stroke-linejoin="round"/>';
+    let best=-1,bv=0;for(let m=Math.round(END*.5);m<END-20;m++){const r=wv[m]/pts[m];if(best<0||r<bv){bv=r;best=m}}
+    if(best>0){const vx=X(best),vy=Y(wv[best]);g+='<circle cx="'+vx+'" cy="'+vy+'" r="7" fill="#0f8a5f" stroke="#fff" stroke-width="3"/><line x1="'+vx+'" x2="'+vx+'" y1="'+(vy-12)+'" y2="'+(vy-44)+'" stroke="#0f8a5f" stroke-width="1.5"/>'+callout(vx,vy-44,'Aquí baja: tu aportación compra más','la misma cantidad, más unidades','center','#0f8a5f')}
+  }else{
+    const dim=cur?' opacity=".22"':'';
+    g+='<g'+dim+'><path class="'+(anim?'areain':'')+'" d="'+area(pts)+'" fill="url(#ar)"/><path id="ln" class="'+(anim?'drawing':'')+'" d="'+path(pts)+'" fill="none" stroke="#001868" stroke-width="3.5"/></g>';
+    if(cur)g+='<g clip-path="url(#hl)"><path d="'+area(pts)+'" fill="url(#ar)"/><path d="'+path(pts)+'" fill="none" stroke="#0830E8" stroke-width="5"/></g>';
+  }
+  const dot=(m,c)=>'<circle cx="'+X(m)+'" cy="'+Y(pts[m])+'" r="7" fill="'+(c||'#0830E8')+'" stroke="#fff" stroke-width="3"/>';
+  if(!cur||cur.end)g+=dot(TOTAL)+callout(X(TOTAL),Y(pts[TOTAL])-16,money(calcMensual(D.fondo65))+' al mes','desde los 65','left');
+  if(cur&&cur.range[1]===6)g+=dot(0)+callout(X(0)+14,Y(0)-18,'Hoy: '+money(S.pmt)+' al mes',dateAt(0),'right');
+  if(cur&&cur.range[1]===18)g+=dot(18)+callout(X(18)+14,Y(pts[18])-20,'Mes 18: tu base está lista',dateAt(18)+' · se abren tus opciones','right');
+  if(cur&&cur.chips)g+=dot(18)+dot(END)+callout(X(END)-14,Y(pts[END])-18,'Terminas de aportar',dateAt(END)+' · llevas '+mill(D.fondoPlan),'left');
+  if(cur&&cur.refund){for(let y=1;y<=S.years;y++){const m=y*12-6;g+='<circle cx="'+X(m)+'" cy="'+Y(pts[m])+'" r="5.5" fill="#0f8a5f" stroke="#fff" stroke-width="2"/>'}
+    g+=callout(X(30)+8,Y(pts[30])-22,'+'+money(D.dev1)+' de vuelta','el primer año · cada punto es un año','right','#0f8a5f')}
+  if(cur&&cur.at60){const M60=(60-age)*12;g+='<line x1="'+X(M60)+'" x2="'+X(M60)+'" y1="'+Y(pts[M60])+'" y2="'+base+'" stroke="#0830E8" stroke-dasharray="4 4"/>'+dot(M60)+callout(X(M60)-14,Y(pts[M60])-18,money(calcMensual(D.fondo60))+' al mes','desde los 60 · Art. 93','left')}
+  sv.innerHTML=g;
+  const ln=$('ln');if(ln&&anim){ln.style.setProperty('--len',ln.getTotalLength())}
+}
+addEventListener('resize',()=>drawChart());
+
+// ===================== arranque =====================
+$('duda').onclick=()=>{S.duda=!S.duda;S.dq=null;render()};
+$('side').addEventListener('click',e=>{if(e.target.id==='dqb'){S.dq=null;render()}});
+$('mPdp').onclick=()=>{$('mPdp').classList.add('on');$('mNo').classList.remove('on');reset(true)};
+$('mNo').onclick=()=>{$('mNo').classList.add('on');$('mPdp').classList.remove('on');reset(false)};
+const qs=new URLSearchParams(location.search);
+reset(qs.get('pdp')!=='0');
+if(qs.get('pdp')==='0'){$('mNo').classList.add('on');$('mPdp').classList.remove('on')}
+frame.onload=()=>setTimeout(()=>{READY=true;
+  if(qs.get('act'))S.act=+qs.get('act');if(qs.get('step'))S.step=+qs.get('step');if(qs.get('q'))S.q=isNaN(+qs.get('q'))?qs.get('q'):+qs.get('q');if(qs.get('dec'))S.dec=qs.get('dec');if(qs.get('reg'))S.reg=qs.get('reg');
+  recalc()},300);
+</script>
+</body>
+</html>

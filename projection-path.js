@@ -165,7 +165,7 @@ function callout(x,y,t,s,side,color){
 }
 
 function go(n){const L=stepsFor().length;step=Math.max(0,Math.min(L,n));chip=null;paint()}
-document.addEventListener('keydown',e=>{if(host.hidden||$('gaPane-projection').hidden||/INPUT|SELECT|TEXTAREA/.test(e.target.tagName)||e.target.isContentEditable)return;if(e.key==='ArrowRight'||e.key==='ArrowLeft'){e.preventDefault();go(step+(e.key==='ArrowRight'?1:-1))}});
+document.addEventListener('keydown',e=>{if(!$('gaLienzo')?.hidden||!host.offsetParent||host.hidden||$('gaPane-projection').hidden||/INPUT|SELECT|TEXTAREA/.test(e.target.tagName)||e.target.isContentEditable)return;if(e.key==='ArrowRight'||e.key==='ArrowLeft'){e.preventDefault();go(step+(e.key==='ArrowRight'?1:-1))}});
 function render(){
  const classic=window.GA_FLOW_CLASSIC===true;host.hidden=classic;
  if(classic){graphAnchor.after(originalGraph);return}else $('gaPane-gap').append(originalGraph);
