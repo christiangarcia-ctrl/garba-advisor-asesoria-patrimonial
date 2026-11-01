@@ -90,7 +90,7 @@ function renderSide(){
       h='<div class="kicker">Bienvenida</div><h2>Hoy vamos a <em>dibujar tu retiro</em>, juntos.</h2>'+
         '<div class="path3"><div><i>1</i>Entendemos qué quieres resolver</div><div><i>2</i>Vemos tu número</div><div><i>3</i>Decides el siguiente paso</div></div>'+
         '<p class="lead">Cada respuesta va construyendo tu gráfica, ahí a la derecha.</p>'+
-        '<button class="me" id="credentials"><img src="../../img/foto-credencial-christian.jpg" alt=""><div><b>Christian García</b><span>Asesor autorizado CNSF · Cédula G384982<br>Distribuidor autorizado Allianz</span></div></button>'+
+        '<button class="me" id="credentials"><img src="img/foto-credencial-christian.jpg" alt=""><div><b>Christian García</b><span>Asesor autorizado CNSF · Cédula G384982<br>Distribuidor autorizado Allianz</span></div></button>'+
         (original('gaImportSession')?'<button class="link" id="resumeLink">¿Retomas una sesión guardada?</button>':'')+'<div class="grow"></div><button class="go" id="start">Empecemos →</button>';
     }else if(S.q==='resumen'){
       h='<div class="kicker">'+(S.pdp?'Punto de partida':'Esto es lo que entendí')+'</div><h2>'+(S.pdp?(S.nombre?esc(S.nombre)+', esto ':'Esto ')+'es lo que <em>ya me contaste</em>.':'Esto es lo que <em>entendí de ti</em>.')+'</h2>'+
