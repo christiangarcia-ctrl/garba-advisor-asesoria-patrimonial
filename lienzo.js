@@ -116,7 +116,7 @@ function wireSide(){
   if($('priorityWhy'))$('priorityWhy').oninput=e=>emit('gaPriorityWhy',e.target.value);
   if($('credentials'))$('credentials').onclick=()=>original('gaOpenCredentials')?.click();
   if($('resumeLink'))$('resumeLink').onclick=()=>{original('gaImportSession')?.click()};
-  if($('start'))$('start').onclick=()=>{S.q=0;render()};
+  if($('start'))$('start').onclick=()=>{S.q=-1;nextQ()}; // salta lo ya contestado (Punto de Partida o sesión retomada)
   if($('toNum'))$('toNum').onclick=()=>{window.GaShell.setConfirmed(true);window.GaShell.diagnosisChecks.ready='No';document.querySelector('[data-diagnosis-check="ready"][data-value="No"]')?.click();window.GaShell.openProposal();goAct(2)};
   if($('fix'))$('fix').onclick=()=>{S.q=0;render()};
   if($('skip'))$('skip').onclick=()=>goAct(2);
@@ -206,11 +206,11 @@ function renderCanvas(){
   else w.innerHTML='<div class="kicker">Tu porqué</div><div class="ghost">Aquí va lo que te mueve a hacer esto.</div>';
   // cifra
   const he=$('hero');
-  if(D){he.className='hero';
+  if(D&&S.act>=2){he.className='hero';
     const yr=START.getFullYear()+65-S.edad,metaFut=S.metaHoy*Math.pow(1+(+reportState.infl||4)/100,Math.max(0,65-S.edad)); // misma expresión que calcularPMTRequerido (metaNom65)
     const sug=S.metaHoy&&D.sug>S.pmt+1?'<div class="sub2">Tu meta de '+money(S.metaHoy)+' de hoy serán unos <strong>'+money(Math.round(metaFut/1000)*1000)+'</strong> en '+yr+'. Para llegar: <strong>'+money(Math.ceil(D.sug/100)*100)+'</strong> al mes.</div>':S.metaHoy&&D.sug>0?'<div class="sub2">Llegas a tu meta de '+money(S.metaHoy)+' de hoy ✓</div>':'<div class="sub2">Lo que juntas a los 65: <strong>'+mill(D.fondo65)+'</strong></div>';
     he.innerHTML='<small>A los 65 recibes</small><b>'+money(calcMensual(D.fondo65))+'</b><span>al mes · estimado · juntas '+mill(D.fondo65)+'</span>'+sug}
-  else{he.className='hero empty';he.innerHTML='<small>A los 65 recibes</small><b>'+(S.metaHoy?'Tu meta: '+money(S.metaHoy)+' al mes':'Tu cifra aparece aquí')+'</b><span>'+(S.edad?'en cuanto sepamos cuánto puedes apartar':'')+'</span>'}
+  else{he.className='hero empty';he.innerHTML='<small>A los 65 recibes</small><b>'+(S.metaHoy?'Tu meta: '+money(S.metaHoy)+' al mes':'Tu cifra aparece aquí')+'</b><span>'+(D?'al ver tu número':S.edad?'en cuanto sepamos cuánto puedes apartar':'')+'</span>'}
   // pasos (solo en el acto 2)
   const sp=$('steps'),St=S.act===2&&!S.duda?stepsFor():[];
   sp.style.display=St.length?'':'none';sp.style.setProperty('--n',St.length);
@@ -237,7 +237,7 @@ function drawChart(){
   const sv=$('svg'),box=sv.getBoundingClientRect();W=Math.max(300,Math.round(box.width));H=Math.max(200,Math.round(box.height));sv.setAttribute('viewBox','0 0 '+W+' '+H);
   const age=S.edad||null;TOTAL=age?(65-age)*12:360;END=Math.min(S.years*12,TOTAL);X=m=>PL+(W-PL-PR)*m/TOTAL;
   const base=H-PB;let g='';$('legend').innerHTML='';
-  if(!D){ // lienzo en blanco: solo el eje
+  if(!D||S.act<2){ // lienzo en blanco: la cifra y la curva se revelan al entrar a «Tu número»
     Y=v=>base;g+='<g class="axis"><line x1="'+PL+'" x2="'+(W-PR)+'" y1="'+base+'" y2="'+base+'" style="stroke:#b8c4d8"/>';
     if(age){g+='<text x="'+X(0)+'" y="'+(base+22)+'">Hoy · '+age+' años</text><text x="'+X(TOTAL)+'" y="'+(base+22)+'" text-anchor="end">65 años</text>';
       g+='<text x="'+((PL+W-PR)/2)+'" y="'+(base+22)+'" text-anchor="middle" style="font-weight:800;fill:#0830E8">'+(65-age)+' años para construir tu retiro</text>';
@@ -247,8 +247,8 @@ function drawChart(){
   const St=S.act===2&&!S.duda?stepsFor():[],cur=S.step?St[S.step-1]:null;
   const pts=curve(),wv=wave(pts),max=Math.max(...wv,...pts)*1.15;Y=v=>PT+(base-PT)*(1-v/max);
   const path=a=>a.map((v,m)=>(m?'L':'M')+X(m).toFixed(1)+' '+Y(v).toFixed(1)).join('');
-  g+='<defs><linearGradient id="ar" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0830E8" stop-opacity=".28"/><stop offset="1" stop-color="#0830E8" stop-opacity=".02"/></linearGradient>'+
-     '<clipPath id="hl"><rect x="'+(cur?X(cur.range[0]):0)+'" y="0" width="'+(cur?X(cur.range[1])-X(cur.range[0]):W)+'" height="'+H+'"/></clipPath></defs><g class="axis">';
+  g+='<defs><linearGradient id="lzAr" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0830E8" stop-opacity=".28"/><stop offset="1" stop-color="#0830E8" stop-opacity=".02"/></linearGradient>'+
+     '<clipPath id="lzHl"><rect x="'+(cur?X(cur.range[0]):0)+'" y="0" width="'+(cur?X(cur.range[1])-X(cur.range[0]):W)+'" height="'+H+'"/></clipPath></defs><g class="axis">';
   const stepT=max>8e6?2.5e6:max>4e6?1e6:max>1.5e6?5e5:2.5e5;for(let v=stepT;v<max*.97;v+=stepT)g+='<line x1="'+PL+'" x2="'+(W-PR)+'" y1="'+Y(v)+'" y2="'+Y(v)+'"/><text x="'+(PL-10)+'" y="'+(Y(v)+4)+'" text-anchor="end">$'+(v/1e6).toLocaleString('es-MX')+' M</text>';
   g+='<line x1="'+PL+'" x2="'+(W-PR)+'" y1="'+base+'" y2="'+base+'" style="stroke:#b8c4d8"/>';
   const ages=[age,age+S.years,60,65].filter((a,i,arr)=>arr.indexOf(a)===i&&a<=65&&(i<2||Math.abs(a-(age+S.years))>2));
@@ -261,13 +261,13 @@ function drawChart(){
   const anim=!S.drawnOnce;S.drawnOnce=true;
   if(cur&&cur.range[1]===18)g+='<rect x="'+X(0)+'" y="'+PT+'" width="'+(X(18)-X(0))+'" height="'+(base-PT)+'" fill="#0830E8" opacity=".10"/>';
   if(cur&&cur.wave){$('legend').innerHTML='<span><i class="d"></i>Lo que estimamos</span><span><i></i>Cómo se mueve de verdad</span>';
-    g+='<path d="'+area(wv)+'" fill="url(#ar)"/><path d="'+path(pts)+'" fill="none" stroke="#7d93d6" stroke-width="2.5" stroke-dasharray="7 6"/><path d="'+path(wv)+'" fill="none" stroke="#001868" stroke-width="3.5" stroke-linejoin="round"/>';
+    g+='<path d="'+area(wv)+'" fill="url(#lzAr)"/><path d="'+path(pts)+'" fill="none" stroke="#7d93d6" stroke-width="2.5" stroke-dasharray="7 6"/><path d="'+path(wv)+'" fill="none" stroke="#001868" stroke-width="3.5" stroke-linejoin="round"/>';
     let best=-1,bv=0;for(let m=Math.round(END*.5);m<END-20;m++){const r=wv[m]/pts[m];if(best<0||r<bv){bv=r;best=m}}
     if(best>0){const vx=X(best),vy=Y(wv[best]);g+='<circle cx="'+vx+'" cy="'+vy+'" r="7" fill="#0f8a5f" stroke="#fff" stroke-width="3"/><line x1="'+vx+'" x2="'+vx+'" y1="'+(vy-12)+'" y2="'+(vy-44)+'" stroke="#0f8a5f" stroke-width="1.5"/>'+callout(vx,vy-44,'Aquí baja: tu aportación compra más','la misma cantidad, más unidades','center','#0f8a5f')}
   }else{
     const dim=cur?' opacity=".22"':'';
-    g+='<g'+dim+'><path class="'+(anim?'areain':'')+'" d="'+area(pts)+'" fill="url(#ar)"/><path id="ln" class="'+(anim?'drawing':'')+'" d="'+path(pts)+'" fill="none" stroke="#001868" stroke-width="3.5"/></g>';
-    if(cur)g+='<g clip-path="url(#hl)"><path d="'+area(pts)+'" fill="url(#ar)"/><path d="'+path(pts)+'" fill="none" stroke="#0830E8" stroke-width="5"/></g>';
+    g+='<g'+dim+'><path class="'+(anim?'areain':'')+'" d="'+area(pts)+'" fill="url(#lzAr)"/><path id="ln" class="'+(anim?'drawing':'')+'" d="'+path(pts)+'" fill="none" stroke="#001868" stroke-width="3.5"/></g>';
+    if(cur)g+='<g clip-path="url(#lzHl)"><path d="'+area(pts)+'" fill="url(#lzAr)"/><path d="'+path(pts)+'" fill="none" stroke="#0830E8" stroke-width="5"/></g>';
   }
   const dot=(m,c)=>'<circle cx="'+X(m)+'" cy="'+Y(pts[m])+'" r="7" fill="'+(c||'#0830E8')+'" stroke="#fff" stroke-width="3"/>';
   if(!cur||cur.end)g+=dot(TOTAL)+callout(X(TOTAL),Y(pts[TOTAL])-16,money(calcMensual(D.fondo65))+' al mes','desde los 65','left');
@@ -312,7 +312,7 @@ function bootKnown(){
  const vals={nombre:d.nom,edad:d.edad,metaHoy:d.des,pmt:d.ahorro};for(const [k,v] of Object.entries(vals))if(v!=null&&!read(k))S[k]=v;
  const join=v=>Array.isArray(v)?v.join(' · '):v||'';
  for(const [k,v] of Object.entries({dolor:d.dolor,meta:d.meta,porque:d.porque,condicion:d.condicion,freno:d.freno}))if(!read(k))S[k]=join(v);
- S.q='resumen';recalc();
+ S.q='hola';recalc();
 }
 $('duda').onclick=()=>{S.duda=!S.duda;S.dq=null;render()};
 $('side').addEventListener('click',e=>{if(e.target.id==='dqb'){S.dq=null;render()}});
@@ -322,10 +322,13 @@ const returnButton=document.createElement('button');returnButton.id='gaReturnLie
 original('gaFlowToggle')?.addEventListener('click',()=>{if(window.GA_FLOW_CLASSIC)suspend();else activate()});
 // Preserve v2r: the existing resume button restores the scenario before the results activate.
 new MutationObserver(()=>{if(window.GA_FLOW_CLASSIC)return;if(original('resultsView').classList.contains('active')&&root.hidden){S.act=2;S.step=0;activate()}}).observe(original('resultsView'),{attributes:true,attributeFilter:['class']});
+// La herramienta puede recalcular por su cuenta (p. ej. al abrir la calculadora ajusta el plazo): re-sincroniza con el resultado vigente.
+{const f65=document.getElementById('fondo65');if(f65)new MutationObserver(()=>{if(busy||root.hidden||!(S.edad&&S.pmt))return;const k=reportState.fondo65+'|'+reportState.fondoPlan;if(k===D?._k)return;D={...reportState,dev1:reportState.devolucionFiscalPrimerAnoVista,impacto65:reportState.impactoISR65,sug:reportState.pmtSugerido,infl:reportState.infl,_k:k};S.drawnOnce=S.drawnOnce;render()}).observe(f65,{childList:true,characterData:true,subtree:true})}
 document.addEventListener('ga:projection-updated',()=>{if(!busy&&!root.hidden){D=S.edad&&S.pmt?{...reportState,dev1:reportState.devolucionFiscalPrimerAnoVista,impacto65:reportState.impactoISR65,sug:reportState.pmtSugerido,infl:reportState.infl}:null;render()}});
 window.addEventListener('resize',()=>{if(!root.hidden)drawChart()});
 document.addEventListener('change',e=>{if(root.hidden||root.contains(e.target)||busy)return;if(Object.values(fields).includes(e.target.id))setTimeout(()=>{if(!busy&&!root.hidden)recalc()},0)});
-window.GaLienzo={get act(){return S.act},get step(){return S.step},get question(){return S.q},goAct,goStep,render,recalc,activate,suspend,bootKnown};
+function showSummary(){S.act=1;S.duda=false;S.step=0;S.q='hola';recalc()}
+window.GaLienzo={get act(){return S.act},get step(){return S.step},get question(){return S.q},goAct,goStep,render,recalc,activate,suspend,bootKnown,showSummary};
 original('gaCredentialsModal')&&document.body.append(original('gaCredentialsModal'));
 if(window.GaV2){const old=window.GaV2.boot;window.GaV2.boot=function(){old();bootKnown();if(window.GaV2._state.resume)suspend()}}
 bootKnown();if(!window.GA_FLOW_CLASSIC&&!window.GaV2?._state.resume)activate();

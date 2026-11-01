@@ -3081,10 +3081,47 @@ window.addEventListener('load',()=>{
      showImmediate(opts.gotoIdx??1);
    }catch(e){console.warn('[GarBa Advisor] No se pudo importar la sesión:',e);if(!opts.silent)alert('El archivo no tiene un formato reconocible.')}
  }
+ /* ── Últimas 7 sesiones guardadas en esta computadora (además del archivo .json) ── */
+ const GA_RECENT_KEY='gaRecentSessions',GA_RECENT_MAX=7;
+ function readRecentSessions(){try{const a=JSON.parse(localStorage.getItem(GA_RECENT_KEY)||'[]');return Array.isArray(a)?a:[]}catch(e){return []}}
+ function newSessionKey(){const k=Date.now().toString(36)+Math.random().toString(36).slice(2,7);try{sessionStorage.setItem('gaSessionKey',k)}catch(e){}return k}
+ function saveRecentSession(snapshot){
+   try{
+     let key=null;try{key=sessionStorage.getItem('gaSessionKey')}catch(e){}
+     const list=readRecentSessions(),nombre=(snapshot.prospecto?.nombre||'').trim().toLowerCase();
+     const prev=key&&list.find(x=>x.key===key),prevNombre=(prev?.data?.prospecto?.nombre||'').trim().toLowerCase();
+     if(!key||(prev&&nombre&&prevNombre&&nombre!==prevNombre))key=newSessionKey(); // otro prospecto en la misma pestaña: entrada nueva
+     const next=[{key,at:new Date().toISOString(),data:snapshot},...list.filter(x=>x.key!==key)];
+     localStorage.setItem(GA_RECENT_KEY,JSON.stringify(next.slice(0,GA_RECENT_MAX)));
+   }catch(e){console.warn('[GarBa Advisor] No se pudo guardar en sesiones recientes:',e)}
+ }
+ function showRecentSessions(){
+   const list=readRecentSessions();
+   if(!list.length){$('gaImportSessionFile').click();return}
+   let dlg=$('gaRecentDialog');if(!dlg){dlg=document.createElement('dialog');dlg.id='gaRecentDialog';document.body.append(dlg)}
+   dlg.innerHTML='<h3>Sesiones guardadas</h3><p>Las últimas 7 en esta computadora.</p><div class="ga-recent-list"></div><div class="ga-recent-actions"><button type="button" data-file>Cargar desde archivo</button><button type="button" data-close>Cerrar</button></div>';
+   const box=dlg.querySelector('.ga-recent-list');
+   list.forEach(e=>{
+     const pr=e.data?.prospecto||{},b=document.createElement('button');b.type='button';b.className='ga-recent-item';
+     const when=new Date(e.at).toLocaleString('es-MX',{weekday:'short',day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'});
+     b.innerHTML='<b></b><span></span>';b.querySelector('b').textContent=pr.nombre||'Sin nombre';
+     b.querySelector('span').textContent=when+(pr.edad?' · '+pr.edad+' años':'')+(pr.aportacion?' · '+money(pr.aportacion)+' al mes':'');
+     b.onclick=()=>{
+       dlg.close();try{sessionStorage.setItem('gaSessionKey',e.key)}catch(x){}
+       gaSessionRestored=true;importSessionData(e.data,{silent:true,gotoIdx:e.data._idx??1});
+       setTimeout(()=>[...document.body.children].find(x=>x.tagName==='DIV'&&/^Se restauró tu sesión/.test(x.textContent))?.remove(),2500);
+       try{window.GaLienzo?.showSummary?.()}catch(x){}
+     };
+     box.append(b);
+   });
+   dlg.querySelector('[data-file]').onclick=()=>{dlg.close();$('gaImportSessionFile').click()};
+   dlg.querySelector('[data-close]').onclick=()=>dlg.close();
+   dlg.showModal();
+ }
  (function initSessionImport(){
    const trigger=$('gaImportSession'),fileInput=$('gaImportSessionFile');
    if(!trigger||!fileInput)return;
-   trigger.onclick=()=>fileInput.click();
+   trigger.onclick=showRecentSessions;
    fileInput.onchange=()=>{
      const file=fileInput.files?.[0];if(!file)return;
      const reader=new FileReader();
@@ -3535,6 +3572,7 @@ function updateDiagnosisRecommendation(){
      if(!snapshot.prospecto.nombre&&!snapshot.prospecto.objetivo&&!snapshot.prospecto.aportacion)return;
      snapshot._idx=idx;
      localStorage.setItem('gaAdvisorSession',JSON.stringify(snapshot));
+     saveRecentSession(snapshot);
    }catch(e){console.warn('[GarBa Advisor] No se pudo autoguardar:',e)}
  }
  function schedulePersist(){clearTimeout(gaSaveTimer);gaSaveTimer=setTimeout(persistSession,500)}
