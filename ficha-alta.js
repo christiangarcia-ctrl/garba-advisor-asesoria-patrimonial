@@ -342,6 +342,13 @@
     }
   }
   function textRows(includeSecrets) {
+    const shown = name => {
+      const v = val(name);
+      if (!v) return '';
+      if (name === 'aportacion' || name === 'importe') return Number(v) ? Number(v).toLocaleString('es-MX', { style: 'currency', currency: 'MXN', maximumFractionDigits: 2 }) : v;
+      if (name === 'plazo') return v + ' años';
+      return v;
+    };
     const rows = ['FICHA DE ALTA — OPTIMAXX PLUS ALLIANZ', 'Asesor: Christian García',
       'Fecha: ' + new Date().toLocaleDateString('es-MX'), ''];
     sections.forEach((section, index) => {
@@ -350,9 +357,9 @@
         const [name, label, kind] = field;
         if (kind === 'heading') rows.push('  ' + label);
         else if (kind === 'note') rows.push('  ' + label);
-        else if (kind === 'check') rows.push('  ' + (checked(name) ? '☑' : '☐') + ' ' + label);
+        else if (kind === 'check') rows.push('  ' + (checked(name) ? '[x]' : '[ ]') + ' ' + label); // la fuente del PDF no trae ☑/☐
         else rows.push('  - ' + label + ': ' +
-          (sensitive.has(name) && !includeSecrets ? '—' : val(name) || '—'));
+          (sensitive.has(name) && !includeSecrets ? '—' : shown(name) || '—'));
       });
       if (index === 6) rows.push('  ' + beneficiaryMessage());
       rows.push('');
