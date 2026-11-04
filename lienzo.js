@@ -47,7 +47,8 @@ const fmtAns=(q,v)=>v==null||v===''?'':q.k==='edad'?v+' años':q.money?money(v):
 
 // Read the existing calculation engine, never a second simulation.
 let D=null,busy=false;
-function maxYears(){return [10,15,20,25].filter(y=>!S.edad||S.edad+y<=65)}
+function maxYears(){return [10,15,20,25]} // plazos permitidos; el motor deja de sumar aportaciones a los 65
+const yearsLabel=y=>y+' años'+(S.edad&&S.edad+y>65?' · cuenta hasta los 65':'');
 function recalc(){
  if(busy)return;busy=true;
  try{
@@ -145,7 +146,7 @@ function nextQ(){
 const CHIPS=[['Ⅱ','Pausar','¿Un mal año? Puedes pausar hasta 12 meses.'],['+','Aportar más','¿Te sobró dinero? Lo puedes meter cuando quieras.'],['↑','Subir tu aportación','¿Ganas más? Aumentas lo que aportas.'],['↓','Sacar una parte','Puedes hacer retiros parciales. Aplican condiciones.'],['⌂','Pedir prestado','Hasta 50% de tu saldo comprometido en alternativas conservadoras, sujeto a aprobación de Allianz y a las condiciones del contrato.']];
 function stepsFor(){
   if(!D)return[];
-  const END=S.years*12,TOTAL=(65-S.edad)*12,M60=(60-S.edad)*12;
+  const TOTAL=(65-S.edad)*12,END=Math.min(S.years*12,TOTAL),M60=(60-S.edad)*12;
   const s=[
    {k:'Empiezas',sm:dateAt(0)+' · '+S.edad+' años',range:[0,6],t:'Hoy empiezas con <em>'+money(S.pmt)+'</em> al mes.',p:'Es lo único que decides hoy. Lo demás lo hace el tiempo.'},
    {k:'Tu base',sm:'Mes 1 al 18',range:[0,18],t:'Los primeros <em>18 meses</em> armas tu base.',p:'Tu constancia puede ser reconocida con un bono, sujeto a las condiciones del plan. En '+dateAt(18)+' ya se abren tus opciones.'},
@@ -158,7 +159,7 @@ function stepsFor(){
   else if(S.reg==='93')s.push({k:'Desde los 60',sm:dateAt(M60)+' · 60 años',range:[M60-4,M60+4],at60:true,t:'Desde los 60 ya puedes <em>empezar a recibir</em>.',
     p:'Unos <b>'+money(calcMensual(D.fondo60))+'</b> al mes. Puede salir libre de impuestos si llevas 5 años en el plan.',fine:'El beneficio depende de la modalidad, los requisitos aplicables y la legislación vigente.'});
   s.push({k:'Tu retiro',sm:dateAt(TOTAL)+' · 65 años',range:[END,TOTAL],end:true,t:'A los 65 recibes <em>'+money(calcMensual(D.fondo65))+'</em> al mes.',
-    p:'Dejas de aportar a los '+(S.edad+S.years)+' y tu dinero sigue creciendo hasta los 65: juntas <b>'+mill(D.fondo65)+'</b>.',fine:'Es una estimación. El dinero de '+(START.getFullYear()+65-S.edad)+' no vale lo mismo que el de hoy.'});
+    p:(S.edad+S.years<65?'Dejas de aportar a los '+(S.edad+S.years)+' y tu dinero sigue creciendo hasta los 65: juntas <b>':'Aportas hasta los 65 y juntas <b>')+mill(D.fondo65)+'</b>.',fine:'Es una estimación. El dinero de '+(START.getFullYear()+65-S.edad)+' no vale lo mismo que el de hoy.'});
   return s;
 }
 function numSide(){
@@ -173,7 +174,7 @@ function numSide(){
   const bad=S.pmt<minPmt(S.years);
   h+='<div class="grow"></div><div class="ctls">'+
     '<label class="ctl'+(bad?' bad':'')+'">Aportas al mes<input id="cPmt" type="number" step="500" value="'+S.pmt+'"><span class="w">Mínimo '+money(minPmt(S.years))+' con '+(S.years<=14?'10 a 14':'15 a 25')+' años</span></label>'+
-    '<label class="ctl">Durante<select id="cYrs">'+maxYears().map(y=>'<option value="'+y+'"'+(y==S.years?' selected':'')+'>'+y+' años</option>').join('')+'</select></label>'+
+    '<label class="ctl">Durante<select id="cYrs">'+maxYears().map(y=>'<option value="'+y+'"'+(y==S.years?' selected':'')+'>'+yearsLabel(y)+'</option>').join('')+'</select></label>'+
     '<label class="ctl">Régimen<select id="cReg"><option value=""'+(!S.reg?' selected':'')+'>Selecciona tu régimen</option><option value="151"'+(S.reg==='151'?' selected':'')+'>Art. 151</option><option value="93"'+(S.reg==='93'?' selected':'')+'>Art. 93</option><option value="ninguno"'+(S.reg==='ninguno'?' selected':'')+'>Sin beneficio fiscal</option></select></label>'+
     '<label class="ctl">Meta al mes (hoy)<input id="cMeta" type="number" step="1000" value="'+(S.metaHoy||'')+'"></label>'+
     (S.reg==='151'?'<label class="chk"><input id="cReinv" type="checkbox"'+(S.reinv?' checked':'')+'>Reinvertir la devolución</label>':'')+
@@ -207,9 +208,12 @@ function renderCanvas(){
   // cifra
   const he=$('hero');
   if(D&&S.act>=2){he.className='hero';
-    const yr=START.getFullYear()+65-S.edad,metaFut=S.metaHoy*Math.pow(1+(+reportState.infl||4)/100,Math.max(0,65-S.edad)); // misma expresión que calcularPMTRequerido (metaNom65)
-    const sug=S.metaHoy&&D.sug>S.pmt+1?'<div class="sub2">Tu meta de '+money(S.metaHoy)+' de hoy serán unos <strong>'+money(Math.round(metaFut/1000)*1000)+'</strong> en '+yr+'. Para llegar: <strong>'+money(Math.ceil(D.sug/100)*100)+'</strong> al mes.</div>':S.metaHoy&&D.sug>0?'<div class="sub2">Llegas a tu meta de '+money(S.metaHoy)+' de hoy ✓</div>':'<div class="sub2">Lo que juntas a los 65: <strong>'+mill(D.fondo65)+'</strong></div>';
-    he.innerHTML='<small>A los 65 recibes</small><b>'+money(calcMensual(D.fondo65))+'</b><span>al mes · estimado · juntas '+mill(D.fondo65)+'</span>'+sug}
+    // Tres momentos del plan, en orden: terminas de aportar, 60 y 65 (la meta y su brecha viven en «Tu meta y la brecha»)
+    const fin=Math.min(65,S.edad+Number(S.years)),yearAt=a=>START.getFullYear()+a-S.edad;
+    const cells=[];if(S.edad<60)cells.push([60,'A los 60',D.fondo60]);cells.push([65,'A los 65',D.fondo65]);
+    if(!cells.some(c=>c[0]===fin))cells.push([fin,'Terminas de aportar',D.fondoPlan]); // si termina justo a los 60 o 65, no se repite
+    cells.sort((x,y)=>x[0]-y[0]);
+    he.innerHTML='<small>A los 65 recibes</small><b>'+money(calcMensual(D.fondo65))+'</b><span>al mes · estimado</span><div class="moments">'+cells.map(([a,l,v])=>'<div><em>'+l+'</em><strong>'+mill(v)+'</strong><i>'+a+' años · '+yearAt(a)+'</i></div>').join('')+'</div>'}
   else{he.className='hero empty';he.innerHTML='<small>A los 65 recibes</small><b>'+(S.metaHoy?'Tu meta: '+money(S.metaHoy)+' al mes':'Tu cifra aparece aquí')+'</b><span>'+(D?'al ver tu número':S.edad?'en cuanto sepamos cuánto puedes apartar':'')+'</span>'}
   // pasos (solo en el acto 2)
   const sp=$('steps'),St=S.act===2&&!S.duda?stepsFor():[];
@@ -251,7 +255,7 @@ function drawChart(){
      '<clipPath id="lzHl"><rect x="'+(cur?X(cur.range[0]):0)+'" y="0" width="'+(cur?X(cur.range[1])-X(cur.range[0]):W)+'" height="'+H+'"/></clipPath></defs><g class="axis">';
   const stepT=max>8e6?2.5e6:max>4e6?1e6:max>1.5e6?5e5:2.5e5;for(let v=stepT;v<max*.97;v+=stepT)g+='<line x1="'+PL+'" x2="'+(W-PR)+'" y1="'+Y(v)+'" y2="'+Y(v)+'"/><text x="'+(PL-10)+'" y="'+(Y(v)+4)+'" text-anchor="end">$'+(v/1e6).toLocaleString('es-MX')+' M</text>';
   g+='<line x1="'+PL+'" x2="'+(W-PR)+'" y1="'+base+'" y2="'+base+'" style="stroke:#b8c4d8"/>';
-  const ages=[age,age+S.years,60,65].filter((a,i,arr)=>arr.indexOf(a)===i&&a<=65&&(i<2||Math.abs(a-(age+S.years))>2));
+  const ages=[age,Math.min(65,age+S.years),60,65].filter((a,i,arr)=>arr.indexOf(a)===i&&a<=65&&(i<2||Math.abs(a-(age+S.years))>2));
   ages.forEach(a=>g+='<text x="'+X((a-age)*12)+'" y="'+(base+20)+'" text-anchor="'+(a===age?'start':a===65?'end':'middle')+'">'+(a===age?'Hoy · ':'')+a+' años</text>');
   g+='</g>';
   // franja de fases bajo el eje
