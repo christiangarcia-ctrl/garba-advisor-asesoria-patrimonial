@@ -10,7 +10,7 @@ module.exports=async function round4({make,load,origin,output,wait}){
  await shot('bienvenida');await p.locator('#start').click();await num(36);await shot('pregunta');
  for(const i of [0,1,0,0,0])await choose(i);
  await num(30000);assert(await p.locator('#hero').evaluate(e=>e.classList.contains('empty')));
- await num(3500);await wait(400);
+ await num(3500);await wait(300);await num(45000);await wait(400);
  assert.equal(await p.evaluate(()=>GaLienzo.question),'resumen');
  assert(await p.locator('#hero').evaluate(e=>e.classList.contains('empty')),'The number stays hidden until «ver mi número»');
  assert.equal(await p.locator('#svg path').count(),0,'No curve before «ver mi número»');
@@ -43,7 +43,7 @@ module.exports=async function round4({make,load,origin,output,wait}){
  await p.locator('#decisionFields > .go').click();assert(await p.locator('#gaPreopenView').isVisible(),'Today opens original preopening');
  await p.close();
  const identified=await make();await identified.setViewportSize({width:1440,height:780});await load(identified,origin,false);
- await identified.evaluate(()=>{window.garbaIdentified=true;window.__gaKnown={nom:'Laura',edad:36,edadR:65,des:30000,ahorro:3500,reg:'NOM',dolor:['Sé que mi AFORE probablemente no será suficiente.'],meta:['Mantener mi nivel de vida cuando deje de trabajar.'],porque:['No quiero depender económicamente de mis hijos o familiares.'],condicion:['Mantener flexibilidad y acceso al dinero cuando sea necesario'],freno:['Me preocupaba comprometerme con algo poco flexible']};window.GarbaAccess={call:async()=>({revision:1})};GaV2.boot()});await wait(400);
+ await identified.evaluate(()=>{window.garbaIdentified=true;window.__gaKnown={nom:'Laura',edad:36,edadR:65,des:30000,ahorro:3500,ingreso:45000,reg:'NOM',dolor:['Sé que mi AFORE probablemente no será suficiente.'],meta:['Mantener mi nivel de vida cuando deje de trabajar.'],porque:['No quiero depender económicamente de mis hijos o familiares.'],condicion:['Mantener flexibilidad y acceso al dinero cuando sea necesario'],freno:['Me preocupaba comprometerme con algo poco flexible']};window.GarbaAccess={call:async()=>({revision:1})};GaV2.boot()});await wait(400);
  assert.equal(await identified.evaluate(()=>GaLienzo.question),'hola','Punto de Partida opens on the welcome');assert(await identified.locator('#hero').evaluate(e=>e.classList.contains('empty')));await identified.locator('#start').click();await wait(300);assert.equal(await identified.evaluate(()=>GaLienzo.question),'resumen','Empecemos skips answers already known');assert((await identified.locator('#side').innerText()).includes('ya me contaste'));assert(await identified.locator('#hero').evaluate(e=>e.classList.contains('empty')));
  await identified.screenshot({path:path.join(output,'ronda4-resumen-pdp.png')});
  await identified.setViewportSize({width:390,height:844});await identified.screenshot({path:path.join(output,'ronda4-celular-390.png')});assert(await identified.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));

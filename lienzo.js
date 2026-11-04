@@ -41,6 +41,7 @@ const Q=[
  {k:'freno',label:'Te había frenado',t:'¿Qué te había <em>frenado</em> hasta hoy?',opts:[['Temor a comprometerme'],['Prioricé otros gastos'],['No encontraba una propuesta adecuada'],['Estuve a punto de contratar uno']]},
  {k:'metaHoy',label:'Te gustaría recibir',t:'¿Cuánto te gustaría <em>recibir al mes</em> en tu retiro?',num:true,unit:'al mes, en pesos de hoy',ph:'30000',money:true},
  {k:'pmt',label:'Puedes apartar',t:'¿Cuánto puedes <em>apartar cada mes</em> sin apretarte?',num:true,unit:'al mes',ph:'3000',money:true,fine:'Sin forzar tu presupuesto: primero un escenario que sí puedas sostener.'},
+ {k:'ing',label:'Ganas al mes',t:'¿Cuánto <em>ganas al mes</em>, aproximadamente?',num:true,unit:'al mes',ph:'45000',money:true,optional:true,fine:'Con esto calculamos cuánto te devuelven de impuestos si eliges el Art. 151. Un aproximado basta.'},
 ];
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const fmtAns=(q,v)=>v==null||v===''?'':q.k==='edad'?v+' años':q.money?money(v):esc(v);
@@ -48,7 +49,7 @@ const fmtAns=(q,v)=>v==null||v===''?'':q.k==='edad'?v+' años':q.money?money(v):
 // Read the existing calculation engine, never a second simulation.
 let D=null,busy=false;
 function maxYears(){return [10,15,20,25]} // plazos permitidos; el motor deja de sumar aportaciones a los 65
-const yearsLabel=y=>y+' años'+(S.edad&&S.edad+y>65?' · cuenta hasta los 65':'');
+const yearsLabel=y=>y+' años'+(S.edad&&S.edad+y>65?' · aportas hasta los 65':'');
 function recalc(){
  if(busy)return;busy=true;
  try{
@@ -103,6 +104,7 @@ function renderSide(){
       if(q.opts)h+='<div class="opts">'+q.opts.map(o=>'<button class="opt'+(S[q.k]===o[0]?' on':'')+'" data-o="'+o[0]+'">'+o[0]+(o[1]?'<small>'+o[1]+'</small>':'')+'</button>').join('')+'</div>';
       if(q.opts)h+='<button class="link" id="other">'+(q.k==='dolor'?'Otro':'Otra respuesta')+'</button><div id="otherField" hidden><input id="otherText" type="text" aria-label="Otra respuesta"><button class="go" id="otherOk">Listo →</button></div>'+(q.k==='dolor'?'<label class="fine">¿Por qué te preocupa esto? (opcional)<input id="priorityWhy" type="text" value="'+esc(original('gaPriorityWhy').value)+'"></label>':'');
       if(q.num)h+='<label class="big">'+(q.money?'$':'')+'<input id="qn" type="number" inputmode="numeric" placeholder="'+q.ph+'" value="'+(S[q.k]??'')+'"><span>'+q.unit+'</span></label>'+(q.fine?'<p class="fine">'+q.fine+'</p>':'')+'<button class="go" id="qok">Listo →</button>';
+      if(q.optional)h+='<button class="link" id="qskip">Prefiero no decirlo →</button>';
       h+='<div class="grow"></div><button class="link" id="skip">Ir directo a tu número →</button>';
     }
   }else if(S.act===2){h=numSide()}
@@ -120,6 +122,7 @@ function wireSide(){
   if($('start'))$('start').onclick=()=>{S.q=-1;nextQ()}; // salta lo ya contestado (Punto de Partida o sesión retomada)
   if($('toNum'))$('toNum').onclick=()=>{window.GaShell.setConfirmed(true);window.GaShell.diagnosisChecks.ready='No';document.querySelector('[data-diagnosis-check="ready"][data-value="No"]')?.click();window.GaShell.openProposal();goAct(2)};
   if($('fix'))$('fix').onclick=()=>{S.q=0;render()};
+  if($('qskip'))$('qskip').onclick=()=>{S['skip_'+Q[S.q].k]=true;nextQ()};
   if($('skip'))$('skip').onclick=()=>goAct(2);
   sd.querySelectorAll('[data-o]').forEach(b=>b.onclick=()=>{const q=Q[S.q];S[q.k]=b.dataset.o;render();setTimeout(nextQ,280)});
   const qn=$('qn');if(qn){qn.focus();const ok=()=>{const v=+qn.value;if(!v)return;const q=Q[S.q];if(q.k==='edad'&&(v<18||v>=65)){qn.setCustomValidity('Captura una edad entre 18 y 64 años.');qn.reportValidity();return}S[q.k]=v;nextQ(true)};
@@ -127,7 +130,7 @@ function wireSide(){
   // acto 2
   sd.querySelectorAll('[data-chip]').forEach(b=>b.onclick=()=>{const i=+b.dataset.chip;S.chip=S.chip===i?null:i;render()});
   const bind=(id,k,num)=>{const e=$(id);if(!e)return;e.onkeydown=ev=>ev.stopPropagation();e.onchange=()=>{S[k]=num?+e.value:e.value;recalc()}};
-  bind('cPmt','pmt',1);bind('cYrs','years',1);bind('cReg','reg');bind('iIng','ing',1);bind('cMeta','metaHoy',1);
+  bind('cPmt','pmt',1);bind('cYrs','years',1);bind('cReg','reg');bind('iIng','ing',1);bind('cIng','ing',1);bind('cMeta','metaHoy',1);
   if($('cReinv'))$('cReinv').onchange=e=>{S.reinv=e.target.checked;recalc()};
   if($('toDec'))$('toDec').onclick=()=>goAct(3);
   // acto 3
@@ -138,7 +141,7 @@ function wireSide(){
 function nextQ(){
   if(S.pendingAct){if(!S.edad||!S.pmt){S.q=!S.edad?0:7;recalc();return}const a=S.pendingAct;S.pendingAct=null;recalc();goAct(a);return}
   const i=typeof S.q==='number'?S.q:0;
-  const nx=Q.findIndex((q,j)=>j>i&&(S[q.k]==null||S[q.k]===''));
+  const nx=Q.findIndex((q,j)=>j>i&&(S[q.k]==null||S[q.k]==='')&&!(q.optional&&S['skip_'+q.k]));
   S.q=nx<0?'resumen':nx;recalc();
 }
 
@@ -177,6 +180,7 @@ function numSide(){
     '<label class="ctl">Durante<select id="cYrs">'+maxYears().map(y=>'<option value="'+y+'"'+(y==S.years?' selected':'')+'>'+yearsLabel(y)+'</option>').join('')+'</select></label>'+
     '<label class="ctl">Régimen<select id="cReg"><option value=""'+(!S.reg?' selected':'')+'>Selecciona tu régimen</option><option value="151"'+(S.reg==='151'?' selected':'')+'>Art. 151</option><option value="93"'+(S.reg==='93'?' selected':'')+'>Art. 93</option><option value="ninguno"'+(S.reg==='ninguno'?' selected':'')+'>Sin beneficio fiscal</option></select></label>'+
     '<label class="ctl">Meta al mes (hoy)<input id="cMeta" type="number" step="1000" value="'+(S.metaHoy||'')+'"></label>'+
+    (S.reg==='151'?'<label class="ctl">Gana al mes (para la devolución)<input id="cIng" type="number" step="1000" placeholder="Ej. 45000" value="'+(S.ing||'')+'"></label>':'')+
     (S.reg==='151'?'<label class="chk"><input id="cReinv" type="checkbox"'+(S.reinv?' checked':'')+'>Reinvertir la devolución</label>':'')+
     '</div><button class="go" id="toDec" style="margin-top:12px">Siguiente: tu decisión →</button>';
   return h;
@@ -209,9 +213,12 @@ function renderCanvas(){
   const he=$('hero');
   if(D&&S.act>=2){he.className='hero';
     // Tres momentos del plan, en orden: terminas de aportar, 60 y 65 (la meta y su brecha viven en «Tu meta y la brecha»)
-    const fin=Math.min(65,S.edad+Number(S.years)),yearAt=a=>START.getFullYear()+a-S.edad;
-    const cells=[];if(S.edad<60)cells.push([60,'A los 60',D.fondo60]);cells.push([65,'A los 65',D.fondo65]);
-    if(!cells.some(c=>c[0]===fin))cells.push([fin,'Terminas de aportar',D.fondoPlan]); // si termina justo a los 60 o 65, no se repite
+    const fin=S.edad+Number(S.years),yearAt=a=>START.getFullYear()+a-S.edad,cells=[];
+    // Regla de Christian (2026-11-03): Art. 93 → 60, 65 y fin del plan; Art. 151 → fin del plan y 65. Aportaciones solo hasta los 65.
+    if(S.reg!=='151'&&S.edad<60)cells.push([60,'A los 60',D.fondo60]);
+    cells.push([65,'A los 65',D.fondo65]);
+    if(fin<65&&!cells.some(c=>c[0]===fin))cells.push([fin,'Terminas de aportar',D.fondoPlan]);
+    if(fin>65&&S.reg!=='151'){const i=(parseFloat(original('rate')?.value)||0)/100/12;cells.push([fin,'Termina tu plan',D.fondo65*Math.pow(1+i,12*(fin-65))])} // mismo crecimiento mensual sin aportaciones que usa calcAccum
     cells.sort((x,y)=>x[0]-y[0]);
     he.innerHTML='<small>A los 65 recibes</small><b>'+money(calcMensual(D.fondo65))+'</b><span>al mes · estimado</span><div class="moments">'+cells.map(([a,l,v])=>'<div><em>'+l+'</em><strong>'+mill(v)+'</strong><i>'+a+' años · '+yearAt(a)+'</i></div>').join('')+'</div>'}
   else{he.className='hero empty';he.innerHTML='<small>A los 65 recibes</small><b>'+(S.metaHoy?'Tu meta: '+money(S.metaHoy)+' al mes':'Tu cifra aparece aquí')+'</b><span>'+(D?'al ver tu número':S.edad?'en cuanto sepamos cuánto puedes apartar':'')+'</span>'}
@@ -313,7 +320,7 @@ function activate(){if(window.GA_FLOW_CLASSIC)return;root.hidden=false;document.
 function bootKnown(){
  const d=window.__gaKnown||{};if(!window.garbaIdentified||!d.edad||!d.ahorro)return;
  S.pdp=true;
- const vals={nombre:d.nom,edad:d.edad,metaHoy:d.des,pmt:d.ahorro};for(const [k,v] of Object.entries(vals))if(v!=null&&!read(k))S[k]=v;
+ const vals={nombre:d.nom,edad:d.edad,metaHoy:d.des,pmt:d.ahorro,ing:d.ingreso};for(const [k,v] of Object.entries(vals))if(v!=null&&!read(k))S[k]=v;
  const join=v=>Array.isArray(v)?v.join(' · '):v||'';
  for(const [k,v] of Object.entries({dolor:d.dolor,meta:d.meta,porque:d.porque,condicion:d.condicion,freno:d.freno}))if(!read(k))S[k]=join(v);
  S.q='hola';recalc();
