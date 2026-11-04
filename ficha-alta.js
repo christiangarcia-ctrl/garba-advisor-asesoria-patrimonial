@@ -79,6 +79,7 @@
     ] }
   ];
   let values = {};
+  const documentFields = new Set();
   let current = 0;
   let key = '';
   let lastVisible = false;
@@ -111,7 +112,7 @@
   }
   function storeDraft() {
     if (!key) return;
-    const draft = Object.fromEntries(Object.entries(values).filter(([name]) => !sensitive.has(name) && fieldByKey[name]));
+    const draft = Object.fromEntries(Object.entries(values).filter(([name]) => !sensitive.has(name) && !documentFields.has(name) && fieldByKey[name]));
     try { localStorage.setItem(key, JSON.stringify(draft)); } catch (_) {}
   }
   function from(id) { return $(id) && $(''+id).value ? $(''+id).value.trim() : ''; }
@@ -323,6 +324,7 @@
       if (lienzo) lienzo.hidden = true;
     }
     root.hidden = false;
+    window.GaFichaDocs?.mount(root);
     document.body.classList.add('ga-lienzo');
     renderNavigation();
     renderFields();
@@ -330,6 +332,7 @@
   function close() {
     if (!root) return;
     root.hidden = true;
+    window.GaFichaDocs?.clear();
     if (lastVisible && $('gaLienzo') && !window.GA_FLOW_CLASSIC) $('gaLienzo').hidden = false;
     if (!lastVisible) document.body.classList.remove('ga-lienzo');
   }
@@ -526,5 +529,17 @@
       $('faSave').disabled = false;
     }
   }
-  window.GaFicha = { open, close };
+  window.GaFicha = { open, close,
+    read: name => val(name),
+    label: name => fieldByKey[name]?.[1] || name,
+    applyDocument: patch => {
+      for (const [name, value] of Object.entries(patch)) {
+        if (!fieldByKey[name] || sensitive.has(name)) continue;
+        documentFields.add(name);
+        values[name] = String(value);
+      }
+      storeDraft();
+      renderFields();
+    }
+  };
 })();

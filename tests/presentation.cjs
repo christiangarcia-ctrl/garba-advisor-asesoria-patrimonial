@@ -17,7 +17,7 @@ const server=http.createServer((req,res)=>{
   if(!base){res.writeHead(404).end();return;}
   const file=path.resolve(base,name);
   if(!file.startsWith(path.resolve(base)+path.sep)){res.writeHead(403).end();return;}
-  const type={'.html':'text/html','.css':'text/css','.js':'text/javascript','.jpg':'image/jpeg','.png':'image/png'}[path.extname(file)]||'application/octet-stream';
+  const type={'.html':'text/html','.css':'text/css','.js':'text/javascript','.mjs':'text/javascript','.wasm':'application/wasm','.gz':'application/gzip','.jpg':'image/jpeg','.png':'image/png'}[path.extname(file)]||'application/octet-stream';
   try{const bytes=fs.readFileSync(file);res.writeHead(200,{'Content-Type':type});res.end(bytes)}catch{if(!res.headersSent)res.writeHead(404);res.end()}
 });
 const wait=ms=>new Promise(resolve=>setTimeout(resolve,ms));
@@ -257,6 +257,7 @@ async function main(){
 
     await require('./lienzo-checks.cjs')({make,load,origin,output,wait});
     await require('./ficha-checks.cjs')({make,load,origin,output,wait});
+    await require('./ficha-docs-checks.cjs')({make,load,origin,output,wait});
     const profile=await make();await profile.setViewportSize({width:390,height:844});await load(profile,origin+'/asesor/',false);
     assert(await profile.locator('h1').innerText()==='Christian Iván García Barragán');
     assert(await profile.evaluate(()=>document.documentElement.scrollWidth<=window.innerWidth));

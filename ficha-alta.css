@@ -44,3 +44,15 @@
 #gaFicha .fa-footer #faLegacy,#gaFicha .fa-footer #faFolder{border:0;text-decoration:underline;color:var(--fa-muted);font-size:11px}
 #gaFicha .fa-footer small{font-size:11px;color:var(--fa-muted);max-width:280px}
 @media(max-width:800px){#gaFicha .fa-header{gap:8px;padding:10px;flex-wrap:wrap}#gaFicha .fa-header h1{font-size:16px}#gaFicha .fa-progress{min-width:95px}#gaFicha .fa-body{padding:8px;gap:7px;grid-template-columns:130px minmax(0,1fr)}#gaFicha #faNavigation button{padding:9px 6px;font-size:10px;flex-wrap:wrap}#gaFicha .fa-form{padding:13px 10px}#gaFicha .fa-form h2{font-size:16px}#gaFicha .fa-fields{grid-template-columns:1fr}#gaFicha .fa-footer{padding:8px;flex-wrap:wrap;gap:5px}#gaFicha .fa-footer button{padding:8px;font-size:11px}}
+#gaFicha .fa-form{grid-template-rows:auto auto minmax(0,1fr) auto}
+#gaFicha .fd-area{border-bottom:1px solid var(--fa-border);padding-bottom:8px;font-size:12px;min-height:0;max-height:38vh;overflow:auto}
+#gaFicha .fd-area>small{display:block;color:var(--fa-muted);margin-bottom:6px}
+#gaFicha .fd-area summary{cursor:pointer;font-weight:700;color:var(--fa-navy)}
+#gaFicha .fd-zones{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+#gaFicha .fd-zones>div{flex:1;min-width:150px;border:1px dashed var(--fa-border);padding:7px;border-radius:8px}
+#gaFicha .fd-area button{border:1px solid var(--fa-border);border-radius:8px;background:#eff6ff;padding:8px;color:var(--fa-navy)}
+#gaFicha .fd-area p{overflow-wrap:anywhere;margin:5px 0}
+#gaFicha .fd-results label{display:flex;align-items:flex-start;gap:8px;margin:8px 0;overflow-wrap:anywhere}
+#gaFicha .fd-results input{flex-shrink:0}
+#gaFicha .fd-results h3,#gaFicha .fd-results h4{margin:10px 0}
+#gaFicha .fd-results button{background:#001868;color:#fff;border:0;border-radius:12px;padding:10px 18px;font:700 15px Montserrat,sans-serif;cursor:pointer;margin-top:6px}
