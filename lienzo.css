@@ -34,3 +34,4 @@ body.ga-lienzo #gaRecentDialog[open]{display:block!important}
 #gaLienzo .hero .moments strong{font-size:18px;font-weight:800;line-height:1.15}
 #gaLienzo .hero .moments i{font-style:normal;font-size:11px;opacity:.7}
 @media(max-width:760px){#gaLienzo .headrow{grid-template-columns:minmax(0,1fr)}#gaLienzo .hero .moments strong{font-size:14px}}
+#gaLienzo .side .hist:has(+h2){max-height:150px;overflow:auto;flex-shrink:0}
