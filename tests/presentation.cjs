@@ -256,6 +256,7 @@ async function main(){
     await identified.close();
 
     await require('./lienzo-checks.cjs')({make,load,origin,output,wait});
+    await require('./ficha-checks.cjs')({make,load,origin,output,wait});
     const profile=await make();await profile.setViewportSize({width:390,height:844});await load(profile,origin+'/asesor/',false);
     assert(await profile.locator('h1').innerText()==='Christian Iván García Barragán');
     assert(await profile.evaluate(()=>document.documentElement.scrollWidth<=window.innerWidth));

@@ -40,7 +40,7 @@ module.exports=async function round4({make,load,origin,output,wait}){
  await p.locator('#gaOpeningDate').fill('2026-11-05');await p.locator('#gaOpeningTime').fill('18:00');
  assert.equal(await p.locator('#gaOpeningDate').count(),1,'The original input is moved, not cloned');
  await p.locator('#gaLienzo .link[data-dec]').click();await p.locator('[data-dec="hoy"]').click();assert.equal(await p.evaluate(()=>GaShell.postCalcChecks.decision),'today');
- await p.locator('#decisionFields > .go').click();assert(await p.locator('#gaPreopenView').isVisible(),'Today opens original preopening');
+ await p.locator('#decisionFields > .go').click();assert(await p.locator('#gaFicha').isVisible(),'Today opens the new registration sheet');await p.locator('#faLegacy').click();assert(await p.locator('#gaPreopenView').isVisible(),'Legacy preopening remains available');
  await p.close();
  const identified=await make();await identified.setViewportSize({width:1440,height:780});await load(identified,origin,false);
  await identified.evaluate(()=>{window.garbaIdentified=true;window.__gaKnown={nom:'Laura',edad:36,edadR:65,des:30000,ahorro:3500,ingreso:45000,reg:'NOM',dolor:['Sé que mi AFORE probablemente no será suficiente.'],meta:['Mantener mi nivel de vida cuando deje de trabajar.'],porque:['No quiero depender económicamente de mis hijos o familiares.'],condicion:['Mantener flexibilidad y acceso al dinero cuando sea necesario'],freno:['Me preocupaba comprometerme con algo poco flexible']};window.GarbaAccess={call:async()=>({revision:1})};GaV2.boot()});await wait(400);

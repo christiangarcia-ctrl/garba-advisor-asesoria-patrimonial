@@ -306,7 +306,7 @@ function mountOriginals(){
    for(const [id,label] of [['gaPhone','Teléfono'],['gaEmail','Correo'],['gaProfession','Profesión'],['gaCivil','Estado civil'],['gaDecision','Quién decide']])if(!original(id)?.value)move(id,target,label);
    if(S.dec==='agendar'){move('gaOpeningDate',target,'Día');move('gaOpeningTime',target,'Hora')}
   }
-  const go=document.createElement('button');go.className='go';go.textContent=S.dec==='pensar'?'Guardar y continuar':'Continuar →';go.onclick=()=>{original('gaPostCalcContinue').click();if(original('gaPreopenView')?.style.display!=='none')suspend()};target.append(go);
+  const go=document.createElement('button');go.className='go';go.textContent=S.dec==='pensar'?'Guardar y continuar':'Continuar →';go.onclick=()=>{if(S.dec==='hoy'&&!window.GA_FLOW_CLASSIC&&window.GaFicha){window.GaFicha.open();return}original('gaPostCalcContinue').click();if(original('gaPreopenView')?.style.display!=='none')suspend()};target.append(go);
  }
  if($('responseBody')&&S.dq!=null){
   const slides=[8,5,4,8,8,11,10];if(!window.GaSupport?.render(slides[S.dq])){window.GaOpenResponse?.(slides[S.dq]);$('responseBody').textContent='';return}
@@ -327,7 +327,7 @@ function bootKnown(){
 }
 $('duda').onclick=()=>{S.duda=!S.duda;S.dq=null;render()};
 $('side').addEventListener('click',e=>{if(e.target.id==='dqb'){S.dq=null;render()}});
-const actions=[['Modo celular',()=>{root.classList.toggle('cellular');root.querySelector('.stage').classList.toggle('cellular')}],['Copiar resumen para WhatsApp',()=>navigator.clipboard?.writeText(window.GaThreeActs.summary())],['Más ajustes',()=>{suspend();window.GaPresentation?.focusInputs()}],['Ver detalle',()=>{suspend();window.GaLayout?.select('gap')}],['Abrir panel del asesor',()=>original('gaAdvisorPanelButton')?.click()],['Recursos',()=>{S.duda=true;render()}]];
+const actions=[['Iniciar captura',()=>window.GaFicha?.open()],['Modo celular',()=>{root.classList.toggle('cellular');root.querySelector('.stage').classList.toggle('cellular')}],['Copiar resumen para WhatsApp',()=>navigator.clipboard?.writeText(window.GaThreeActs.summary())],['Más ajustes',()=>{suspend();window.GaPresentation?.focusInputs()}],['Ver detalle',()=>{suspend();window.GaLayout?.select('gap')}],['Abrir panel del asesor',()=>original('gaAdvisorPanelButton')?.click()],['Recursos',()=>{S.duda=true;render()}]];
 for(const [label,fn] of actions){const b=document.createElement('button');b.textContent=label;b.onclick=()=>{$('lMenu').open=false;fn()};$('lMenuItems').append(b)}
 const returnButton=document.createElement('button');returnButton.id='gaReturnLienzo';returnButton.className='btn-light';returnButton.textContent='Volver a donde íbamos';returnButton.onclick=activate;document.querySelector('.calculator-heading')?.append(returnButton);
 original('gaFlowToggle')?.addEventListener('click',()=>{if(window.GA_FLOW_CLASSIC)suspend();else activate()});
