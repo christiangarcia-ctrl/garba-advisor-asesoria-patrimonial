@@ -34,4 +34,20 @@ function calc(o){
 }
 const api={pct,calc};
 if(typeof module!=='undefined'&&module.exports)module.exports=api;else root.GaBono=api;
+// Reporte (PDF): tarjeta aparte, siempre que el bono aplique. No altera la cifra principal ni las funciones financieras.
+if(typeof document!=='undefined'){
+  const money=v=>'$'+Math.round(v||0).toLocaleString('es-MX');
+  const paintReport=()=>{
+    const card=document.getElementById('rptBonoCard'),txt=document.getElementById('rptBonoText');if(!card||!txt||typeof reportState==='undefined')return;
+    const B=reportState.fondo65?calc({pmt:parseFloat(document.getElementById('pmt').value),years:reportState.selectedYears,edad:reportState.edad,rAcc:reportState.rAcc,infl:reportState.infl}):null;
+    card.style.display=B?'':'none';if(!B)return;
+    const MES=['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'],d=new Date();d.setMonth(d.getMonth()+B.creditMonth);
+    const extra=reportState.ingreso65&&reportState.fondo65?reportState.ingreso65*B.a65/reportState.fondo65:0;
+    txt.innerHTML='Porcentaje del plan: <strong>'+Math.round(B.pct*100)+'%</strong> de la aportación comprometida del primer año ('+money(B.annual)+') = <strong>'+money(B.inicial)+'</strong>. '
+      +'Se forma con las aportaciones del primer año, rinde aparte (inflación + 5%, tope 9% anual) y se acredita a tu fondo al terminar el plazo comprometido ('+MES[d.getMonth()]+' '+d.getFullYear()+'): unos <strong>'+money(B.acreditado)+'</strong>'
+      +(extra>0?', que al llegar a los 65 sumarían cerca de <strong>+'+money(extra)+'</strong> al mes':'')+'. Esta cifra va aparte de la proyección anterior. '
+      +'Se recibe solo si cumples tu esquema de aportaciones y el saldo promedio de la póliza es de al menos 50% de lo comprometido; un periodo de descanso de hasta 12 meses lo conserva. Estimación, no garantizada.';
+  };
+  document.addEventListener('ga:projection-updated',paintReport);
+}
 })(typeof window!=='undefined'?window:globalThis);
