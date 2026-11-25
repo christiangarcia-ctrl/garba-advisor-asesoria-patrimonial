@@ -147,22 +147,27 @@ function nextQ(){
 
 // ---------- acto 2: tu número ----------
 const CHIPS=[['Ⅱ','Pausar','¿Un mal año? Puedes pausar hasta 12 meses.'],['+','Aportar más','¿Te sobró dinero? Lo puedes meter cuando quieras.'],['↑','Subir tu aportación','¿Ganas más? Aumentas lo que aportas.'],['↓','Sacar una parte','Puedes hacer retiros parciales. Aplican condiciones.'],['⌂','Pedir prestado','Hasta 50% de tu saldo comprometido en alternativas conservadoras, sujeto a aprobación de Allianz y a las condiciones del contrato.']];
+const bonoInfo=()=>window.GaBono&&D?window.GaBono.calc({pmt:S.pmt,years:S.years,edad:S.edad,rAcc:reportState.rAcc,infl:reportState.infl}):null;
 function stepsFor(){
   if(!D)return[];
+  const B=bonoInfo();
   const TOTAL=(65-S.edad)*12,END=Math.min(S.years*12,TOTAL),M60=(60-S.edad)*12;
   const s=[
    {k:'Empiezas',sm:dateAt(0)+' · '+S.edad+' años',range:[0,6],t:'Hoy empiezas con <em>'+money(S.pmt)+'</em> al mes.',p:'Es lo único que decides hoy. Lo demás lo hace el tiempo.'},
    {k:'Tu base',sm:'Mes 1 al 18',range:[0,18],t:'Los primeros <em>18 meses</em> armas tu base.',p:'Tu constancia puede ser reconocida con un bono, sujeto a las condiciones del plan. En '+dateAt(18)+' ya se abren tus opciones.'},
-   {k:'Sube y baja',sm:'Toda la inversión',range:[0,TOTAL],wave:true,t:'Tu dinero está invertido: <em>sube y baja</em>.',p:'Cuando baja, tu misma aportación compra más. Lo que cuenta es el camino completo, no un mes.'},
    {k:'Tú decides',sm:'Desde el mes 19',range:[18,END],chips:true,t:'Después del mes 18, <em>tú decides</em>.',p:'Toca una opción:'},
   ];
+  if(B)s.push({k:'Tu bono',sm:Math.round(B.pct*100)+'% del primer año',range:[0,B.creditMonth],bono:true,t:'Tu constancia se reconoce con un <em>bono de '+money(B.inicial)+'</em>.',
+    p:'Es el '+Math.round(B.pct*100)+'% de lo que aportas el primer año ('+money(B.annual)+'). Crece aparte y, al terminar tu plazo en '+dateAt(B.creditMonth)+', llegan a tu fondo unos <b>'+money(B.acreditado)+'</b>. Para conservarlo: cumple tus aportaciones y evita retiros fuertes; si necesitas pausar, el periodo de descanso de hasta 12 meses lo respeta.',
+    fine:'Sujeto a las condiciones del plan: esquema de aportaciones cumplido y saldo promedio de al menos 50% de lo comprometido. Estimación, no garantizada.'});
+  s.push({k:'Sube y baja',sm:'Toda la inversión',range:[0,TOTAL],wave:true,t:'Tu dinero está invertido: <em>sube y baja</em>.',p:'Cuando baja, tu misma aportación compra más. Lo que cuenta es el camino completo, no un mes.'});
   if(S.reg==='151')s.push({k:'Te devuelven',sm:'Cada año, al declarar',range:[0,END],refund:true,t:'Cada año te <em class="g">devuelven impuestos</em>.',
     p:S.reinv?'Unos <b>'+money(D.dev1)+'</b> el primer año. Como los vuelves a meter al plan, <b>'+mill(D.impacto65)+'</b> de lo que juntas a los 65 vienen de ahí.':'Unos <b>'+money(D.dev1)+'</b> el primer año, para ti. Si los metes al plan, tu retiro crece todavía más.',
     ing:true,fine:'Deducción sujeta a límites y requisitos fiscales; depende de tu situación como contribuyente.'});
   else if(S.reg==='93')s.push({k:'Desde los 60',sm:dateAt(M60)+' · 60 años',range:[M60-4,M60+4],at60:true,t:'Desde los 60 ya puedes <em>empezar a recibir</em>.',
     p:'Unos <b>'+money(calcMensual(D.fondo60))+'</b> al mes. Puede salir libre de impuestos si llevas 5 años en el plan.',fine:'El beneficio depende de la modalidad, los requisitos aplicables y la legislación vigente.'});
   s.push({k:'Tu retiro',sm:dateAt(TOTAL)+' · 65 años',range:[END,TOTAL],end:true,t:'A los 65 recibes <em>'+money(calcMensual(D.fondo65))+'</em> al mes.',
-    p:(S.edad+S.years<65?'Dejas de aportar a los '+(S.edad+S.years)+' y tu dinero sigue creciendo hasta los 65: juntas <b>':'Aportas hasta los 65 y juntas <b>')+mill(D.fondo65)+'</b>.',fine:'Es una estimación. El dinero de '+(START.getFullYear()+65-S.edad)+' no vale lo mismo que el de hoy.'});
+    p:(S.edad+S.years<65?'Dejas de aportar a los '+(S.edad+S.years)+' y tu dinero sigue creciendo hasta los 65: juntas <b>':'Aportas hasta los 65 y juntas <b>')+mill(D.fondo65)+'</b>.'+(B?' Si cumples las condiciones del bono, a eso se suma <b>+'+money(calcMensual(D.fondo65)*B.a65/D.fondo65)+'</b> al mes.':''),fine:'Es una estimación. El dinero de '+(START.getFullYear()+65-S.edad)+' no vale lo mismo que el de hoy.'});
   return s;
 }
 function numSide(){
@@ -220,7 +225,7 @@ function renderCanvas(){
     if(fin<65&&!cells.some(c=>c[0]===fin))cells.push([fin,'Terminas de aportar',D.fondoPlan]);
     if(fin>65&&S.reg!=='151'){const i=(parseFloat(original('rate')?.value)||0)/100/12;cells.push([fin,'Termina tu plan',D.fondo65*Math.pow(1+i,12*(fin-65))])} // mismo crecimiento mensual sin aportaciones que usa calcAccum
     cells.sort((x,y)=>x[0]-y[0]);
-    he.innerHTML='<small>A los 65 recibes</small><b>'+money(calcMensual(D.fondo65))+'</b><span>al mes · estimado</span><div class="moments">'+cells.map(([a,l,v])=>'<div><em>'+l+'</em><strong>'+mill(v)+'</strong><i>'+a+' años · '+yearAt(a)+'</i></div>').join('')+'</div>'}
+    he.innerHTML='<small>A los 65 recibes</small><b>'+money(calcMensual(D.fondo65))+'</b><span>al mes · estimado</span><div class="moments">'+cells.map(([a,l,v])=>'<div><em>'+l+'</em><strong>'+mill(v)+'</strong><i>'+a+' años · '+yearAt(a)+'</i></div>').join('')+'</div>'+(bonoInfo()?'<div class="bonus"><em>Bono de Fidelidad</em><strong>'+money(bonoInfo().acreditado)+'</strong><i>al terminar tu plazo · si cumples las condiciones del plan</i></div>':'')}
   else{he.className='hero empty';he.innerHTML='<small>A los 65 recibes</small><b>'+(S.metaHoy?'Tu meta: '+money(S.metaHoy)+' al mes':'Tu cifra aparece aquí')+'</b><span>'+(D?'al ver tu número':S.edad?'en cuanto sepamos cuánto puedes apartar':'')+'</span>'}
   // pasos (solo en el acto 2)
   const sp=$('steps'),St=S.act===2&&!S.duda?stepsFor():[];
@@ -240,8 +245,8 @@ function curve(){
  const pts=Array.from({length:TOTAL+1},(_,m)=>{const pos=m/12,k=Math.min(source.length-2,Math.floor(pos));return source[k]+(source[k+1]-source[k])*(pos-k)});
  pts[END]=D.fondoPlan;pts[TOTAL]=D.fondo65;return pts;
 }
-function wave(pts){return pts.map((v,m)=>{const t=m/TOTAL,env=Math.sin(Math.PI*t)**.8,n=.55*Math.sin(m/11+.4)+.32*Math.sin(m/4.7+1.3)+.22*Math.sin(m/27+2.1)+.12*Math.sin(m/2.3);
-  const c=Math.round(END*.62),dd=m>c-14&&m<c+16?-.13*Math.sin(Math.PI*(m-(c-14))/30):0;return m===TOTAL?v:Math.max(0,v*(1+.13*env*n+dd))})}
+function wave(pts){return pts.map((v,m)=>{const t=m/TOTAL,env=Math.sin(Math.PI*t)**.7,n=.62*Math.sin(m/9.5+.4)+.42*Math.sin(m/16+1.9)+.2*Math.sin(m/5.5+.8);
+  const c=Math.round(END*.62),dd=m>c-16&&m<c+20?-.2*Math.sin(Math.PI*(m-(c-16))/36):0;return m===TOTAL?v:Math.max(0,v*(1+dd)+.32*env*n*(v+.16*pts[TOTAL]*Math.sin(Math.PI*t)))})} // ciclos amplios y lentos, valle claro a media vida
 function callout(x,y,t,s,side,color){const w=Math.max(t.length*8.6,s.length*6.9)+26,h=50;let rx=side==='left'?x-w:side==='right'?x:x-w/2,ry=y-h;rx=Math.max(PL,Math.min(W-PR-w,rx));ry=Math.max(4,ry);const c=color||'#001868';
   return '<g class="callout"><rect x="'+rx+'" y="'+ry+'" width="'+w+'" height="'+h+'" rx="10" style="stroke:'+c+'"/><text x="'+(rx+13)+'" y="'+(ry+21)+'" style="fill:'+c+'">'+t+'</text><text class="s" x="'+(rx+13)+'" y="'+(ry+39)+'">'+s+'</text></g>'}
 function drawChart(){
@@ -271,7 +276,7 @@ function drawChart(){
   const area=a=>path(a)+'L'+X(TOTAL)+' '+base+'L'+X(0)+' '+base+'Z';
   const anim=!S.drawnOnce;S.drawnOnce=true;
   if(cur&&cur.range[1]===18)g+='<rect x="'+X(0)+'" y="'+PT+'" width="'+(X(18)-X(0))+'" height="'+(base-PT)+'" fill="#0830E8" opacity=".10"/>';
-  if(cur&&cur.wave){$('legend').innerHTML='<span><i class="d"></i>Lo que estimamos</span><span><i></i>Cómo se mueve de verdad</span>';
+  if(cur&&cur.wave){$('legend').innerHTML='<span><i class="d"></i>Lo que estimamos</span><span><i></i>Ejemplo de cómo se mueve</span>';
     g+='<path d="'+area(wv)+'" fill="url(#lzAr)"/><path d="'+path(pts)+'" fill="none" stroke="#7d93d6" stroke-width="2.5" stroke-dasharray="7 6"/><path d="'+path(wv)+'" fill="none" stroke="#001868" stroke-width="3.5" stroke-linejoin="round"/>';
     let best=-1,bv=0;for(let m=Math.round(END*.5);m<END-20;m++){const r=wv[m]/pts[m];if(best<0||r<bv){bv=r;best=m}}
     if(best>0){const vx=X(best),vy=Y(wv[best]);g+='<circle cx="'+vx+'" cy="'+vy+'" r="7" fill="#0f8a5f" stroke="#fff" stroke-width="3"/><line x1="'+vx+'" x2="'+vx+'" y1="'+(vy-12)+'" y2="'+(vy-44)+'" stroke="#0f8a5f" stroke-width="1.5"/>'+callout(vx,vy-44,'Aquí baja: tu aportación compra más','la misma cantidad, más unidades','center','#0f8a5f')}
@@ -285,6 +290,10 @@ function drawChart(){
   if(cur&&cur.range[1]===6)g+=dot(0)+callout(X(0)+14,Y(0)-18,'Hoy: '+money(S.pmt)+' al mes',dateAt(0),'right');
   if(cur&&cur.range[1]===18)g+=dot(18)+callout(X(18)+14,Y(pts[18])-20,'Mes 18: tu base está lista',dateAt(18)+' · se abren tus opciones','right');
   if(cur&&cur.chips)g+=dot(18)+dot(END)+callout(X(END)-14,Y(pts[END])-18,'Terminas de aportar',dateAt(END)+' · llevas '+mill(D.fondoPlan),'left');
+  if(cur&&cur.bono){const B=bonoInfo();if(B){const cm=B.creditMonth;
+    g+='<rect x="'+X(0)+'" y="'+PT+'" width="'+(X(12)-X(0))+'" height="'+(base-PT)+'" fill="#0f8a5f" opacity=".14"/>';
+    g+='<line x1="'+X(12)+'" x2="'+X(cm)+'" y1="'+(base-14)+'" y2="'+(base-14)+'" stroke="#0f8a5f" stroke-width="2.5" stroke-dasharray="3 6" stroke-linecap="round"/>';
+    g+=dot(cm,'#0f8a5f')+callout(X(12)+8,Y(pts[12])-22,'Se forma el primer año',money(B.inicial)+' · '+Math.round(B.pct*100)+'% de '+money(B.annual),'right','#0f8a5f')+callout(X(cm)-14,Y(pts[cm])-18,'Bono: +'+money(B.acreditado),'se acredita en '+dateAt(cm)+' · si cumples las condiciones','left','#0f8a5f')}}
   if(cur&&cur.refund){for(let y=1;y<=S.years;y++){const m=y*12-6;g+='<circle cx="'+X(m)+'" cy="'+Y(pts[m])+'" r="5.5" fill="#0f8a5f" stroke="#fff" stroke-width="2"/>'}
     g+=callout(X(30)+8,Y(pts[30])-22,'+'+money(D.dev1)+' de vuelta','el primer año · cada punto es un año','right','#0f8a5f')}
   if(cur&&cur.at60){const M60=(60-age)*12;g+='<line x1="'+X(M60)+'" x2="'+X(M60)+'" y1="'+Y(pts[M60])+'" y2="'+base+'" stroke="#0830E8" stroke-dasharray="4 4"/>'+dot(M60)+callout(X(M60)-14,Y(pts[M60])-18,money(calcMensual(D.fondo60))+' al mes','desde los 60 · Art. 93','left')}

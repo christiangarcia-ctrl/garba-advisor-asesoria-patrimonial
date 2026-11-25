@@ -40,3 +40,7 @@ ADVISOR_BASELINE=/ruta/export-main ADVISOR_ROUND2_BEFORE=/ruta/export-415b4d4 AD
 El artifact incluye pares `round2-before-*` / `round2-after-*` para proyección, móvil, seguimiento, Biblioteca, meta/brecha y panel privado. Se verifica que las cifras del fixture antes/después sean idénticas. `*-mobile-shared-390.png` reduce una captura real de 1440×900 a 390 px; la legibilidad requiere inspección humana. La nueva tarjeta móvil ocupa una página adicional (cinco páginas en total). Antes corresponde al modo móvil de la base, que carecía de esa tarjeta.
 
 Cobertura nueva: escala y extremo de onda, fechas/edades para dos edades, cinco toggles sin navegación, ausencia visible de costo de esperar, tarjeta móvil, persistencia/resumen/PDF de seguimiento, avisos privados a los doce minutos con reloj simulado y señal de trámite. Revisar también la navegación real desde el botón privado a la apertura y fallback localStorage entre ventanas.
+
+## Bono de Fidelidad (2026-11-24)
+
+`node tests/bono-checks.cjs` (sin navegador): tabla de porcentajes del folleto, caso $3,500 al mes a 20 años (65 % de $42,000 = $27,300), rendimiento con tope de 9 % y acreditación al terminar el plazo. El bono se muestra aparte (paso "Tu bono" y línea en la tarjeta); no se suma a la cifra principal.
